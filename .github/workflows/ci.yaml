@@ -1,4 +1,4 @@
-name: Python Code Quality
+name: CI
 on: [push]
 jobs:
   lock_file:
