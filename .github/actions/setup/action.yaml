@@ -6,4 +6,4 @@ runs:
     - name: install uv
       uses: astral-sh/setup-uv@v4
       with:
-        version: "0.4.4"
+        version: "0.4.19"
