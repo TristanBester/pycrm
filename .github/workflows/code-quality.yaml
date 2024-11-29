@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup/install
+      - uses: ./.github/actions/setup
       - run: uv lock --locked
   linting:
     # Lint codebase using ruff
@@ -14,7 +14,7 @@ jobs:
     needs: [lock_file]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup/install
+      - uses: ./.github/actions/setup
       - run: uvx ruff check .
   formatting:
     # Format codebase using ruff
@@ -22,7 +22,7 @@ jobs:
     needs: [lock_file]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup/install
+      - uses: ./.github/actions/setup
       - run: uvx ruff format --check .
   type_checking:
     # Type check codebase using pyright
@@ -30,7 +30,7 @@ jobs:
     needs: [lock_file]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup/install
+      - uses: ./.github/actions/setup
       - run: uv run pyright
   tests:
     # Run test suite using pytest
@@ -38,7 +38,7 @@ jobs:
     needs: [lock_file]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup/install
+      - uses: ./.github/actions/setup
       - run: uv run -pytest -vv --cov --cov-report=xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -50,5 +50,5 @@ jobs:
     needs: [linting, formatting, type_checking, tests]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup/install
+      - uses: ./.github/actions/setup
       - run: uv build
