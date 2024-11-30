@@ -12,3 +12,6 @@ wheels/
 # Coverate
 .coverage
 coverage.xml
+
+# Tox 
+.tox
