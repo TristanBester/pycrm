@@ -8,8 +8,8 @@ def compile_transition_expression(expression: str, env_props: EnumMeta) -> Calla
     """Compile a transition expression into a callable.
 
     Args:
-        expression: The transition expression to compile.
-        env_props: The environment property enum.
+        expression (str): The transition expression to compile.
+        env_props (EnumMeta): The environment property enum.
 
     Returns:
         A callable transition formula.

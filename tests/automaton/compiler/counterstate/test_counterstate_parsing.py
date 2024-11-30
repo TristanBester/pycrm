@@ -77,7 +77,7 @@ def invalid_expressions() -> list[dict[str, str]]:
 
 
 class TestCounterStateParsing:
-    """Tests for the counter state parsing function."""
+    """Test counter state parsing."""
 
     @pytest.mark.parametrize(
         "test_case",

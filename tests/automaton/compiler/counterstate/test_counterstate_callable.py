@@ -134,3 +134,10 @@ class TestCounterStateCallableConstruction:
             strict=True,
         ):
             assert counter_state_callable(test_value) is expected_outcome
+
+    def test_counter_state_callable_invalid_counter_states(self) -> None:
+        """Test that invalid counter states raise an error."""
+        with pytest.raises(ValueError) as exc_info:
+            _construct_counter_state_callable("(X, Z)")
+
+        assert "Invalid counter expression" in str(exc_info.value)
