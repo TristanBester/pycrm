@@ -19,3 +19,9 @@ dev-dependencies = [
  "pytest>=8.3.3",
  "ruff>=0.8.1",
 ]
+
+[tool.pyright]
+exclude = [".venv"]
+pythonVersion = "3.10"
+venvPath = "."
+venv = ".venv"
