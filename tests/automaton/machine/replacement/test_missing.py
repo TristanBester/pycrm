@@ -62,7 +62,7 @@ class CRM(CountingRewardMachine):
         """Return the possible counter configurations."""
         return [(0,), (1,)]
 
-    def _sample_counter_configurations(self) -> list[tuple[int]]:
+    def sample_counter_configurations(self) -> list[tuple[int]]:
         """Return a sample counter configuration."""
         return [(0,)]
 

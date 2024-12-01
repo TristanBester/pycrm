@@ -54,7 +54,7 @@ class CountingRewardMachine(ABC):
         """Return the reward transition function."""
 
     @abstractmethod
-    def _sample_counter_configurations(self) -> list[tuple[int]]:
+    def sample_counter_configurations(self) -> list[tuple[int]]:
         """Return counter configurations for counterfactual experience generation."""
 
     def encode_machine_state(self, u: int) -> np.ndarray:
@@ -64,19 +64,19 @@ class CountingRewardMachine(ABC):
         return u_enc
 
     def encode_counter_configuration(
-        self, c: tuple[int], scale: float = 1
+        self, c: tuple[int, ...], scale: float = 1
     ) -> np.ndarray:
         """Encode the counters as an array and rescale."""
         c_vec = np.array(c) / scale
         return c_vec
 
-    def encode_counter_state(self, c: tuple[int]) -> np.ndarray:
+    def encode_counter_state(self, c: tuple[int, ...]) -> np.ndarray:
         """Encode the counter configuration as a one-hot vector."""
         c_enc = np.array([1 if c_i > 0 else 0 for c_i in c])
         return c_enc
 
     def transition(
-        self, u: int, c: tuple[int], props: set[Enum]
+        self, u: int, c: tuple[int, ...], props: set[Enum]
     ) -> tuple[int, tuple[int], Callable]:
         """Return the next state, counter configuration and reward function.
 

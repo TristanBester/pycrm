@@ -2,12 +2,11 @@ from abc import ABC
 from enum import Enum
 from typing import Any, Callable, Generic, TypeVar
 
-import numpy as np
-
 ObsType = TypeVar("ObsType")
+ActType = TypeVar("ActType")
 
 
-class LabellingFunction(ABC, Generic[ObsType]):
+class LabellingFunction(ABC, Generic[ObsType, ActType]):
     """Base class for labelling functions.
 
     Labelling functions are mappings from environmental observations, to
@@ -23,8 +22,8 @@ class LabellingFunction(ABC, Generic[ObsType]):
 
     @staticmethod
     def event(
-        func: Callable[[Any, ObsType, np.ndarray, ObsType], Enum | None],
-    ) -> Callable[[Any, ObsType, np.ndarray, ObsType], Enum | None]:
+        func: Callable[[Any, ObsType, ActType, ObsType], Enum | None],
+    ) -> Callable[[Any, ObsType, ActType, ObsType], Enum | None]:
         """Register an event test."""
 
         def wrapper(self, *args, **kwargs) -> Enum | None:
@@ -34,9 +33,7 @@ class LabellingFunction(ABC, Generic[ObsType]):
         setattr(wrapper, "_is_event_method", True)
         return wrapper
 
-    def __call__(
-        self, obs: ObsType, action: np.ndarray, next_obs: ObsType
-    ) -> set[Enum]:
+    def __call__(self, obs: ObsType, action: ActType, next_obs: ObsType) -> set[Enum]:
         """Return set of high-level events taking place."""
         events = set()
 

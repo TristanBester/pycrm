@@ -7,7 +7,7 @@ from crm.label import LabellingFunction
 from tests.conftest import EnvProps
 
 
-class AllEventsLabellingFunction(LabellingFunction[np.ndarray]):
+class AllEventsLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
     """Labelling function that returns all events."""
 
     @LabellingFunction.event
@@ -25,7 +25,7 @@ class AllEventsLabellingFunction(LabellingFunction[np.ndarray]):
         return EnvProps.EVENT_B
 
 
-class NoEventsLabellingFunction(LabellingFunction[np.ndarray]):
+class NoEventsLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
     """Labelling function that returns no events."""
 
     @LabellingFunction.event
@@ -43,7 +43,7 @@ class NoEventsLabellingFunction(LabellingFunction[np.ndarray]):
         return None
 
 
-class OneEventLabellingFunction(LabellingFunction[np.ndarray]):
+class OneEventLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
     """Labelling function that returns one event."""
 
     @LabellingFunction.event
