@@ -11,6 +11,16 @@ class CRM(CountingRewardMachine):
         """Initialise the counting reward machine."""
         super().__init__(env_prop_enum=EnvProps)
 
+    @property
+    def u_0(self) -> int:
+        """Return the initial state of the machine."""
+        return 0
+
+    @property
+    def c_0(self) -> tuple[int, ...]:
+        """Return the initial counter configuration of the machine."""
+        return (0,)
+
     def _get_state_transition_function(self) -> dict:
         """Return the state transition function."""
         return {
@@ -65,16 +75,6 @@ class CRM(CountingRewardMachine):
     def sample_counter_configurations(self) -> list[tuple[int]]:
         """Return a sample counter configuration."""
         return [(0,)]
-
-    @property
-    def u_0(self) -> int:
-        """Return the initial state of the machine."""
-        return 0
-
-    @property
-    def c_0(self) -> tuple[int, ...]:
-        """Return the initial counter configuration of the machine."""
-        return (0,)
 
 
 class CCRM(CRM):

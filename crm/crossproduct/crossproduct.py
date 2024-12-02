@@ -20,7 +20,7 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         self,
         ground_env: gym.Env,
         crm: CountingRewardMachine,
-        lf: LabellingFunction[ObsType, ActType],
+        lf: LabellingFunction[GroundObsType, ActType],
         max_steps: int,
     ) -> None:
         """Initialize the cross product Markov decision process environment."""
@@ -44,10 +44,11 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         self.steps = 0
         self._u = self.crm.u_0
         self._c = self.crm.c_0
-        ground_obs, _ = self.ground_env.reset()
+        self._ground_obs, _ = self.ground_env.reset()
+        self._ground_obs_next = self._ground_obs
 
         return (
-            self._get_obs(ground_obs, self._u, self._c),
+            self._get_obs(self._ground_obs, self._u, self._c),
             {},
         )
 
@@ -66,7 +67,7 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         truncated = self.steps >= self.max_steps
 
         return (
-            self._get_obs(self._ground_obs, self._u, self._c),
+            self._get_obs(self._ground_obs_next, self._u, self._c),
             reward,
             terminated,
             truncated,
@@ -77,7 +78,9 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         """Render the cross product environment."""
         return self.ground_env.render()
 
-    def generate_counterfactual_experience(self, ground_obs, action, next_ground_obs):
+    def generate_counterfactual_experience(
+        self, ground_obs: GroundObsType, action: ActType, next_ground_obs: GroundObsType
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Generate counterfactual experiences."""
         (
             obs_buffer,
@@ -88,11 +91,13 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
             info_buffer,
         ) = ([] for _ in range(6))
 
+        props = self.lf(ground_obs, action, next_ground_obs)
+
         for u_i in self.crm.U:
             for c_i in self.crm.sample_counter_configurations():
                 # try:
                 # TODO: Crash this so we can see what the exception should be
-                u_j, c_j, rf_j = self.crm.transition(u_i, c_i, self._props)  # type: ignore
+                u_j, c_j, rf_j = self.crm.transition(u_i, c_i, props)  # type: ignore
                 # except:
                 #     continue
 
@@ -104,6 +109,7 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
                 reward_buffer.append(r_j)
                 done_buffer.append(u_j in self.crm.F)
                 info_buffer.append({})
+
         return (
             np.array(obs_buffer),
             np.array(action_buffer),
