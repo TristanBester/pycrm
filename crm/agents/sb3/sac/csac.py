@@ -140,7 +140,6 @@ class CounterfactualSAC(SAC):
             None
         """
         # Switch to eval mode (this affects batch norm / dropout)
-        # FIXME: This should be a DispatchSubprocVecEnv
         assert isinstance(env, VecEnv), "You must pass a VecEnv"
         assert train_freq.frequency > 0, "Should at least collect one step or episode."
         if env.num_envs > 1:
@@ -223,7 +222,7 @@ class CounterfactualSAC(SAC):
             continue_training,
         )
 
-    # FIXME: Not sure if this function signature makes sense.
+    # TODO: Not sure if this function signature makes sense.
     def _store_counterfactual_transitions(
         self,
         replay_buffer: ReplayBuffer,
