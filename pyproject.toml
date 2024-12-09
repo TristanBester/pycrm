@@ -10,6 +10,11 @@ dependencies = [
     "stable-baselines3>=2.3.2",
 ]
 
+[project.optional-dependencies]
+experiments = [
+    "panda-gym>=3.0.7",
+]
+
 [build-system]
 build-backend = "hatchling.build"
 requires = ["hatchling"]
