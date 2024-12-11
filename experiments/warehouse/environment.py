@@ -24,6 +24,9 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
         render_yaw: float = 90,
         render_pitch: float = -15,
         render_roll: float = 0,
+        scene: str = "basic",
+        show_waypoints: bool = False,
+        show_regions: bool = False,
     ) -> None:
         """Initialise the order packing warehouse environment."""
         # Initialise the simulation
@@ -35,14 +38,19 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
 
         # Initialise the robot
         robot = PackingPanda(
-            sim,
+            sim=sim,
             block_gripper=False,
             base_position=ce.ROBOT_BASE_POSITION,
             control_type=control_type,
         )
 
         # Initialise the task
-        task = PackCustomerOrder(sim, show_waypoints=True, show_regions=True)
+        task = PackCustomerOrder(
+            sim=sim,
+            scene=scene,
+            show_waypoints=show_waypoints,
+            show_regions=show_regions,
+        )
 
         # Initialise the environment
         super().__init__(

@@ -6,7 +6,9 @@ from experiments.warehouse.wrapper import EEStateWrapper
 if __name__ == "__main__":
     import time
 
-    env = PackCustomerOrderEnvironment(render_mode="human", control_type="ee")
+    env = PackCustomerOrderEnvironment(
+        render_mode="human", control_type="ee", scene="fancy"
+    )
     env = EEStateWrapper(env)
 
     obs, _ = env.reset()
