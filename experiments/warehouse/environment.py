@@ -4,6 +4,7 @@ import numpy as np
 from panda_gym.envs.core import RobotTaskEnv
 from panda_gym.pybullet import PyBullet
 
+import experiments.warehouse.constants.environment as ce
 from experiments.warehouse.robot import PackingPanda
 from experiments.warehouse.task import PackCustomerOrder
 
@@ -11,7 +12,6 @@ from experiments.warehouse.task import PackCustomerOrder
 class PackCustomerOrderEnvironment(RobotTaskEnv):
     """Order packing warehouse environment."""
 
-    # TODO: Make sure everything still works when using velocity control
     def __init__(
         self,
         render_mode: str = "rgb_array",
@@ -30,16 +30,14 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
         sim = PyBullet(
             render_mode=render_mode,
             renderer=renderer,
-            # FIXME: This should be in constants
-            background_color=np.array([0, 0, 0]),
+            background_color=ce.BACKGROUND_COLOR,
         )
 
         # Initialise the robot
         robot = PackingPanda(
             sim,
             block_gripper=False,
-            # FIXME: This position should be in constants
-            base_position=np.array([-0.1, 0.0, 0.0]),
+            base_position=ce.ROBOT_BASE_POSITION,
             control_type=control_type,
         )
 

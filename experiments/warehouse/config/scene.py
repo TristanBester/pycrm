@@ -1,5 +1,6 @@
 import numpy as np
 
+import experiments.warehouse.constants.environment as ce
 import experiments.warehouse.constants.regions as cr
 import experiments.warehouse.constants.simulation as cs
 import experiments.warehouse.constants.waypoints as cw
@@ -34,7 +35,7 @@ def get_region_configs() -> list[tuple[str, np.ndarray, list[np.ndarray], np.nda
                 cr.SAFE_REGION_GREEN_COM,
                 cr.SAFE_REGION_BLUE_COM,
             ],
-            np.array([1, 0, 1, 0.2]),
+            ce.SAFE_REGION_COLOR,
         ),
         (
             "tight_region",
@@ -44,7 +45,7 @@ def get_region_configs() -> list[tuple[str, np.ndarray, list[np.ndarray], np.nda
                 cr.TIGHT_REGION_GREEN_COM,
                 cr.TIGHT_REGION_BLUE_COM,
             ],
-            np.array([1, 1, 0, 0.2]),
+            ce.TIGHT_REGION_COLOR,
         ),
         (
             "release_region",
@@ -54,6 +55,6 @@ def get_region_configs() -> list[tuple[str, np.ndarray, list[np.ndarray], np.nda
                 cr.RELEASE_REGION_GREEN_COM,
                 cr.RELEASE_REGION_BLUE_COM,
             ],
-            np.array([1, 0, 1, 0.2]),
+            ce.RELEASE_REGION_COLOR,
         ),
     ]

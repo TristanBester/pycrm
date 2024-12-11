@@ -23,7 +23,7 @@ class PackingPanda(Panda):
 
     def set_action(self, action: np.ndarray) -> None:
         """Set the action for the packing panda robot."""
-        action = action.copy()  # ensure action don't change
+        action = action.copy()
         action = np.clip(action, self.action_space.low, self.action_space.high)  # type: ignore
         if self.control_type == "ee":
             ee_displacement = action[:3]

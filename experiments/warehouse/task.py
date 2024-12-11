@@ -1,6 +1,7 @@
 import numpy as np
 from panda_gym.envs.core import Task
 
+import experiments.warehouse.constants.environment as ce
 import experiments.warehouse.constants.simulation as cs
 from experiments.warehouse.config.scene import (
     get_cube_configs,
@@ -12,7 +13,6 @@ from experiments.warehouse.config.scene import (
 class PackCustomerOrder(Task):
     """Pack a customer order consisting of red, green and blue products."""
 
-    # FIXME: All colours and posisitions should be in constants
     def __init__(
         self,
         sim,
@@ -77,8 +77,8 @@ class PackCustomerOrder(Task):
             radius=0.01,
             mass=0.0,
             ghost=True,
-            position=np.array([0.5, 0.25, 0.1]),
-            rgba_color=np.array([1, 0, 0, 0.3]),
+            position=np.zeros(3),
+            rgba_color=ce.EE_POS_IDENTIFIER_COLOR,
         )
 
     def _setup_cubes(self) -> None:
@@ -106,7 +106,7 @@ class PackCustomerOrder(Task):
                     mass=0.0,
                     ghost=True,
                     position=position,
-                    rgba_color=np.array([1, 1, 0.0, 1.0]),
+                    rgba_color=ce.WAYPOINT_COLOR,
                 )
 
     def _setup_regions(self) -> None:
