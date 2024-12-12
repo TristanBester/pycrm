@@ -1,7 +1,10 @@
 import numpy as np
 from panda_gym.envs.core import Task
 
-from experiments.warehouse.scenes import BasicSceneManager, FancySceneManager
+from experiments.warehouse.lib.groundenv.scenes import (
+    BasicSceneManager,
+    FancySceneManager,
+)
 
 
 class PackCustomerOrder(Task):

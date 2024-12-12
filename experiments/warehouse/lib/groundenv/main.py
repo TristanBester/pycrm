@@ -2,8 +2,8 @@ import time
 
 import numpy as np
 
-from experiments.warehouse.environment import PackCustomerOrderEnvironment
-from experiments.warehouse.wrapper import EEStateWrapper
+from experiments.warehouse.lib.groundenv.environment import PackCustomerOrderEnvironment
+from experiments.warehouse.lib.groundenv.wrapper import EEStateWrapper
 
 if __name__ == "__main__":
     env = PackCustomerOrderEnvironment(

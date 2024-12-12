@@ -5,9 +5,14 @@ import numpy as np
 class EEStateWrapper(gym.ObservationWrapper):
     """Wraps the environment to return the end-effector state."""
 
-    def __init__(self, env: gym.Env[dict[str, np.ndarray], np.ndarray]):
+    def __init__(self, env: gym.Env[dict[str, np.ndarray], np.ndarray]) -> None:
         """Initialise the wrapper."""
         super().__init__(env=env)
+        self.observation_space = gym.spaces.Box(
+            low=np.array([-np.inf, -np.inf, -np.inf, -np.inf, -np.inf, -np.inf, 0]),
+            high=np.array([np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, 1]),
+        )
+        self.action_space = env.action_space
 
     def observation(self, observation: dict[str, np.ndarray]) -> np.ndarray:
         """Returns the state of the end effector as the observation.

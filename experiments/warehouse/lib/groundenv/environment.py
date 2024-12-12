@@ -4,9 +4,9 @@ import numpy as np
 from panda_gym.envs.core import RobotTaskEnv
 from panda_gym.pybullet import PyBullet
 
-import experiments.warehouse.constants.environment as ce
-from experiments.warehouse.robot import PackingPanda
-from experiments.warehouse.task import PackCustomerOrder
+import experiments.warehouse.lib.groundenv.constants.environment as ce
+from experiments.warehouse.lib.groundenv.robot import PackingPanda
+from experiments.warehouse.lib.groundenv.task import PackCustomerOrder
 
 
 class PackCustomerOrderEnvironment(RobotTaskEnv):
@@ -66,10 +66,3 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
             render_pitch=render_pitch,
             render_roll=render_roll,
         )
-
-        # sim.physics_client.resetDebugVisualizerCamera(
-        #     cameraDistance=10,
-        #     cameraYaw=90,
-        #     cameraPitch=-15,
-        #     cameraTargetPosition=np.array([0.0, 0.0, 0.0]),
-        # )

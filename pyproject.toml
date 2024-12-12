@@ -62,3 +62,8 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[dependency-groups]
+experiments = [
+    "tensorboard>=2.18.0",
+]

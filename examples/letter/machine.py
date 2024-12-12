@@ -59,17 +59,17 @@ class LetterWorldCountingRewardMachine(CountingRewardMachine):
         """Return the reward transition function."""
         return {
             0: {
-                "A / (-)": self._create_constant_reward_function(0),
-                "B / (-)": self._create_constant_reward_function(0),
-                "C / (-)": self._create_constant_reward_function(0),
-                "/ (-)": self._create_constant_reward_function(0),
+                "A / (-)": 0,
+                "B / (-)": 0,
+                "C / (-)": 0,
+                "/ (-)": 0,
             },
             1: {
-                "A / (-)": self._create_constant_reward_function(0),
-                "B / (-)": self._create_constant_reward_function(0),
-                "C / (NZ)": self._create_constant_reward_function(0),
-                "C / (Z)": self._create_constant_reward_function(1),
-                "/ (-)": self._create_constant_reward_function(0),
+                "A / (-)": 0,
+                "B / (-)": 0,
+                "C / (NZ)": 0,
+                "C / (Z)": 1,
+                "/ (-)": 0,
             },
         }
 

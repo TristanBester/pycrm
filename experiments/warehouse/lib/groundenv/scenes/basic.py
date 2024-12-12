@@ -1,11 +1,11 @@
 import numpy as np
 from panda_gym.pybullet import PyBullet
 
-import experiments.warehouse.constants.environment as ce
-import experiments.warehouse.constants.regions as cr
-import experiments.warehouse.constants.simulation as cs
-import experiments.warehouse.constants.waypoints as cw
-from experiments.warehouse.scenes.interface import SceneManager
+import experiments.warehouse.lib.groundenv.constants.environment as ce
+import experiments.warehouse.lib.groundenv.constants.regions as cr
+import experiments.warehouse.lib.groundenv.constants.simulation as cs
+import experiments.warehouse.lib.groundenv.constants.waypoints as cw
+from experiments.warehouse.lib.groundenv.scenes.interface import SceneManager
 
 
 class BasicSceneManager(SceneManager):

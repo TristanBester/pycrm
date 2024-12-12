@@ -1,6 +1,6 @@
 import numpy as np
 
-import experiments.warehouse.constants.simulation as cs
+import experiments.warehouse.lib.groundenv.constants.simulation as cs
 
 # Relative constants
 ABOVE_DELTA = np.array([0, 0, 0.1])
@@ -21,7 +21,3 @@ GRASP_BLUE = cs.BLUE_CUBE_POSITION + GRASP_DELTA
 RELEASE_GREEN = cs.GREEN_CUBE_POSITION + RELEASE_DELTA
 RELEASE_RED = cs.RED_CUBE_POSITION + RELEASE_DELTA
 RELEASE_BLUE = cs.BLUE_CUBE_POSITION + RELEASE_DELTA
-
-# Debug waypoints
-DEBUG_WAYPOINT_ONE = np.array([0.5, 0.0, 0.3])
-DEBUG_WAYPOINT_TWO = np.array([0.4, 0.0, 0.3])
