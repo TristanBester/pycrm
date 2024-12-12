@@ -1,13 +1,15 @@
+import time
+
 import numpy as np
 from panda_gym.pybullet import PyBullet
 
 import experiments.warehouse.constants.environment as ce
 import experiments.warehouse.constants.simulation as cs
 import experiments.warehouse.constants.waypoints as cw
-from experiments.warehouse.scenes.basic import BasicSceneConstructor
+from experiments.warehouse.scenes.basic import BasicSceneManager
 
 
-class FancySceneConstructor(BasicSceneConstructor):
+class FancySceneManager(BasicSceneManager):
     """Construct the full version of the warehouse scene."""
 
     def __init__(
@@ -16,12 +18,23 @@ class FancySceneConstructor(BasicSceneConstructor):
         show_ee_identifier: bool = False,
         show_waypoints: bool = False,
         show_regions: bool = False,
+        frame_delay: float = 0.1,
     ) -> None:
         """Initialise the scene constructor."""
         self.sim = sim
         self.show_ee_identifier = show_ee_identifier
         self.show_waypoints = show_waypoints
         self.show_regions = show_regions
+        self._frame_delay = frame_delay
+
+        self._red_success_count = 0
+        self._green_success_count = 0
+        self._blue_success_count = 0
+
+    @property
+    def frame_delay(self) -> float:
+        """Get the frame delay for animations in seconds."""
+        return self._frame_delay
 
     def construct(self) -> None:
         """Construct the scene."""
@@ -36,6 +49,155 @@ class FancySceneConstructor(BasicSceneConstructor):
             self._setup_waypoints()
         if self.show_regions:
             self._setup_regions()
+
+    def animate_red_block(self) -> None:
+        """Animate the red block."""
+        self._red_success_count += 1
+        self._translate_red_blocks()
+
+        if self._red_success_count == 3:
+            raise ValueError("Fancy scene only supports up to three blocks.")
+
+    def animate_green_block(self) -> None:
+        """Animate the green block."""
+        self._green_success_count += 1
+        self._translate_green_blocks()
+
+        if self._green_success_count == 3:
+            raise ValueError("Fancy scene only supports up to three blocks.")
+
+    def animate_blue_block(self) -> None:
+        """Animate the blue block."""
+        self._blue_success_count += 1
+        self._translate_blue_blocks()
+
+        if self._blue_success_count == 3:
+            raise ValueError("Fancy scene only supports up to three blocks.")
+
+    def translate_tray(self, destination: str) -> None:
+        """Translate the tray to the destination."""
+        if destination == "green":
+            curr_pos = cs.TRAY_POSITION_RED
+            desired_pos = cs.TRAY_POSITION_GREEN
+        elif destination == "blue":
+            curr_pos = cs.TRAY_POSITION_GREEN
+            desired_pos = cs.TRAY_POSITION_BLUE
+        elif destination == "end":
+            curr_pos = cs.TRAY_POSITION_BLUE
+            desired_pos = cs.TRAY_POSITION_END
+        else:
+            raise ValueError(f"Invalid destination: {destination}")
+
+        for i in range(100):
+            self.sim.set_base_pose(
+                "tray",
+                curr_pos + (desired_pos - curr_pos) * i / 100,
+                self.sim.physics_client.getQuaternionFromEuler([0, 0, -1 * np.pi / 2]),
+            )
+            self.sim.step()
+            time.sleep(self.frame_delay)
+
+    def _translate_red_blocks(self) -> None:
+        """Translate the red blocks."""
+        delta = np.array([0.0, 0.1, 0.0])
+
+        if self._red_success_count == 1:
+            red_two_pos = cs.RED_CUBE_POSITION - delta
+            red_three_pos = cs.RED_CUBE_POSITION - 2 * delta
+        elif self._red_success_count == 2:
+            red_two_pos = cs.RED_CUBE_POSITION
+            red_three_pos = cs.RED_CUBE_POSITION - delta
+        else:
+            raise ValueError("Invalid red success count")
+
+        for i in range(20):
+            if self._red_success_count == 1:
+                self.sim.set_base_pose(
+                    "red_two_cube",
+                    red_two_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+                self.sim.set_base_pose(
+                    "red_three_cube",
+                    red_three_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+            elif self._red_success_count == 2:
+                self.sim.set_base_pose(
+                    "red_three_cube",
+                    red_three_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+            self.sim.step()
+            time.sleep(self.frame_delay)
+
+    def _translate_green_blocks(self) -> None:
+        """Translate the green blocks."""
+        delta = np.array([0.0, 0.1, 0.0])
+
+        if self._green_success_count == 1:
+            green_two_pos = cs.GREEN_CUBE_POSITION - delta
+            green_three_pos = cs.GREEN_CUBE_POSITION - 2 * delta
+        elif self._green_success_count == 2:
+            green_two_pos = cs.GREEN_CUBE_POSITION
+            green_three_pos = cs.GREEN_CUBE_POSITION - delta
+        else:
+            raise ValueError("Invalid green success count")
+
+        for i in range(20):
+            if self._green_success_count == 1:
+                self.sim.set_base_pose(
+                    "green_two_cube",
+                    green_two_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+                self.sim.set_base_pose(
+                    "green_three_cube",
+                    green_three_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+            elif self._green_success_count == 2:
+                self.sim.set_base_pose(
+                    "green_three_cube",
+                    green_three_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+            self.sim.step()
+            time.sleep(self.frame_delay)
+
+    def _translate_blue_blocks(self) -> None:
+        """Translate the blue blocks."""
+        delta = np.array([0.0, 0.1, 0.0])
+
+        if self._blue_success_count == 1:
+            blue_two_pos = cs.BLUE_CUBE_POSITION - delta
+            blue_three_pos = cs.BLUE_CUBE_POSITION - 2 * delta
+        elif self._blue_success_count == 2:
+            blue_two_pos = cs.BLUE_CUBE_POSITION
+            blue_three_pos = cs.BLUE_CUBE_POSITION - delta
+        else:
+            raise ValueError("Invalid blue success count")
+
+        for i in range(20):
+            if self._blue_success_count == 1:
+                self.sim.set_base_pose(
+                    "blue_two_cube",
+                    blue_two_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+                self.sim.set_base_pose(
+                    "blue_three_cube",
+                    blue_three_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+            elif self._blue_success_count == 2:
+                self.sim.set_base_pose(
+                    "blue_three_cube",
+                    blue_three_pos + delta * i / 20,
+                    np.array([0, 0, 0, 1]),
+                )
+            self.sim.step()
+            time.sleep(self.frame_delay)
 
     def _setup_environment(self) -> None:
         """Setup the environment."""
@@ -136,7 +298,7 @@ class FancySceneConstructor(BasicSceneConstructor):
             body_name="tray",
             **{
                 "fileName": "tray/tray.urdf",
-                "basePosition": cs.TRAY_POSITION_GREEN,
+                "basePosition": cs.TRAY_POSITION_RED,
                 "baseOrientation": self.sim.physics_client.getQuaternionFromEuler(
                     [0, 0, -1 * np.pi / 2]
                 ),
@@ -144,3 +306,41 @@ class FancySceneConstructor(BasicSceneConstructor):
                 "useFixedBase": False,
             },
         )
+
+    def _get_cube_configs(self) -> list[tuple[str, np.ndarray, np.ndarray]]:
+        """Return the configuration for the cubes in the scene."""
+        return [
+            ("red_one", cs.RED_CUBE_POSITION, np.array([1, 0, 0, 0.8])),
+            (
+                "red_two",
+                cs.RED_CUBE_POSITION + np.array([0.0, -0.1, 0.0]),
+                np.array([1, 0, 0, 0.8]),
+            ),
+            (
+                "red_three",
+                cs.RED_CUBE_POSITION + np.array([0.0, -0.2, 0.0]),
+                np.array([1, 0, 0, 0.8]),
+            ),
+            ("green_one", cs.GREEN_CUBE_POSITION, np.array([0, 1, 0, 0.8])),
+            (
+                "green_two",
+                cs.GREEN_CUBE_POSITION + np.array([0.0, -0.1, 0.0]),
+                np.array([0, 1, 0, 0.8]),
+            ),
+            (
+                "green_three",
+                cs.GREEN_CUBE_POSITION + np.array([0.0, -0.2, 0.0]),
+                np.array([0, 1, 0, 0.8]),
+            ),
+            ("blue_one", cs.BLUE_CUBE_POSITION, np.array([0, 1, 1, 0.8])),
+            (
+                "blue_two",
+                cs.BLUE_CUBE_POSITION + np.array([0.0, -0.1, 0.0]),
+                np.array([0, 1, 1, 0.8]),
+            ),
+            (
+                "blue_three",
+                cs.BLUE_CUBE_POSITION + np.array([0.0, -0.2, 0.0]),
+                np.array([0, 1, 1, 0.8]),
+            ),
+        ]

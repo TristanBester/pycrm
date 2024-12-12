@@ -5,9 +5,10 @@ import experiments.warehouse.constants.environment as ce
 import experiments.warehouse.constants.regions as cr
 import experiments.warehouse.constants.simulation as cs
 import experiments.warehouse.constants.waypoints as cw
+from experiments.warehouse.scenes.interface import SceneManager
 
 
-class BasicSceneConstructor:
+class BasicSceneManager(SceneManager):
     """Construct a basic scene."""
 
     def __init__(
@@ -16,12 +17,19 @@ class BasicSceneConstructor:
         show_ee_identifier: bool = False,
         show_waypoints: bool = False,
         show_regions: bool = False,
+        frame_delay: float = 0.01,
     ) -> None:
         """Initialise the scene constructor."""
         self.sim = sim
         self.show_ee_identifier = show_ee_identifier
         self.show_waypoints = show_waypoints
         self.show_regions = show_regions
+        self._frame_delay = frame_delay
+
+    @property
+    def frame_delay(self) -> float:
+        """Get the frame delay for animations in seconds."""
+        return self._frame_delay
 
     def construct(self) -> None:
         """Construct the scene."""
@@ -34,6 +42,34 @@ class BasicSceneConstructor:
             self._setup_waypoints()
         if self.show_regions:
             self._setup_regions()
+
+    def animate_red_block(self) -> None:
+        """Animate the red block."""
+        self.sim.set_base_pose(
+            "red_cube",
+            cs.RED_CUBE_POSITION,
+            np.array([0, 0, 0, 1]),
+        )
+
+    def animate_green_block(self) -> None:
+        """Animate the green block."""
+        self.sim.set_base_pose(
+            "green_cube",
+            cs.GREEN_CUBE_POSITION,
+            np.array([0, 0, 0, 1]),
+        )
+
+    def animate_blue_block(self) -> None:
+        """Animate the blue block."""
+        self.sim.set_base_pose(
+            "blue_cube",
+            cs.BLUE_CUBE_POSITION,
+            np.array([0, 0, 0, 1]),
+        )
+
+    def translate_tray(self, destination: str) -> None:
+        """Translate the tray to the destination."""
+        return
 
     def _initialise_scene(self) -> None:
         """Initialise the scene."""

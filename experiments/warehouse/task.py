@@ -1,7 +1,7 @@
 import numpy as np
 from panda_gym.envs.core import Task
 
-from experiments.warehouse.scenes import construct_scene
+from experiments.warehouse.scenes import BasicSceneManager, FancySceneManager
 
 
 class PackCustomerOrder(Task):
@@ -11,17 +11,35 @@ class PackCustomerOrder(Task):
         self,
         sim,
         scene: str = "fancy",
+        show_ee_identifier: bool = False,
         show_waypoints: bool = False,
         show_regions: bool = False,
     ) -> None:
         """Initialise the order packing task."""
         super().__init__(sim=sim)
         self.scene = scene
+        self.show_ee_identifier = show_ee_identifier
         self.show_waypoints = show_waypoints
         self.show_regions = show_regions
 
-        with self.sim.no_rendering():
-            construct_scene(self.sim, self.scene)
+        if self.scene == "basic":
+            self.scene_manager = BasicSceneManager(
+                sim=self.sim,
+                show_ee_identifier=self.show_ee_identifier,
+                show_waypoints=self.show_waypoints,
+                show_regions=self.show_regions,
+            )
+        elif self.scene == "fancy":
+            self.scene_manager = FancySceneManager(
+                sim=self.sim,
+                show_ee_identifier=self.show_ee_identifier,
+                show_waypoints=self.show_waypoints,
+                show_regions=self.show_regions,
+            )
+        else:
+            raise ValueError(f"Unknown scene type: {self.scene}")
+
+        self.scene_manager.construct()
 
     def reset(self) -> None:
         """Reset the task and sample a new goal."""
