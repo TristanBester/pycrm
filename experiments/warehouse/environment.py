@@ -25,6 +25,7 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
         render_pitch: float = -20,
         render_roll: float = 0,
         scene: str = "basic",
+        show_ee_identifier: bool = False,
         show_waypoints: bool = False,
         show_regions: bool = False,
     ) -> None:
@@ -50,6 +51,7 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
             scene=scene,
             show_waypoints=show_waypoints,
             show_regions=show_regions,
+            show_ee_identifier=show_ee_identifier,
         )
 
         # Initialise the environment

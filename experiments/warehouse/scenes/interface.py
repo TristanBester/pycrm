@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 
 class SceneManager(ABC):
     """Abstract class for scene managers."""
@@ -12,6 +14,10 @@ class SceneManager(ABC):
     @abstractmethod
     def construct(self) -> None:
         """Construct the scene."""
+
+    @abstractmethod
+    def update_ee_identifier(self, ee_pos: np.ndarray) -> None:
+        """Update the end-effector identifier."""
 
     @abstractmethod
     def animate_red_block(self) -> None:

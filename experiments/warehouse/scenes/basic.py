@@ -43,6 +43,17 @@ class BasicSceneManager(SceneManager):
         if self.show_regions:
             self._setup_regions()
 
+    def update_ee_identifier(self, ee_pos: np.ndarray) -> None:
+        """Update the end-effector identifier."""
+        if not self.show_ee_identifier:
+            return
+
+        self.sim.set_base_pose(
+            "ee_pos_identifier",
+            ee_pos,
+            np.array([0, 0, 0, 1]),
+        )
+
     def animate_red_block(self) -> None:
         """Animate the red block."""
         self.sim.set_base_pose(

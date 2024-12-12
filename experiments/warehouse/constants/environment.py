@@ -7,7 +7,7 @@ BACKGROUND_COLOR = np.array([0, 0, 0])
 ROBOT_BASE_POSITION = np.array([-0.1, 0.0, 0.0])
 
 # End effector position identifier color
-EE_POS_IDENTIFIER_COLOR = np.array([1, 0, 0, 0.3])
+EE_POS_IDENTIFIER_COLOR = np.array([1, 1, 0, 1.0])
 
 # Waypoint color
 WAYPOINT_COLOR = np.array([1, 1, 0.0, 1.0])

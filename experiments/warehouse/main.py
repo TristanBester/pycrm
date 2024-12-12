@@ -7,12 +7,17 @@ from experiments.warehouse.wrapper import EEStateWrapper
 
 if __name__ == "__main__":
     env = PackCustomerOrderEnvironment(
-        render_mode="human", control_type="ee", scene="fancy"
+        render_mode="human",
+        control_type="ee",
+        scene="fancy",
+        show_ee_identifier=True,
     )
     env = EEStateWrapper(env)
 
     obs, _ = env.reset()
     for step in range(1000):
+        env.task.scene_manager.update_ee_identifier(obs[:3])
+
         if step == 50:
             env.sim.set_base_pose(
                 "red_one_cube",
