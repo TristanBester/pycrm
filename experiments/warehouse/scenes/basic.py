@@ -11,19 +11,25 @@ class BasicSceneConstructor:
     """Construct a basic scene."""
 
     def __init__(
-        self, sim: PyBullet, show_waypoints: bool = False, show_regions: bool = False
+        self,
+        sim: PyBullet,
+        show_ee_identifier: bool = False,
+        show_waypoints: bool = False,
+        show_regions: bool = False,
     ) -> None:
         """Initialise the scene constructor."""
         self.sim = sim
+        self.show_ee_identifier = show_ee_identifier
         self.show_waypoints = show_waypoints
         self.show_regions = show_regions
 
     def construct(self) -> None:
         """Construct the scene."""
         self._setup_environment()
-        self._setup_ee_pos_identifier()
         self._setup_cubes()
 
+        if self.show_ee_identifier:
+            self._setup_ee_pos_identifier()
         if self.show_waypoints:
             self._setup_waypoints()
         if self.show_regions:

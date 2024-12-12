@@ -21,8 +21,8 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
         render_height: int = 480,
         render_target_position: Optional[np.ndarray] = None,
         render_distance: float = 1.4,
-        render_yaw: float = 90,
-        render_pitch: float = -15,
+        render_yaw: float = 135,
+        render_pitch: float = -20,
         render_roll: float = 0,
         scene: str = "basic",
         show_waypoints: bool = False,
@@ -64,3 +64,10 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
             render_pitch=render_pitch,
             render_roll=render_roll,
         )
+
+        # sim.physics_client.resetDebugVisualizerCamera(
+        #     cameraDistance=10,
+        #     cameraYaw=90,
+        #     cameraPitch=-15,
+        #     cameraTargetPosition=np.array([0.0, 0.0, 0.0]),
+        # )
