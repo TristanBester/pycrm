@@ -29,9 +29,30 @@ class LoggingWrapper(gym.Wrapper):
     ) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Step the environment."""
         obs, reward, terminated, truncated, info = self.env.step(action)
+
+        self._update_subtask_info()
         subtask_info = self._get_subtask_info()
+
         info["subtask_info"] = subtask_info
         return obs, float(reward), terminated, truncated, info
+
+    def _update_subtask_info(self) -> None:
+        """Update the subtask information."""
+        assert isinstance(self.env, WarehouseCrossProduct)
+
+        match self.env._u:
+            case 4:
+                self._above_complete = True
+            case 3:
+                self._grasp_complete = True
+            case 2:
+                self._grip_complete = True
+            case 1:
+                self._release_complete = True
+
+        match self.env._c:
+            case (0,):
+                self._drop_complete = True
 
     def _get_subtask_info(self) -> dict:
         """Get the subtask information."""
