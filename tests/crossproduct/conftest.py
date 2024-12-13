@@ -128,7 +128,7 @@ class CrossProductMDP(CrossProduct):
         """Get the cross product observation."""
         return np.array([ground_obs[0], u, c[0]])
 
-    def _to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
+    def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
         """Convert the cross product observation to the ground observation."""
         return obs[:2]
 

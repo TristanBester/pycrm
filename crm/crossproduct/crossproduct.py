@@ -36,7 +36,7 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         """Get the cross product observation."""
 
     @abstractmethod
-    def _to_ground_obs(self, obs: ObsType) -> GroundObsType:
+    def to_ground_obs(self, obs: ObsType) -> GroundObsType:
         """Convert the cross product observation to a ground observation."""
 
     def reset(
