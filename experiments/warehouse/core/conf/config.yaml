@@ -10,7 +10,7 @@ hydra:
     dir: .
 
 exp:
-  use_wandb: True
+  use_wandb: False
   name: default
   control_type: ee
   wandb_project: warehouse

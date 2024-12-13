@@ -250,15 +250,15 @@ class CounterfactualSAC(SAC):
             )
         else:
             # Get ground observations
-            ground_obs = self.env.env_method("to_ground_obs", self._last_obs)
-            ground_obs_next = self.env.env_method("to_ground_obs", obs_next)
+            ground_obs = self.env.env_method("to_ground_obs", self._last_obs[0])  # type: ignore
+            ground_obs_next = self.env.env_method("to_ground_obs", obs_next[0])  # type: ignore
 
             # Generate counterfactual experience
             result = self.env.env_method(
                 "generate_counterfactual_experience",
-                ground_obs,
-                buffer_actions,
-                ground_obs_next,
+                ground_obs[0],
+                buffer_actions[0],
+                ground_obs_next[0],
             )
 
         c_obs, c_actions, c_obs_next, c_rewards, c_dones, c_infos = zip(

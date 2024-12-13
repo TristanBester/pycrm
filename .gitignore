@@ -22,5 +22,5 @@ coverage.xml
 # Environment variables
 .env
 
-# Scripts
-scripts/
+# tfevents
+*.tfevents*

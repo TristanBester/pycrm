@@ -1,5 +1,6 @@
 import os
 
+import gymnasium as gym
 import hydra
 import wandb
 from omegaconf import DictConfig
@@ -32,26 +33,44 @@ def main(config: DictConfig) -> None:
             sync_tensorboard=True,
         )
 
-    vec_env = make_vec_env(
-        "Warehouse-v0",
-        n_envs=config.train.n_procs,
-        vec_env_cls=DispatchSubprocVecEnv,
-        seed=config.train.seed,
-        env_kwargs={
-            "ground_env_kwargs": {
-                "control_type": config.exp.control_type,
+    if config.train.n_procs > 1:
+        print("USING SUBPROC")
+        env = make_vec_env(
+            "Warehouse-v0",
+            n_envs=config.train.n_procs,
+            vec_env_cls=DispatchSubprocVecEnv,
+            seed=config.train.seed,
+            env_kwargs={
+                "ground_env_kwargs": {
+                    "control_type": config.exp.control_type,
+                },
+                "crm_kwargs": {},
+                "lf_kwargs": {},
+                "crossproduct_kwargs": {
+                    "max_steps": config.exp.max_steps,
+                },
             },
-            "crm_kwargs": {},
-            "lf_kwargs": {},
-            "crossproduct_kwargs": {
-                "max_steps": config.exp.max_steps,
+        )
+    else:
+        env = gym.make(
+            "Warehouse-v0",
+            **{
+                "ground_env_kwargs": {
+                    "control_type": config.exp.control_type,
+                },
+                "crm_kwargs": {},
+                "lf_kwargs": {},
+                "crossproduct_kwargs": {
+                    "max_steps": config.exp.max_steps,
+                },
             },
-        },
-    )
+        )
+
+    print(env.action_space)
 
     model = LoggingCounterfactualSAC(
         "MlpPolicy",
-        vec_env,
+        env,
         verbose=config.train.verbose,
         tensorboard_log="logs/",
         seed=config.train.seed,
