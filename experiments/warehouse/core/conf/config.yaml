@@ -16,6 +16,7 @@ exp:
   wandb_project: warehouse
   total_timesteps: 5000000
   log_interval: 1
+  max_steps: 500
 
 train:
   seed: 0 

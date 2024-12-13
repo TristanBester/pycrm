@@ -1,29 +1,13 @@
 import os
 
-import gymnasium as gym
 import hydra
 import wandb
 from omegaconf import DictConfig
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
 
-from crm.agents.sb3.sac import CounterfactualSAC
 from crm.agents.sb3.vec import DispatchSubprocVecEnv
-from experiments.warehouse.lib.crossproduct.crossproduct import WarehouseCrossProduct
-from experiments.warehouse.lib.label.function import WarehouseLabellingFunction
-from experiments.warehouse.lib.machine.machine import WarehouseCountingRewardMachine
-
-
-def create_env(control_type: str) -> WarehouseCrossProduct:
-    """Create the warehouse environment."""
-    ground_env = gym.make(
-        "Warehouse-v0",
-        control_type=control_type,
-    )
-    crm = WarehouseCountingRewardMachine()
-    lf = WarehouseLabellingFunction()
-    env = WarehouseCrossProduct(ground_env, crm, lf)
-    return env
+from experiments.warehouse.lib.agents import LoggingCounterfactualSAC
 
 
 @hydra.main(
@@ -49,14 +33,23 @@ def main(config: DictConfig) -> None:
         )
 
     vec_env = make_vec_env(
-        create_env,
+        "Warehouse-v0",
         n_envs=config.train.n_procs,
         vec_env_cls=DispatchSubprocVecEnv,
         seed=config.train.seed,
-        env_kwargs={"control_type": config.exp.control_type},
+        env_kwargs={
+            "ground_env_kwargs": {
+                "control_type": config.exp.control_type,
+            },
+            "crm_kwargs": {},
+            "lf_kwargs": {},
+            "crossproduct_kwargs": {
+                "max_steps": config.exp.max_steps,
+            },
+        },
     )
 
-    model = CounterfactualSAC(
+    model = LoggingCounterfactualSAC(
         "MlpPolicy",
         vec_env,
         verbose=config.train.verbose,

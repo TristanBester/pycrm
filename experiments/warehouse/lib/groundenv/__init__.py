@@ -12,6 +12,6 @@ def make_warehouse_environment(**kwargs) -> gym.Env:
 
 
 register(
-    id="Warehouse-v0",
+    id="WarehouseGround-v0",
     entry_point="experiments.warehouse.lib.groundenv:make_warehouse_environment",
 )
