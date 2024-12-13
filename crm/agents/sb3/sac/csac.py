@@ -231,17 +231,29 @@ class CounterfactualSAC(SAC):
         actions,
     ) -> None:
         assert isinstance(self.env, VecEnv), "You must pass a VecEnv"
-        ground_obs = self.env.env_method("to_ground_obs", self._last_obs)
-        ground_obs_next = self.env.env_method("to_ground_obs", obs_next)
 
         if self.subproc_dispatch_supported:
-            result = self.env.dispatched_env_method(  # type: ignore
+            assert isinstance(
+                self.env, DispatchSubprocVecEnv
+            ), "You must pass a DispatchSubprocVecEnv"
+
+            # Get ground observations
+            ground_obs = self.env.dispatched_env_method("to_ground_obs", self._last_obs)
+            ground_obs_next = self.env.dispatched_env_method("to_ground_obs", obs_next)
+
+            # Generate counterfactual experience
+            result = self.env.dispatched_env_method(
                 "generate_counterfactual_experience",
                 ground_obs,
                 buffer_actions,
                 ground_obs_next,
             )
         else:
+            # Get ground observations
+            ground_obs = self.env.env_method("to_ground_obs", self._last_obs)
+            ground_obs_next = self.env.env_method("to_ground_obs", obs_next)
+
+            # Generate counterfactual experience
             result = self.env.env_method(
                 "generate_counterfactual_experience",
                 ground_obs,

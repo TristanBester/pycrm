@@ -18,3 +18,9 @@ coverage.xml
 
 # Mac OS
 .DS_Store
+
+# Environment variables
+.env
+
+# Scripts
+scripts/

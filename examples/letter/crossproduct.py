@@ -38,7 +38,7 @@ class LetterWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
         """
         return np.array([ground_obs[1], ground_obs[2], u, c[0]])
 
-    def _to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
+    def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
         """Convert the cross product observation to a ground observation.
 
         Args:
