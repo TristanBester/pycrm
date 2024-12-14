@@ -27,11 +27,11 @@ class WarehouseCountingRewardMachine(CountingRewardMachine):
     @property
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
-        return (1,)
+        return (3,)
 
     def sample_counter_configurations(self) -> list[tuple[int]]:
         """Return a list of counter configurations."""
-        return [(1,)]
+        return [(3,), (2,), (1,)]
 
     def _get_state_transition_function(self) -> dict:
         """Return the state transition function."""
@@ -71,7 +71,7 @@ class WarehouseCountingRewardMachine(CountingRewardMachine):
         """Return the reward transition function."""
         decision_node_reward_transitions = {
             0: {
-                "/ (Z)": 500.0,
+                "/ (Z)": 10.0,
                 "/ (NZ)": 0.0,
             }
         }

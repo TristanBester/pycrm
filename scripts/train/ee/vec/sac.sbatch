@@ -25,10 +25,10 @@ cd ~/warehouse
 uv sync --extra experiments
 
 cd ~/warehouse/experiments/warehouse/core/train
-uv run sac.py train.seed=$(( $1 + 0 )) train.n_procs=3 exp.control_type=ee exp.use_wandb=true environment=remote & 
-uv run sac.py train.seed=$(( $1 + 1 )) train.n_procs=3 exp.control_type=ee exp.use_wandb=true environment=remote & 
-uv run sac.py train.seed=$(( $1 + 2 )) train.n_procs=3 exp.control_type=ee exp.use_wandb=true environment=remote & 
-uv run sac.py train.seed=$(( $1 + 3 )) train.n_procs=3 exp.control_type=ee exp.use_wandb=true environment=remote & 
-uv run sac.py train.seed=$(( $1 + 4 )) train.n_procs=3 exp.control_type=ee exp.use_wandb=true environment=remote & 
+uv run sac.py train.seed=$(( $1 + 0 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=true environment=remote & 
+uv run sac.py train.seed=$(( $1 + 1 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=true environment=remote & 
+uv run sac.py train.seed=$(( $1 + 2 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=true environment=remote & 
+uv run sac.py train.seed=$(( $1 + 3 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=true environment=remote & 
+uv run sac.py train.seed=$(( $1 + 4 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=true environment=remote & 
 wait;
 

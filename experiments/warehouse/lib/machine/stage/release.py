@@ -55,7 +55,7 @@ def create_release_position_stage(
             current_state=current_state,
             next_state=success_state,
             counter_modifier=(0,),
-            reward_fn=create_constant_reward(500.0),
+            reward_fn=create_constant_reward(100.0),
         )
     )
     # Other

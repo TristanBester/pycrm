@@ -11,11 +11,25 @@ class LoggingWrapper(gym.Wrapper):
         """Initialise the wrapper."""
         super().__init__(env)
 
-        self._above_complete = False
-        self._grasp_complete = False
-        self._grip_complete = False
-        self._release_complete = False
-        self._drop_complete = False
+        self._above_complete_3 = False
+        self._above_complete_2 = False
+        self._above_complete_1 = False
+
+        self._grasp_complete_3 = False
+        self._grasp_complete_2 = False
+        self._grasp_complete_1 = False
+
+        self._grip_complete_3 = False
+        self._grip_complete_2 = False
+        self._grip_complete_1 = False
+
+        self._release_complete_3 = False
+        self._release_complete_2 = False
+        self._release_complete_1 = False
+
+        self._drop_complete_3 = False
+        self._drop_complete_2 = False
+        self._drop_complete_1 = False
 
     def reset(self, **kwargs) -> tuple[np.ndarray, dict]:
         """Reset the environment."""
@@ -35,6 +49,7 @@ class LoggingWrapper(gym.Wrapper):
 
         last_u = self.env.u
         last_c = self.env.c
+
         obs, reward, terminated, truncated, info = self.env.step(action)
         curr_u = self.env.u
         curr_c = self.env.c
@@ -55,26 +70,54 @@ class LoggingWrapper(gym.Wrapper):
         """Update the subtask information."""
         assert isinstance(self.env, WarehouseCrossProduct)
 
-        match self.env.u:
-            case 4:
-                self._above_complete = True
-            case 3:
-                self._grasp_complete = True
-            case 2:
-                self._grip_complete = True
-            case 1:
-                self._release_complete = True
-
-        match self.env.c:
-            case (0,):
-                self._drop_complete = True
+        match (self.env.u, self.env.c):
+            case (4, (3,)):
+                self._above_complete_3 = True
+            case (4, (2,)):
+                self._above_complete_2 = True
+            case (4, (1,)):
+                self._above_complete_1 = True
+            case (3, (3,)):
+                self._grasp_complete_3 = True
+            case (3, (2,)):
+                self._grasp_complete_2 = True
+            case (3, (1,)):
+                self._grasp_complete_1 = True
+            case (2, (3,)):
+                self._grip_complete_3 = True
+            case (2, (2,)):
+                self._grip_complete_2 = True
+            case (2, (1,)):
+                self._grip_complete_1 = True
+            case (1, (3,)):
+                self._release_complete_3 = True
+            case (1, (2,)):
+                self._release_complete_2 = True
+            case (1, (1,)):
+                self._release_complete_1 = True
+            case (0, (2,)):
+                self._drop_complete_3 = True
+            case (0, (1,)):
+                self._drop_complete_2 = True
+            case (0, (0,)):
+                self._drop_complete_1 = True
 
     def _get_subtask_info(self) -> dict:
         """Get the subtask information."""
         return {
-            "above_complete": int(self._above_complete),
-            "grasp_complete": int(self._grasp_complete),
-            "grip_complete": int(self._grip_complete),
-            "release_complete": int(self._release_complete),
-            "drop_complete": int(self._drop_complete),
+            "above_complete_3": int(self._above_complete_3),
+            "above_complete_2": int(self._above_complete_2),
+            "above_complete_1": int(self._above_complete_1),
+            "grasp_complete_3": int(self._grasp_complete_3),
+            "grasp_complete_2": int(self._grasp_complete_2),
+            "grasp_complete_1": int(self._grasp_complete_1),
+            "grip_complete_3": int(self._grip_complete_3),
+            "grip_complete_2": int(self._grip_complete_2),
+            "grip_complete_1": int(self._grip_complete_1),
+            "release_complete_3": int(self._release_complete_3),
+            "release_complete_2": int(self._release_complete_2),
+            "release_complete_1": int(self._release_complete_1),
+            "drop_complete_3": int(self._drop_complete_3),
+            "drop_complete_2": int(self._drop_complete_2),
+            "drop_complete_1": int(self._drop_complete_1),
         }

@@ -25,6 +25,8 @@ class WarehouseCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
             low=0, high=100, shape=(7 + 2,), dtype=np.float32
         )
         self.action_space = self.ground_env.action_space
+        self.render_mode = self.ground_env.render_mode
+        self.metadata = self.ground_env.metadata
 
     def _get_obs(
         self, ground_obs: np.ndarray, u: int, c: tuple[int, ...]

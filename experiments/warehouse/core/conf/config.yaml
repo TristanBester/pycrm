@@ -11,17 +11,19 @@ hydra:
 
 exp:
   use_wandb: False
+  record_video: False
   name: default
   control_type: ee
-  wandb_project: warehouse
-  total_timesteps: 5000000
+  wandb_project: warehouse-regular-v1
+  total_timesteps: 50000000
   log_interval: 1
-  max_steps: 500
+  recording_interval: 500000
+  max_steps: 1000
 
 train:
   seed: 0 
   verbose: 0
-  n_procs: 3
+  n_procs: 4
   checkpoint_interval: 100000
 
 hparams:

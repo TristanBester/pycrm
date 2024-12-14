@@ -1,11 +1,11 @@
 import os
 
-import gymnasium as gym
 import hydra
 import wandb
 from omegaconf import DictConfig
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.vec_env import VecVideoRecorder
 
 from crm.agents.sb3.vec import DispatchSubprocVecEnv
 from experiments.warehouse.lib.agents import LoggingCounterfactualSAC
@@ -35,7 +35,7 @@ def main(config: DictConfig) -> None:
 
     if config.train.n_procs > 1:
         print("USING SUBPROC")
-        env = make_vec_env(
+        vec_env = make_vec_env(
             "Warehouse-v0",
             n_envs=config.train.n_procs,
             vec_env_cls=DispatchSubprocVecEnv,
@@ -43,6 +43,7 @@ def main(config: DictConfig) -> None:
             env_kwargs={
                 "ground_env_kwargs": {
                     "control_type": config.exp.control_type,
+                    "render_mode": "rgb_array",
                 },
                 "crm_kwargs": {},
                 "lf_kwargs": {},
@@ -52,11 +53,14 @@ def main(config: DictConfig) -> None:
             },
         )
     else:
-        env = gym.make(
+        vec_env = make_vec_env(
             "Warehouse-v0",
-            **{
+            n_envs=1,
+            seed=config.train.seed,
+            env_kwargs={
                 "ground_env_kwargs": {
                     "control_type": config.exp.control_type,
+                    "render_mode": "rgb_array",
                 },
                 "crm_kwargs": {},
                 "lf_kwargs": {},
@@ -66,9 +70,19 @@ def main(config: DictConfig) -> None:
             },
         )
 
+    if config.exp.record_video:
+        # Wrap environment with video recorder
+        vec_env = VecVideoRecorder(
+            vec_env,
+            os.path.join(config.environment.video_dir, method_name),
+            record_video_trigger=lambda x: x % config.exp.recording_interval == 0,
+            video_length=config.exp.max_steps * 2,
+            name_prefix=f"sac-warehouse-{config.exp.control_type}",
+        )
+
     model = LoggingCounterfactualSAC(
         "MlpPolicy",
-        env,
+        vec_env,
         verbose=config.train.verbose,
         tensorboard_log="logs/",
         seed=config.train.seed,

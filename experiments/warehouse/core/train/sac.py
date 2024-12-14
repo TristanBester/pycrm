@@ -5,6 +5,7 @@ import wandb
 from omegaconf import DictConfig
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.vec_env import VecVideoRecorder
 
 from experiments.warehouse.lib.agents import LoggingSAC
 
@@ -38,6 +39,7 @@ def main(config: DictConfig) -> None:
         env_kwargs={
             "ground_env_kwargs": {
                 "control_type": config.exp.control_type,
+                "render_mode": "rgb_array",
             },
             "crm_kwargs": {},
             "lf_kwargs": {},
@@ -46,6 +48,16 @@ def main(config: DictConfig) -> None:
             },
         },
     )
+
+    if config.exp.record_video:
+        # Wrap environment with video recorder
+        vec_env = VecVideoRecorder(
+            vec_env,
+            os.path.join(config.environment.video_dir, method_name),
+            record_video_trigger=lambda x: x % config.exp.recording_interval == 0,
+            video_length=config.exp.max_steps * 2,
+            name_prefix=f"sac-warehouse-{config.exp.control_type}",
+        )
 
     model = LoggingSAC(
         "MlpPolicy",
@@ -76,6 +88,9 @@ def main(config: DictConfig) -> None:
         tb_log_name=method_name,
         callback=callback,
     )
+
+    # Make sure to close the video recorder
+    vec_env.close()
 
 
 if __name__ == "__main__":
