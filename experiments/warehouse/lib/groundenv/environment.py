@@ -66,3 +66,24 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
             render_pitch=render_pitch,
             render_roll=render_roll,
         )
+
+    def step(
+        self, action: np.ndarray
+    ) -> tuple[dict[str, np.ndarray], float, bool, bool, dict]:
+        """Step the environment."""
+        action = self._preprocess_action(action)
+        return super().step(action)
+
+    def _preprocess_action(self, action: np.ndarray) -> np.ndarray:
+        """Preprocess the action."""
+        # Clip end-effector displacement
+        action[:-1] = np.clip(action[:-1], -0.1, 0.1)
+
+        # Set gripper action
+        if action[-1] <= 0:
+            # Close gripper
+            action[-1] = -1.0
+        else:
+            # Open gripper
+            action[-1] = 1.0
+        return action

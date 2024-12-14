@@ -78,8 +78,7 @@ class WarehouseCountingRewardMachine(CountingRewardMachine):
 
         block_module_reward_transitions = defaultdict(dict)
         for t in self._transitions:
-            rf = t.reward_fn
-            rf._intercept = -t.current_state
+            t.reward_fn._intercept = -t.current_state
             block_module_reward_transitions[t.current_state][t.formula] = t.reward_fn
 
         x = decision_node_reward_transitions | dict(block_module_reward_transitions)

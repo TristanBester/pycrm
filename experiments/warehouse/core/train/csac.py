@@ -19,7 +19,7 @@ from experiments.warehouse.lib.agents import LoggingCounterfactualSAC
 def main(config: DictConfig) -> None:
     """Main function."""
     method_name = (
-        f"C-SAC_{config.exp.control_type}_{config.exp.name}_{config.train.seed}"
+        f"C-SAC_{config.exp.control_type}_p-{config.train.n_procs}_{config.train.seed}"
     )
     if config.exp.use_wandb:
         wandb.init(
@@ -65,8 +65,6 @@ def main(config: DictConfig) -> None:
                 },
             },
         )
-
-    print(env.action_space)
 
     model = LoggingCounterfactualSAC(
         "MlpPolicy",

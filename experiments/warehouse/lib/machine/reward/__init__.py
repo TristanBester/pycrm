@@ -26,7 +26,7 @@ def create_waypoint_reward(waypoint: np.ndarray, max_distance: float) -> RewardF
         obs_next: np.ndarray,
     ) -> float:
         ee_pos_next = obs_next[:3]
-        pos_err_next = float(np.linalg.norm(ee_pos_next - waypoint))
+        pos_err_next = float(np.linalg.norm(ee_pos_next - waypoint)) * 5
         return -pos_err_next
 
     return RewardFunction(
@@ -48,7 +48,7 @@ def create_penalty_waypoint_reward(
         obs_next: np.ndarray,
     ) -> float:
         ee_pos_next = obs_next[:3]
-        pos_err_next = float(np.linalg.norm(ee_pos_next - waypoint))
+        pos_err_next = float(np.linalg.norm(ee_pos_next - waypoint)) * 5
         return -pos_err_next + penalty
 
     return RewardFunction(

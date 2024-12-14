@@ -8,13 +8,18 @@ from experiments.warehouse.lib.machine.machine import WarehouseCountingRewardMac
 
 def make_warehouse_environment(**kwargs) -> gym.Env:
     """Create the warehouse environment."""
+    ground_env_kwargs = kwargs.get("ground_env_kwargs", {})
+    crm_kwargs = kwargs.get("crm_kwargs", {})
+    lf_kwargs = kwargs.get("lf_kwargs", {})
+    crossproduct_kwargs = kwargs.get("crossproduct_kwargs", {})
+
     ground_env = gym.make(
         "WarehouseGround-v0",
-        **kwargs["ground_env_kwargs"],
+        **ground_env_kwargs,
     )
-    crm = WarehouseCountingRewardMachine(**kwargs["crm_kwargs"])
-    lf = WarehouseLabellingFunction(**kwargs["lf_kwargs"])
-    cp = WarehouseCrossProduct(ground_env, crm, lf, **kwargs["crossproduct_kwargs"])
+    crm = WarehouseCountingRewardMachine(**crm_kwargs)
+    lf = WarehouseLabellingFunction(**lf_kwargs)
+    cp = WarehouseCrossProduct(ground_env, crm, lf, **crossproduct_kwargs)
     env = LoggingWrapper(env=cp)
     return env
 

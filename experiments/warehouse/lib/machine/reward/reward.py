@@ -59,7 +59,7 @@ class RewardFunction:
         clipped_reward = np.clip(reward, self._min_reward, self._max_reward)
 
         if not self._enable_rescaling:
-            return clipped_reward
+            return clipped_reward + self._intercept
 
         scaled_reward = self._scale_reward(clipped_reward)
 

@@ -46,13 +46,13 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         super().reset(seed=seed, options=options)
 
         self.steps = 0
-        self._u = self.crm.u_0
-        self._c = self.crm.c_0
+        self.u = self.crm.u_0
+        self.c = self.crm.c_0
         self._ground_obs, _ = self.ground_env.reset()
         self._ground_obs_next = self._ground_obs
 
         return (
-            self._get_obs(self._ground_obs, self._u, self._c),
+            self._get_obs(self._ground_obs, self.u, self.c),
             {},
         )
 
@@ -63,15 +63,16 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
 
         self._ground_obs_next, _, _, _, _ = self.ground_env.step(action)
         self._props = self.lf(self._ground_obs, action, self._ground_obs_next)
+        self.props = self._props
 
-        self._u, self._c, reward_fn = self.crm.transition(self._u, self._c, self._props)
+        self.u, self.c, reward_fn = self.crm.transition(self.u, self.c, self._props)
         reward = reward_fn(self._ground_obs, action, self._ground_obs_next)
 
-        terminated = self._u in self.crm.F
+        terminated = self.u in self.crm.F
         truncated = self.steps >= self.max_steps
 
         return (
-            self._get_obs(self._ground_obs_next, self._u, self._c),
+            self._get_obs(self._ground_obs_next, self.u, self.c),
             reward,
             terminated,
             truncated,

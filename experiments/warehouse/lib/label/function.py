@@ -249,10 +249,33 @@ class WarehouseLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
         ee_pos_x, ee_pos_y, ee_pos_z = ee_pos
         waypoint_pos_x, waypoint_pos_y, waypoint_pos_z = waypoint_pos[:3]
 
+        # x_test = np.abs(ee_pos_x - waypoint_pos_x) <= self.position_waypoint_tol
+        # y_test = np.abs(ee_pos_y - waypoint_pos_y) <= self.position_waypoint_tol
+        # z_test = np.abs(ee_pos_z - waypoint_pos_z) <= self.position_waypoint_tol
+
+        # print(
+        #     "X TEST",
+        #     x_test,
+        #     np.abs(ee_pos_x - waypoint_pos_x),
+        #     self.position_waypoint_tol,
+        # )
+        # print(
+        #     "Y TEST",
+        #     y_test,
+        #     np.abs(ee_pos_y - waypoint_pos_y),
+        #     self.position_waypoint_tol,
+        # )
+        # print(
+        #     "Z TEST",
+        #     z_test,
+        #     np.abs(ee_pos_z - waypoint_pos_z),
+        #     self.position_waypoint_tol,
+        # )
+
         return (
-            np.abs(ee_pos_x - waypoint_pos_x) < self.position_waypoint_tol
-            and np.abs(ee_pos_y - waypoint_pos_y) < self.position_waypoint_tol
-            and np.abs(ee_pos_z - waypoint_pos_z) < self.position_waypoint_tol
+            np.abs(ee_pos_x - waypoint_pos_x) <= self.position_waypoint_tol
+            and np.abs(ee_pos_y - waypoint_pos_y) <= self.position_waypoint_tol
+            and np.abs(ee_pos_z - waypoint_pos_z) <= self.position_waypoint_tol
         )
 
     def _test_ee_within_region(

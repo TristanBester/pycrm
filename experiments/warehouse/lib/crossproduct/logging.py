@@ -17,18 +17,33 @@ class LoggingWrapper(gym.Wrapper):
         self._release_complete = False
         self._drop_complete = False
 
-    def reset(self, **kwargs) -> tuple[gym.ObservationWrapper, dict]:
+    def reset(self, **kwargs) -> tuple[np.ndarray, dict]:
         """Reset the environment."""
+        assert isinstance(self.env, WarehouseCrossProduct)
+
         obs, info = self.env.reset(**kwargs)
+        self.u = self.env.u
+        self.c = self.env.c
+
         subtask_info = self._get_subtask_info()
         info["subtask_info"] = subtask_info
         return obs, info
 
-    def step(
-        self, action: gym.ActionWrapper
-    ) -> tuple[np.ndarray, float, bool, bool, dict]:
+    def step(self, action: np.ndarray) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Step the environment."""
+        assert isinstance(self.env, WarehouseCrossProduct)
+
+        last_u = self.env.u
+        last_c = self.env.c
         obs, reward, terminated, truncated, info = self.env.step(action)
+        curr_u = self.env.u
+        curr_c = self.env.c
+
+        self.u = self.env.u
+        self.c = self.env.c
+
+        if last_u != curr_u or last_c != curr_c:
+            print(f"{last_u} -> {curr_u}\t{last_c} -> {curr_c}")
 
         self._update_subtask_info()
         subtask_info = self._get_subtask_info()
@@ -40,7 +55,7 @@ class LoggingWrapper(gym.Wrapper):
         """Update the subtask information."""
         assert isinstance(self.env, WarehouseCrossProduct)
 
-        match self.env._u:
+        match self.env.u:
             case 4:
                 self._above_complete = True
             case 3:
@@ -50,7 +65,7 @@ class LoggingWrapper(gym.Wrapper):
             case 1:
                 self._release_complete = True
 
-        match self.env._c:
+        match self.env.c:
             case (0,):
                 self._drop_complete = True
 

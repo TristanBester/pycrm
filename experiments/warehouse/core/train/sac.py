@@ -16,7 +16,9 @@ from experiments.warehouse.lib.agents import LoggingSAC
 )
 def main(config: DictConfig) -> None:
     """Main function."""
-    method_name = f"SAC_{config.exp.control_type}_{config.exp.name}_{config.train.seed}"
+    method_name = (
+        f"SAC_{config.exp.control_type}_p-{config.train.n_procs}_{config.train.seed}"
+    )
     if config.exp.use_wandb:
         wandb.init(
             project=config.exp.wandb_project,
@@ -48,7 +50,7 @@ def main(config: DictConfig) -> None:
     model = LoggingSAC(
         "MlpPolicy",
         vec_env,
-        verbose=config.train.verbose,
+        verbose=1,
         tensorboard_log="logs/",
         seed=config.train.seed,
         device=config.hparams.device,
@@ -60,7 +62,7 @@ def main(config: DictConfig) -> None:
         gradient_steps=config.hparams.gradient_steps,
     )
     checkpoint_callback = CheckpointCallback(
-        save_freq=config.train.checkpoint_interval,
+        save_freq=1000,
         save_path=os.path.join(config.environment.checkpoint_dir, method_name),
         name_prefix="model",
         save_replay_buffer=False,
