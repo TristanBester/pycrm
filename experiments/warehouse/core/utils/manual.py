@@ -1,25 +1,13 @@
 import time
+from warnings import filterwarnings
 
 import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiments.warehouse.lib.crossproduct.crossproduct import WarehouseCrossProduct
 from experiments.warehouse.lib.groundenv.constants import waypoints as cw
-from experiments.warehouse.lib.label.function import WarehouseLabellingFunction
-from experiments.warehouse.lib.machine.machine import WarehouseCountingRewardMachine
 
-
-def create_env() -> WarehouseCrossProduct:
-    """Create the warehouse environment."""
-    ground_env = gym.make(
-        "Warehouse-v0",
-        render_mode="human",
-    )
-    crm = WarehouseCountingRewardMachine()
-    lf = WarehouseLabellingFunction()
-    env = WarehouseCrossProduct(ground_env, crm, lf)
-    return env
+filterwarnings("ignore")
 
 
 def resolve_current_waypoint(u: int) -> np.ndarray:
@@ -51,29 +39,37 @@ def resolve_gripper_state(u: int) -> float:
 def main() -> None:
     """Solve the task manually."""
     # 175 steps to solve the task & (-228)
-    env = create_env()
+    env = gym.make(
+        "Warehouse-v0",
+        ground_env_kwargs={"render_mode": "human"},
+        crossproduct_kwargs={"max_steps": 10000},
+    )
     obs, _ = env.reset()
 
     returns = []
 
     for _ in range(1000):
         ee_pos = obs[:3]
-        waypoint = resolve_current_waypoint(env._u)
+
+        waypoint = resolve_current_waypoint(env.u)  # type: ignore
         delta = np.clip(waypoint - ee_pos, -0.25, 0.25)
-        gripper_state = resolve_gripper_state(env._u)
+        gripper_state = resolve_gripper_state(env.u)  # type: ignore
 
         action = np.concatenate([delta, np.array([gripper_state])])
 
-        last_u = env._u
-        last_c = env._c
+        last_u = env.u  # type: ignore
+        last_c = env.c  # type: ignore
         obs, reward, terminated, truncated, _ = env.step(action)
 
         returns.append(reward)
 
-        if last_u != env._u:
-            print(f"State transition: {last_u} -> {env._u}")
-        if last_c != env._c:
-            print(f"Counter transition: {last_c} -> {env._c}")
+        if last_u != env.u:  # type: ignore
+            print(f"State transition: {last_u} -> {env.u}")  # type: ignore
+        if last_c != env.c:  # type: ignore
+            print(f"Counter transition: {last_c} -> {env.c}")  # type: ignore
+
+        if last_c[0] > env.c[0]:  # type: ignore
+            env.ground_env.task.scene_manager.animate_red_block()  # type: ignore
 
         if terminated or truncated:
             print(f"Terminated: {terminated}, truncated: {truncated}")
