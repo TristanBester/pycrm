@@ -1,0 +1,44 @@
+defaults:  
+  - environment: local
+  - _self_  
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: .
+
+exp:
+  use_wandb: False
+  record_video: False
+  name: default
+  control_type: ee
+  wandb_project: warehouse-contextfree-v1
+  total_timesteps: 50000000
+  log_interval: 1
+  recording_interval: 500000
+  max_steps: 2000
+
+train:
+  seed: 0 
+  verbose: 0
+  n_procs: 4
+  checkpoint_interval: 100000
+
+hparams:
+  device: cuda
+  ent_coef: 0.015
+  buffer_size: 32905777
+  batch_size: 3956
+  learning_rate: 0.000838
+  tau: 0.002667
+  gradient_steps: 1
+
+
+logs:
+  remote_dir: /home-mscluster/tbester/warehouse/experiments/warehouse/core/train/logs
+
+videos:
+  remote_dir: /datasets/tbester/warehouse/videos
+
