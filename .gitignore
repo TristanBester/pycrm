@@ -24,3 +24,9 @@ coverage.xml
 
 # tfevents
 *.tfevents*
+
+# Checkpoints
+*.zip
+
+# Videos
+*.mp4
