@@ -14,11 +14,11 @@ exp:
   record_video: False
   name: default
   control_type: ee
-  wandb_project: warehouse-contextfree-v2
+  wandb_project: warehouse-contextsensitive-v2
   total_timesteps: 50000000
   log_interval: 1
   recording_interval: 500000
-  max_steps: 2000
+  max_steps: 3000
 
 train:
   seed: 0 
@@ -30,15 +30,14 @@ hparams:
   device: cuda
   ent_coef: 0.015
   buffer_size: 7500000
-  batch_size: 3956
-  learning_rate: 0.000838
-  tau: 0.002667
+  batch_size: 2500
+  learning_rate: 0.001
+  tau: 0.0009
   gradient_steps: 1
 
-
 logs:
-  remote_dir: /home-mscluster/tbester/warehouse/experiments/warehouse/core/contextfree/train/logs
+  remote_dir: /home-mscluster/tbester/warehouse/experiments/warehouse/core/contextsensitive/train/logs
 
 videos:
-  remote_dir: /datasets/tbester/warehouse/videos/contextfree
+  remote_dir: /datasets/tbester/warehouse/videos/contextsensitive
 

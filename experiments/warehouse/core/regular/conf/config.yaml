@@ -29,7 +29,7 @@ train:
 hparams:
   device: cuda
   ent_coef: 0.015
-  buffer_size: 32905777
+  buffer_size: 7500000
   batch_size: 3956
   learning_rate: 0.000838
   tau: 0.002667

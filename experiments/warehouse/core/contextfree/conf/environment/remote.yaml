@@ -1,2 +1,2 @@
-checkpoint_dir: /datasets/tbester/warehouse/checkpoints
-video_dir: /datasets/tbester/warehouse/videos
+checkpoint_dir: /datasets/tbester/warehouse/checkpoints/contextfree
+video_dir: /datasets/tbester/warehouse/videos/contextfree

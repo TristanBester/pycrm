@@ -1,0 +1,2 @@
+checkpoint_dir: /datasets/tbester/warehouse/checkpoints/contextsensitive
+video_dir: /datasets/tbester/warehouse/videos/contextsensitive
