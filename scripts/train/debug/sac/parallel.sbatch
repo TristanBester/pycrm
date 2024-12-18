@@ -24,7 +24,7 @@ fi
 cd ~/warehouse
 uv sync --extra experiments
 
-cd ~/warehouse/experiments/warehouse/core/contextfree/train
+cd ~/warehouse/experiments/warehouse/core/regular/train
 uv run sac.py train.seed=$(( $1 + 0 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=false environment=remote & 
 uv run sac.py train.seed=$(( $1 + 1 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=false environment=remote & 
 uv run sac.py train.seed=$(( $1 + 2 )) train.n_procs=4 exp.control_type=ee exp.use_wandb=true exp.record_video=false environment=remote & 

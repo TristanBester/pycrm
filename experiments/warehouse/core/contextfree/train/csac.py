@@ -26,7 +26,7 @@ def main(config: DictConfig) -> None:
             project=config.exp.wandb_project,
             name=method_name,
             tags=[
-                "sac",
+                "csac",
                 config.exp.control_type,
                 config.exp.name,
             ],
@@ -76,7 +76,7 @@ def main(config: DictConfig) -> None:
             os.path.join(config.environment.video_dir, method_name),
             record_video_trigger=lambda x: x % config.exp.recording_interval == 0,
             video_length=config.exp.max_steps * 2,
-            name_prefix=f"sac-warehouse-{config.exp.control_type}",
+            name_prefix=f"csac-warehouse-{config.exp.control_type}",
         )
 
     model = LoggingCounterfactualSAC(
@@ -108,6 +108,9 @@ def main(config: DictConfig) -> None:
         tb_log_name=method_name,
         callback=callback,
     )
+
+    # Close the environment
+    vec_env.close()
 
 
 if __name__ == "__main__":

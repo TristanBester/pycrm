@@ -40,7 +40,7 @@ def main() -> None:
     """Solve the task manually."""
     # 175 steps to solve the task & (-228)
     env = gym.make(
-        "Warehouse-v0",
+        "Warehouse-Regular-v0",
         ground_env_kwargs={"render_mode": "human"},
         crossproduct_kwargs={"max_steps": 10000},
     )

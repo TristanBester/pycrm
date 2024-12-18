@@ -42,7 +42,7 @@ def create_above_block_stage(
             current_state=current_state,
             next_state=success_state,
             counter_modifier=progress_counter_modifier,
-            reward_fn=create_constant_reward(100.0),
+            reward_fn=create_constant_reward(5000.0),
         )
     )
     # Other

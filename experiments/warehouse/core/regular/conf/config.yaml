@@ -14,7 +14,7 @@ exp:
   record_video: False
   name: default
   control_type: ee
-  wandb_project: warehouse-regular-v1
+  wandb_project: warehouse-regular-debug
   total_timesteps: 50000000
   log_interval: 1
   recording_interval: 500000
@@ -29,7 +29,7 @@ train:
 hparams:
   device: cuda
   ent_coef: 0.015
-  buffer_size: 7500000
+  buffer_size: 32905777
   batch_size: 3956
   learning_rate: 0.000838
   tau: 0.002667

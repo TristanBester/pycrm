@@ -33,7 +33,7 @@ def main(config: DictConfig) -> None:
         )
 
     vec_env = make_vec_env(
-        "Warehouse-v0",
+        "Warehouse-Regular-v0",
         n_envs=config.train.n_procs,
         seed=config.train.seed,
         env_kwargs={
@@ -62,7 +62,7 @@ def main(config: DictConfig) -> None:
     model = LoggingSAC(
         "MlpPolicy",
         vec_env,
-        verbose=1,
+        verbose=config.train.verbose,
         tensorboard_log="logs/",
         seed=config.train.seed,
         device=config.hparams.device,
@@ -74,7 +74,7 @@ def main(config: DictConfig) -> None:
         gradient_steps=config.hparams.gradient_steps,
     )
     checkpoint_callback = CheckpointCallback(
-        save_freq=1000,
+        save_freq=config.train.checkpoint_interval,
         save_path=os.path.join(config.environment.checkpoint_dir, method_name),
         name_prefix="model",
         save_replay_buffer=False,

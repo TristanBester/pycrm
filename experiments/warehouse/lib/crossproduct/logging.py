@@ -130,6 +130,12 @@ class ContextFreeLoggingWrapper(gym.Wrapper):
         """Initialise the wrapper."""
         super().__init__(env)
 
+        self._above_red_3_complete = False
+        self._grasp_red_3_complete = False
+        self._grip_red_3_complete = False
+        self._release_red_3_complete = False
+        self._drop_red_3_complete = False
+
         self._red_block_complete_3 = False
         self._red_block_complete_2 = False
         self._red_block_complete_1 = False
@@ -177,6 +183,18 @@ class ContextFreeLoggingWrapper(gym.Wrapper):
         assert isinstance(self.env, WarehouseCrossProduct)
 
         match (self.env.u, self.env.c):
+            case (9, (3, 3)):
+                self._above_red_3_complete = True
+            case (8, (3, 3)):
+                self._grasp_red_3_complete = True
+            case (7, (3, 3)):
+                self._grip_red_3_complete = True
+            case (6, (3, 3)):
+                self._release_red_3_complete = True
+            case (0, (2, 3)):
+                self._drop_red_3_complete = True
+
+        match (self.env.u, self.env.c):
             case (0, (2, 3)):
                 self._red_block_complete_3 = True
             case (0, (1, 3)):
@@ -193,6 +211,11 @@ class ContextFreeLoggingWrapper(gym.Wrapper):
     def _get_subtask_info(self) -> dict:
         """Get the subtask information."""
         return {
+            "above_red_3_complete": int(self._above_red_3_complete),
+            "grasp_red_3_complete": int(self._grasp_red_3_complete),
+            "grip_red_3_complete": int(self._grip_red_3_complete),
+            "release_red_3_complete": int(self._release_red_3_complete),
+            "drop_red_3_complete": int(self._drop_red_3_complete),
             "red_block_complete_3": int(self._red_block_complete_3),
             "red_block_complete_2": int(self._red_block_complete_2),
             "red_block_complete_1": int(self._red_block_complete_1),

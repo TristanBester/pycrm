@@ -28,7 +28,7 @@ class RegularCRM(CountingRewardMachine):
     @property
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
-        return (3, 3)
+        return (3,)
 
     def sample_counter_configurations(self) -> list[tuple[int]]:
         """Return a list of counter configurations."""

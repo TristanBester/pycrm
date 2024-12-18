@@ -36,7 +36,7 @@ def main(config: DictConfig) -> None:
     if config.train.n_procs > 1:
         print("USING SUBPROC")
         vec_env = make_vec_env(
-            "Warehouse-v0",
+            "Warehouse-Regular-v0",
             n_envs=config.train.n_procs,
             vec_env_cls=DispatchSubprocVecEnv,
             seed=config.train.seed,
@@ -54,7 +54,7 @@ def main(config: DictConfig) -> None:
         )
     else:
         vec_env = make_vec_env(
-            "Warehouse-v0",
+            "Warehouse-Regular-v0",
             n_envs=1,
             seed=config.train.seed,
             env_kwargs={
@@ -77,7 +77,7 @@ def main(config: DictConfig) -> None:
             os.path.join(config.environment.video_dir, method_name),
             record_video_trigger=lambda x: x % config.exp.recording_interval == 0,
             video_length=config.exp.max_steps * 2,
-            name_prefix=f"sac-warehouse-{config.exp.control_type}",
+            name_prefix=f"csac-warehouse-{config.exp.control_type}",
         )
 
     model = LoggingCounterfactualSAC(
