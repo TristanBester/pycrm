@@ -54,7 +54,7 @@ class CountingRewardMachine(ABC):
         """Return the reward transition function."""
 
     @abstractmethod
-    def sample_counter_configurations(self) -> list[tuple[int, ...]]:
+    def sample_counter_configurations(self) -> list[tuple[int]]:
         """Return counter configurations for counterfactual experience generation."""
 
     def encode_machine_state(self, u: int) -> np.ndarray:

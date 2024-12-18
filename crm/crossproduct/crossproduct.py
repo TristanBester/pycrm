@@ -101,9 +101,9 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         for u_i in self.crm.U:
             for c_i in self.crm.sample_counter_configurations():
                 # try:
-                u_j, c_j, rf_j = self.crm.transition(u_i, c_i, props)
-                # except ValueError:
-                #     # Transition is no-op, therefore skip.
+                # TODO: Crash this so we can see what the exception should be
+                u_j, c_j, rf_j = self.crm.transition(u_i, c_i, props)  # type: ignore
+                # except:
                 #     continue
 
                 r_j = rf_j(ground_obs, action, next_ground_obs)

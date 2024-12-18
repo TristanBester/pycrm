@@ -33,7 +33,7 @@ def main(config: DictConfig) -> None:
         )
 
     vec_env = make_vec_env(
-        "Warehouse-ContextFree-v0",
+        "Warehouse-v0",
         n_envs=config.train.n_procs,
         seed=config.train.seed,
         env_kwargs={
@@ -62,7 +62,7 @@ def main(config: DictConfig) -> None:
     model = LoggingSAC(
         "MlpPolicy",
         vec_env,
-        verbose=config.train.verbose,
+        verbose=1,
         tensorboard_log="logs/",
         seed=config.train.seed,
         device=config.hparams.device,
@@ -74,7 +74,7 @@ def main(config: DictConfig) -> None:
         gradient_steps=config.hparams.gradient_steps,
     )
     checkpoint_callback = CheckpointCallback(
-        save_freq=config.train.checkpoint_interval,
+        save_freq=1000,
         save_path=os.path.join(config.environment.checkpoint_dir, method_name),
         name_prefix="model",
         save_replay_buffer=False,
@@ -89,7 +89,7 @@ def main(config: DictConfig) -> None:
         callback=callback,
     )
 
-    # Close the environment
+    # Make sure to close the video recorder
     vec_env.close()
 
 
