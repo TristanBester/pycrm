@@ -34,7 +34,6 @@ def main(config: DictConfig) -> None:
         )
 
     if config.train.n_procs > 1:
-        print("USING SUBPROC")
         vec_env = make_vec_env(
             "Warehouse-ContextFree-v0",
             n_envs=config.train.n_procs,
@@ -66,6 +65,7 @@ def main(config: DictConfig) -> None:
                 "lf_kwargs": {},
                 "crossproduct_kwargs": {
                     "max_steps": config.exp.max_steps,
+                    "memory_scale": config.hparams.memory_scale,
                 },
             },
         )

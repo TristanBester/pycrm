@@ -34,7 +34,6 @@ def main(config: DictConfig) -> None:
         )
 
     if config.train.n_procs > 1:
-        print("USING SUBPROC")
         vec_env = make_vec_env(
             "Warehouse-Regular-v0",
             n_envs=config.train.n_procs,

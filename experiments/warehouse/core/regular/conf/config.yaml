@@ -14,7 +14,7 @@ exp:
   record_video: False
   name: default
   control_type: ee
-  wandb_project: warehouse-regular-debug-rescale
+  wandb_project: warehouse-regular-v3
   total_timesteps: 50000000
   log_interval: 1
   recording_interval: 500000

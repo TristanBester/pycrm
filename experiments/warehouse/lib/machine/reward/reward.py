@@ -62,6 +62,4 @@ class RewardFunction:
             return clipped_reward + self._intercept
 
         scaled_reward = self._scale_reward(clipped_reward)
-
-        # Clip to ensure we stay in [0,1] even with floating point errors
-        return np.clip(scaled_reward, 0.0, 1.0) + self._intercept
+        return scaled_reward + self._intercept

@@ -33,7 +33,7 @@ def create_release_position_stage(
             current_state=current_state,
             next_state=current_state,
             counter_modifier=base_counter_modifier,
-            reward_fn=create_constant_reward(-1.0),
+            reward_fn=create_constant_reward(-1.0, enable_rescaling=True),
         )
     )
     # Not in release region
@@ -57,7 +57,7 @@ def create_release_position_stage(
             current_state=current_state,
             next_state=success_state,
             counter_modifier=success_counter_modifier,
-            reward_fn=create_constant_reward(1000.0),
+            reward_fn=create_constant_reward(1.0, enable_rescaling=True),
         )
     )
     # Other

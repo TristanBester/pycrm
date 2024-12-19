@@ -1,8 +1,11 @@
 from collections import defaultdict
 from itertools import product
 
+import numpy as np
+
 from crm.automaton import CountingRewardMachine
 from experiments.warehouse.lib.label import WarehouseEvent
+from experiments.warehouse.lib.machine.reward import recaled_reward_function
 from experiments.warehouse.lib.machine.stage import (
     create_above_block_stage,
     create_drop_stage,
@@ -72,14 +75,24 @@ class RegularCRM(CountingRewardMachine):
         """Return the reward transition function."""
         decision_node_reward_transitions = {
             0: {
-                "/ (Z)": 1000.0,
+                "/ (Z)": 50.0,
                 "/ (NZ)": 0.0,
             }
         }
 
         block_module_reward_transitions = defaultdict(dict)
         for t in self._transitions:
-            t.reward_fn._intercept = -t.current_state
+            if t.reward_fn._enable_rescaling:
+                t.reward_fn._intercept = -t.current_state
+                t.reward_fn._min_reward = -t.current_state - 1
+                t.reward_fn._max_reward = -t.current_state
+                t.reward_fn = recaled_reward_function(
+                    rf=t.reward_fn,
+                    r_min=-5.0,
+                    r_max=1.0,
+                )
+                t.reward_fn._intercept = -t.current_state / 5 - 1.0
+
             block_module_reward_transitions[t.current_state][t.formula] = t.reward_fn
 
         x = decision_node_reward_transitions | dict(block_module_reward_transitions)
@@ -158,7 +171,12 @@ class ContextFreeCRM(CountingRewardMachine):
 
     def sample_counter_configurations(self) -> list[tuple[int, ...]]:
         """Return a list of counter configurations."""
-        return list(product(range(4), repeat=2))
+        main_configurations = list(product(range(0, 4), repeat=2))
+        random_configurations = np.random.randint(low=0, high=100_000, size=(10, 2))
+        random_configurations[5:, 0] = 0
+        random_configurations = [tuple(config) for config in random_configurations]
+        configurations = main_configurations + random_configurations
+        return configurations
 
     def _get_state_transition_function(self) -> dict:
         """Return the state transition function."""
@@ -200,15 +218,27 @@ class ContextFreeCRM(CountingRewardMachine):
         """Return the reward transition function."""
         decision_node_reward_transitions = {
             0: {
-                "/ (Z,Z)": 1000.0,
+                "/ (Z,Z)": 50.0,
                 "/ (NZ,-)": 0.0,
                 "/ (Z,NZ)": 0.0,
             }
         }
 
+        # We have a set of reward functions each in the range [0, 1]
+        # Now need to rescale them to ensure monotonicity
         block_module_reward_transitions = defaultdict(dict)
         for t in self._transitions:
-            t.reward_fn._intercept = -t.current_state
+            if t.reward_fn._enable_rescaling:
+                t.reward_fn._intercept = -t.current_state
+                t.reward_fn._min_reward = -t.current_state - 1
+                t.reward_fn._max_reward = -t.current_state
+                t.reward_fn = recaled_reward_function(
+                    rf=t.reward_fn,
+                    r_min=-10.0,
+                    r_max=1.0,
+                )
+                t.reward_fn._intercept = -t.current_state / 10 - 1.0
+
             block_module_reward_transitions[t.current_state][t.formula] = t.reward_fn
 
         x = decision_node_reward_transitions | dict(block_module_reward_transitions)

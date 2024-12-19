@@ -62,7 +62,7 @@ def main(config: DictConfig) -> None:
     model = LoggingSAC(
         "MlpPolicy",
         vec_env,
-        verbose=1,
+        verbose=config.train.verbose,
         tensorboard_log="logs/",
         seed=config.train.seed,
         device=config.hparams.device,
