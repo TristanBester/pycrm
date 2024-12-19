@@ -9,25 +9,14 @@ uv sync --extra experiments
 # Start training
 cd ~/warehouse/scripts/train
 
-echo "Training EE single-process..."
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] ee/serial/sac.sbatch
+echo "Training Regular..."
+sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] regular/sac.sbatch
 sleep 30s
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] ee/serial/csac.sbatch
-sleep 30s
-
-echo "Training EE multi-process..."
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] ee/vec/sac.sbatch
-sleep 30s
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] ee/vec/csac.sbatch
+sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] regular/csac.sbatch
 sleep 30s
 
-echo "Training joints single-process..."
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] joints/serial/sac.sbatch
+echo "Training Context-Free..."
+sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] cf/sac.sbatch
 sleep 30s
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] joints/serial/csac.sbatch
+sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] cf/csac.sbatch
 sleep 30s
-
-echo "Training joints multi-process..."
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] joints/vec/sac.sbatch
-sleep 30s
-sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] joints/vec/csac.sbatch

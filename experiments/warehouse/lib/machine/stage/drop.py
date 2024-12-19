@@ -12,6 +12,8 @@ def create_drop_stage(
     counter_state: str,
     current_state: int,
     success_state: int,
+    base_counter_modifier: tuple[int, ...],
+    success_counter_modifier: tuple[int, ...],
 ) -> list[Transition]:
     """Create a stage for moving a block to the release position."""
     if block_colour == "RED":
@@ -30,7 +32,7 @@ def create_drop_stage(
             formula=f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}",
             current_state=current_state,
             next_state=current_state,
-            counter_modifier=(0,),
+            counter_modifier=base_counter_modifier,
             reward_fn=create_constant_reward(-1.0),
         )
     )
@@ -40,7 +42,7 @@ def create_drop_stage(
             formula=f"not RELEASE_REGION_{block_colour} / {counter_state}",
             current_state=current_state,
             next_state=current_state,
-            counter_modifier=(0,),
+            counter_modifier=base_counter_modifier,
             reward_fn=create_penalty_waypoint_reward(
                 waypoint=waypoint,
                 penalty=-1.0,
@@ -55,8 +57,8 @@ def create_drop_stage(
             formula=formula,
             current_state=current_state,
             next_state=success_state,
-            counter_modifier=(-1,),
-            reward_fn=create_constant_reward(100.0),
+            counter_modifier=success_counter_modifier,
+            reward_fn=create_constant_reward(1000.0),
         )
     )
     # Other
@@ -67,7 +69,7 @@ def create_drop_stage(
             ),
             current_state=current_state,
             next_state=current_state,
-            counter_modifier=(0,),
+            counter_modifier=base_counter_modifier,
             reward_fn=create_waypoint_reward(
                 waypoint=waypoint,
                 max_distance=1.0,
