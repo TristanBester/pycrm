@@ -24,3 +24,6 @@ coverage.xml
 
 # tfevents
 *.tfevents*
+
+# JSON
+*.json
