@@ -5,7 +5,7 @@ import numpy as np
 
 from crm.crossproduct.crossproduct import CrossProduct
 from experiments.warehouse.lib.label.function import WarehouseLabellingFunction
-from experiments.warehouse.lib.machines.context_sensitive import ContextSensitiveCRM
+from experiments.warehouse.lib.machines import ContextSensitiveCRM
 
 """
 NOTE: The ground obs here needs to be preprocessed to not be in the form of a dictionary
@@ -23,7 +23,7 @@ class ContextSensitiveCrossProductMDP(CrossProduct):
         super().__init__(
             ground_env=ground_env,  # type: ignore
             lf=WarehouseLabellingFunction(),
-            crm=ContextSensitiveCRM(**crm_kwargs),
+            crm=ContextSensitiveCRM(),
             max_steps=max_steps,
         )
 
