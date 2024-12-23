@@ -1,8 +1,8 @@
 from enum import Enum, auto
 
 
-class PickPlaceEvent(Enum):
-    """Propositions used to capture high-level events in the environment."""
+class WarehouseEvent(Enum):
+    """Propositions used to capture high-level events in the warehouse environment."""
 
     """
     Waypoints.
@@ -21,10 +21,6 @@ class PickPlaceEvent(Enum):
     RELEASE_GREEN = auto()
     RELEASE_RED = auto()
     RELEASE_BLUE = auto()
-
-    # Debug waypoints
-    DEBUG_WAYPOINT_ONE = auto()
-    DEBUG_WAYPOINT_TWO = auto()
 
     """
     Regions.

@@ -7,10 +7,10 @@ from omegaconf import DictConfig
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
 
-from experiments.warehouse_exp.lib.agents.context_sensitive import (
+from experiments.warehouse.lib.agents.context_sensitive import (
     ContextSensitiveSubtaskLoggingSAC,
 )
-from experiments.warehouse_exp.lib.crossproducts.context_sensitive import (
+from experiments.warehouse.lib.crossproducts.context_sensitive import (
     ContextSensitiveCrossProductMDP,
 )
 

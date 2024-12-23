@@ -1,19 +1,22 @@
 import numpy as np
 
-import experiments.warehouse_exp.lib.constants.regions as cr
-import experiments.warehouse_exp.lib.constants.waypoints as cw
+import experiments.warehouse.lib.groundenv.constants.regions as cr
+import experiments.warehouse.lib.groundenv.constants.waypoints as cw
 from crm.label import LabellingFunction
-from experiments.warehouse_exp.lib.label.events import PickPlaceEvent
+from experiments.warehouse.lib.label import WarehouseEvent
 
 
-class PickPlaceLabellingFunction(LabellingFunction):
+class WarehouseLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
+    """Labelling function for the warehouse environment."""
+
     def __init__(
         self,
         grasp_waypoint_xy_tol=0.025,
         grasp_waypoint_z_tol=0.01,
         position_waypoint_tol=0.025,
         vel_tol=0.01,
-    ):
+    ) -> None:
+        """Initialise the labelling function."""
         self.grasp_waypoint_xy_tol = grasp_waypoint_xy_tol
         self.grasp_waypoint_z_tol = grasp_waypoint_z_tol
         self.position_waypoint_tol = position_waypoint_tol
@@ -22,220 +25,220 @@ class PickPlaceLabellingFunction(LabellingFunction):
     @LabellingFunction.event
     def above_red(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is above the red cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.ABOVE_RED):
-            return PickPlaceEvent.ABOVE_RED
+            return WarehouseEvent.ABOVE_RED
         return None
 
     @LabellingFunction.event
     def above_green(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is above the green cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.ABOVE_GREEN):
-            return PickPlaceEvent.ABOVE_GREEN
+            return WarehouseEvent.ABOVE_GREEN
         return None
 
     @LabellingFunction.event
     def above_blue(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is above the blue cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.ABOVE_BLUE):
-            return PickPlaceEvent.ABOVE_BLUE
+            return WarehouseEvent.ABOVE_BLUE
         return None
 
     @LabellingFunction.event
     def grasp_green(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is grasping the green cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.GRASP_GREEN):
-            return PickPlaceEvent.GRASP_GREEN
+            return WarehouseEvent.GRASP_GREEN
         return None
 
     @LabellingFunction.event
     def grasp_red(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is grasping the red cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.GRASP_RED):
-            return PickPlaceEvent.GRASP_RED
+            return WarehouseEvent.GRASP_RED
         return None
 
     @LabellingFunction.event
     def grasp_blue(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is grasping the blue cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.GRASP_BLUE):
-            return PickPlaceEvent.GRASP_BLUE
+            return WarehouseEvent.GRASP_BLUE
         return None
 
     @LabellingFunction.event
     def release_green(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is releasing the green cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.RELEASE_GREEN):
-            return PickPlaceEvent.RELEASE_GREEN
+            return WarehouseEvent.RELEASE_GREEN
         return None
 
     @LabellingFunction.event
     def release_red(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is releasing the red cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.RELEASE_RED):
-            return PickPlaceEvent.RELEASE_RED
+            return WarehouseEvent.RELEASE_RED
         return None
 
     @LabellingFunction.event
     def release_blue(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is releasing the blue cube."""
         if self._test_ee_near_waypoint(next_obs[:3], cw.RELEASE_BLUE):
-            return PickPlaceEvent.RELEASE_BLUE
+            return WarehouseEvent.RELEASE_BLUE
         return None
 
     @LabellingFunction.event
     def safe_region_green(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the safe region of the green cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.SAFE_REGION_GREEN_COM, cr.SAFE_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.SAFE_REGION_GREEN
+            return WarehouseEvent.SAFE_REGION_GREEN
         return None
 
     @LabellingFunction.event
     def safe_region_red(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the safe region of the red cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.SAFE_REGION_RED_COM, cr.SAFE_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.SAFE_REGION_RED
+            return WarehouseEvent.SAFE_REGION_RED
         return None
 
     @LabellingFunction.event
     def safe_region_blue(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the safe region of the blue cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.SAFE_REGION_BLUE_COM, cr.SAFE_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.SAFE_REGION_BLUE
+            return WarehouseEvent.SAFE_REGION_BLUE
         return None
 
     @LabellingFunction.event
     def tight_region_green(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the tight region of the green cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.TIGHT_REGION_GREEN_COM, cr.TIGHT_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.TIGHT_REGION_GREEN
+            return WarehouseEvent.TIGHT_REGION_GREEN
         return None
 
     @LabellingFunction.event
     def tight_region_red(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the tight region of the red cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.TIGHT_REGION_RED_COM, cr.TIGHT_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.TIGHT_REGION_RED
+            return WarehouseEvent.TIGHT_REGION_RED
         return None
 
     @LabellingFunction.event
     def tight_region_blue(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the tight region of the blue cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.TIGHT_REGION_BLUE_COM, cr.TIGHT_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.TIGHT_REGION_BLUE
+            return WarehouseEvent.TIGHT_REGION_BLUE
         return None
 
     @LabellingFunction.event
     def release_region_green(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the release region of the green cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.RELEASE_REGION_GREEN_COM, cr.RELEASE_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.RELEASE_REGION_GREEN
+            return WarehouseEvent.RELEASE_REGION_GREEN
         return None
 
     @LabellingFunction.event
     def release_region_red(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the release region of the red cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.RELEASE_REGION_RED_COM, cr.RELEASE_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.RELEASE_REGION_RED
+            return WarehouseEvent.RELEASE_REGION_RED
         return None
 
     @LabellingFunction.event
     def release_region_blue(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector is in the release region of the blue cube."""
         if self._test_ee_within_region(
             next_obs[:3], cr.RELEASE_REGION_BLUE_COM, cr.RELEASE_REGION_HALF_EXTENTS
         ):
-            return PickPlaceEvent.RELEASE_REGION_BLUE
+            return WarehouseEvent.RELEASE_REGION_BLUE
         return None
 
     @LabellingFunction.event
     def velocity_low(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the end-effector velocity is low."""
         ee_vel = next_obs[3:6]
         if np.linalg.norm(ee_vel, ord=np.inf) < self.vel_tol:
-            return PickPlaceEvent.VELOCITY_LOW
+            return WarehouseEvent.VELOCITY_LOW
         return None
 
     @LabellingFunction.event
     def gripper_open_action_executed(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the gripper open action was executed."""
         if action[-1] > 0.0:
-            return PickPlaceEvent.GRIPPER_OPEN_ACTION_EXECUTED
+            return WarehouseEvent.GRIPPER_OPEN_ACTION_EXECUTED
         return None
 
     @LabellingFunction.event
     def gripper_closed(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the gripper is closed."""
         gripper_state = next_obs[6]
         if np.abs(gripper_state) < 0.065:
-            return PickPlaceEvent.GRIPPER_CLOSED
+            return WarehouseEvent.GRIPPER_CLOSED
         return None
 
     @LabellingFunction.event
     def gripper_open(
         self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> PickPlaceEvent | None:
+    ) -> WarehouseEvent | None:
         """Return if the gripper is open."""
         gripper_state = next_obs[6]
         if np.abs(gripper_state) > 0.07:
-            return PickPlaceEvent.GRIPPER_OPEN
+            return WarehouseEvent.GRIPPER_OPEN
         return None
 
     def _test_ee_near_waypoint(

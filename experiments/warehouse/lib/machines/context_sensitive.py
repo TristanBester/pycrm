@@ -3,15 +3,15 @@ from typing import Callable
 
 import numpy as np
 
-import experiments.warehouse_exp.lib.constants.waypoints as cw
+import experiments.warehouse.lib.groundenv.constants.waypoints as cw
 from crm.automaton import CountingRewardMachine
 from crm.automaton.compiler import compile_transition_expression
-from experiments.warehouse_exp.lib.label.events import PickPlaceEvent
+from experiments.warehouse.lib.label.events import WarehouseEvent
 
 
 class ContextSensitiveCRM(CountingRewardMachine):
     def __init__(self, c_0: tuple[int, int, int] = (3, 3, 3)) -> None:
-        super().__init__(env_prop_enum=PickPlaceEvent)
+        super().__init__(env_prop_enum=WarehouseEvent)
         self._c_0 = c_0
         self._delta_u = self._get_state_transition_function()
         self._delta_c = self._get_counter_transition_function()

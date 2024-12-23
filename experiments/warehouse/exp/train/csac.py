@@ -8,10 +8,10 @@ from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
 
 from crm.agents.sb3.vec import DispatchSubprocVecEnv
-from experiments.warehouse_exp.lib.agents.context_sensitive import (
+from experiments.warehouse.lib.agents.context_sensitive import (
     ContextSensitiveSubtaskLoggingCSAC,
 )
-from experiments.warehouse_exp.lib.crossproducts.context_sensitive import (
+from experiments.warehouse.lib.crossproducts.context_sensitive import (
     ContextSensitiveCrossProductMDP,
 )
 

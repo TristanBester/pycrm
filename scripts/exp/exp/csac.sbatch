@@ -24,7 +24,7 @@ fi
 cd ~/warehouse
 uv sync --extra experiments
 
-cd ~/warehouse/experiments/warehouse_exp/exp/train
+cd ~/warehouse/experiments/warehouse/exp/train
 uv run csac.py train.seed=$(( $1 + 0 )) exp.use_wandb=true environment=remote & 
 uv run csac.py train.seed=$(( $1 + 1 )) exp.use_wandb=true environment=remote & 
 uv run csac.py train.seed=$(( $1 + 2 )) exp.use_wandb=true environment=remote & 

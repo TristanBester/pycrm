@@ -4,9 +4,8 @@ import gymnasium as gym
 import numpy as np
 
 from crm.crossproduct.crossproduct import CrossProduct
-from experiments.warehouse_exp.lib.groundenv.robot_task_env import WrappedPickPlaceEnv
-from experiments.warehouse_exp.lib.label.function import PickPlaceLabellingFunction
-from experiments.warehouse_exp.lib.machines.context_sensitive import ContextSensitiveCRM
+from experiments.warehouse.lib.label.function import WarehouseLabellingFunction
+from experiments.warehouse.lib.machines.context_sensitive import ContextSensitiveCRM
 
 """
 NOTE: The ground obs here needs to be preprocessed to not be in the form of a dictionary
@@ -20,9 +19,10 @@ class ContextSensitiveCrossProductMDP(CrossProduct):
         self, max_steps: int = 5000, render_mode="rgb_array", crm_kwargs: dict = {}
     ):
         # TODO: Pass all args for ground_env, labelling_function, crm through contrustor here to allow customization
+        ground_env = gym.make("WarehouseGround-v0", render_mode=render_mode)
         super().__init__(
-            ground_env=WrappedPickPlaceEnv(render_mode=render_mode),  # type: ignore
-            lf=PickPlaceLabellingFunction(),
+            ground_env=ground_env,  # type: ignore
+            lf=WarehouseLabellingFunction(),
             crm=ContextSensitiveCRM(**crm_kwargs),
             max_steps=max_steps,
         )
@@ -94,7 +94,7 @@ class ContextSensitiveCrossProductMDP(CrossProduct):
         # obs, reward, terminated, truncated, info = super().step(action)
 
         # Update waypoint visualisations
-        self.ground_env._env.task.update_waypoints(ee_pos=obs[:3])
+        # self.ground_env._env.task.update_waypoints(ee_pos=obs[:3])
 
         if self._machine_cfg_changed():
             c_o = tuple([int(c) for c in self.c])
@@ -293,11 +293,11 @@ class ContextSensitiveCrossProductMDP(CrossProduct):
 
                 if self.render_mode == "human":
                     ee_pos = self.ground_obs_next[:3]
-                    self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
+                    # self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
                     self.render()
                     time.sleep(self.frame_delay)
 
-            self.ground_env._env.task.reset_red_block_pose()
+            # self.ground_env._env.task.reset_red_block_pose()
         elif self.u == 0 and self.c[1] != 0:
             if self.action[-1] <= 0:
                 # Close gripper
@@ -311,11 +311,11 @@ class ContextSensitiveCrossProductMDP(CrossProduct):
 
                 if self.render_mode == "human":
                     ee_pos = self.ground_obs_next[:3]
-                    self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
+                    # self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
                     self.render()
                     time.sleep(self.frame_delay)
 
-            self.ground_env._env.task.reset_green_block_pose()
+            # self.ground_env._env.task.reset_green_block_pose()
         elif self.u == 0 and self.c[2] != 0:
             if self.action[-1] <= 0:
                 # Close gripper
@@ -329,11 +329,11 @@ class ContextSensitiveCrossProductMDP(CrossProduct):
 
                 if self.render_mode == "human":
                     ee_pos = self.ground_obs_next[:3]
-                    self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
+                    # self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
                     self.render()
                     time.sleep(self.frame_delay)
 
-            self.ground_env._env.task.reset_blue_block_pose()
+            # self.ground_env._env.task.reset_blue_block_pose()
 
     def _handle_gripper_state_change(self):
         # FIXME: Most of this logic should (probably) be moved to the ground environment
@@ -349,7 +349,7 @@ class ContextSensitiveCrossProductMDP(CrossProduct):
 
             if self.render_mode == "human":
                 ee_pos = self.ground_obs_next[:3]
-                self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
+                # self.ground_env._env.task.update_waypoints(ee_pos=ee_pos)
                 self.render()
                 time.sleep(self.frame_delay)
 
@@ -455,7 +455,7 @@ if __name__ == "__main__":
     # solve returns = 196
     import matplotlib.pyplot as plt
 
-    import experiments.warehouse_exp.lib.constants.waypoints as cw
+    import experiments.warehouse.lib.groundenv.constants.waypoints as cw
 
     env = ContextSensitiveCrossProductMDP(render_mode="human")
     obs, _ = env.reset()

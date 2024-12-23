@@ -1,7 +1,7 @@
 import numpy as np
 
-import experiments.warehouse_exp.lib.constants.simulation as cs
-import experiments.warehouse_exp.lib.constants.waypoints as cw
+import experiments.warehouse.lib.groundenv.constants.simulation as cs
+import experiments.warehouse.lib.groundenv.constants.waypoints as cw
 
 # Region sizes
 SAFE_REGION_HALF_EXTENTS = np.array([0.05, 0.05, 0.2]) / 2

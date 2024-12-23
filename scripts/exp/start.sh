@@ -14,3 +14,4 @@ sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] exp
 sleep 30s
 sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] exp/csac.sbatch
 sleep 30s
+sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] exp/csac.sbatch 10

@@ -36,3 +36,19 @@ BLUE_CUBE_POSITION = np.array(
         0.025,
     ]
 )
+
+# Tray position
+TRAY_POSITION_RED = np.array([0.25, 0.4, -0.19])
+TRAY_POSITION_GREEN = np.array([0.25 + 0.125, 0.4, -0.19])
+TRAY_POSITION_BLUE = np.array([0.25 + 0.25, 0.4, -0.19])
+TRAY_POSITION_END = np.array([0.25 + 0.4, 0.4, -0.19])
+
+# Rail half extents
+RAIL_HALF_EXTENTS = np.array([0.0025, 0.23, 0.02])
+
+# Large rail half extents
+LARGE_RAIL_HALF_EXTENTS = np.array([0.38, 0.0025, 0.02])
+
+# Large rail position
+LARGE_RAIL_ONE_POSITION = np.array([0.46, 0.25, -0.2])
+LARGE_RAIL_TWO_POSITION = np.array([0.46, 0.25 + 0.3, -0.2])
