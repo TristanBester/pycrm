@@ -1,269 +1,513 @@
-from collections import defaultdict
 from itertools import product
+from typing import Callable
 
 import numpy as np
 
+import experiments.warehouse.lib.groundenv.constants.waypoints as cw
 from crm.automaton import CountingRewardMachine
+from crm.automaton.compiler import compile_transition_expression
 from experiments.warehouse.lib.label import WarehouseEvent
-from experiments.warehouse.lib.machines.reward import recaled_reward_function
-from experiments.warehouse.lib.machines.stage import (
-    create_above_block_stage,
-    create_drop_stage,
-    create_grasp_stage,
-    create_grip_stage,
-    create_release_position_stage,
-)
 
 
 class ContextSensitiveCRM(CountingRewardMachine):
-    """Counting reward machine for the warehouse environment."""
+    """Context-sensitive CRM for the warehouse environment."""
 
-    def __init__(self) -> None:
-        """Initialise the counting reward machine."""
-        self._init_transitions()
+    def __init__(self, c_0: tuple[int, int, int] = (3, 3, 3)) -> None:
+        """Initialise the CRM."""
         super().__init__(env_prop_enum=WarehouseEvent)
+        self._c_0 = c_0
+        self._delta_u = self._get_state_transition_function()
+        self._delta_c = self._get_counter_transition_function()
+        self._delta_r = self._get_reward_transition_function()
+
+        # Handle state-transition function
+        self._replace_terminal_state()
+        self.U = list(self._delta_u.keys())
+        self.F = [self._get_max_state() + 1]
+
+        # Handle reward-transition function
+        self._replace_ccrm_rewards()
+        self._init_transition_functions()
 
     @property
     def u_0(self) -> int:
-        """Return the initial state of the machine."""
+        """Initial state."""
         return 0
 
     @property
-    def c_0(self) -> tuple[int, ...]:
-        """Return the initial counter configuration of the machine."""
-        return (3, 3, 3)
-
-    def sample_counter_configurations(self) -> list[tuple[int, ...]]:
-        """Return a list of counter configurations."""
-        main_configurations = list(product(range(3), repeat=3))
-
-        random_configurations = np.random.randint(low=0, high=100_000, size=(15, 3))
-        random_configurations[5:, 0] = 0
-        random_configurations[10:, 1] = 0
-        random_configurations = [tuple(config) for config in random_configurations]
-
-        configurations = main_configurations + random_configurations
-        return configurations
+    def c_0(self) -> tuple[int, int, int]:
+        """Initial counter state."""
+        return self._c_0
 
     def _get_state_transition_function(self) -> dict:
-        """Return the state transition function."""
-        decision_node_state_transitions = {
+        delta_u = {
             0: {
                 "/ (Z, Z, Z)": -1,
                 "/ (NZ, -, -)": 15,
                 "/ (Z, NZ, -)": 10,
                 "/ (Z, Z, NZ)": 5,
-            }
+            },
         }
 
-        block_module_transitions = defaultdict(dict)
-        for t in self._transitions:
-            block_module_transitions[t.current_state][t.formula] = t.next_state
+        # Add blue block module
+        blue_block_module_delta_u = self._add_block_module_delta_u(
+            u_start=1, counter_state="(Z, Z, NZ)", block_colour="BLUE"
+        )
+        # Merge delta_u
+        for u in blue_block_module_delta_u.keys():
+            if u not in delta_u.keys():
+                delta_u[u] = {}
+            delta_u[u] |= blue_block_module_delta_u[u]
 
-        x = decision_node_state_transitions | dict(block_module_transitions)
-        return x
+        # Add green block module
+        green_block_module_delta_u = self._add_block_module_delta_u(
+            u_start=6, counter_state="(Z, NZ, -)", block_colour="GREEN"
+        )
+        # Merge delta_u
+        for u in green_block_module_delta_u.keys():
+            if u not in delta_u.keys():
+                delta_u[u] = {}
+            delta_u[u] |= green_block_module_delta_u[u]
+
+        # Add red block module
+        red_block_module_delta_u = self._add_block_module_delta_u(
+            u_start=11, counter_state="(NZ, -, -)", block_colour="RED"
+        )
+        # Merge delta_u
+        for u in red_block_module_delta_u.keys():
+            if u not in delta_u.keys():
+                delta_u[u] = {}
+            delta_u[u] |= red_block_module_delta_u[u]
+
+        return delta_u
 
     def _get_counter_transition_function(self) -> dict:
-        """Return the counter transition function."""
-        decision_node_counter_transitions = {
+        delta_c = {
             0: {
                 "/ (Z, Z, Z)": (0, 0, 0),
                 "/ (NZ, -, -)": (0, 0, 0),
                 "/ (Z, NZ, -)": (0, 0, 0),
                 "/ (Z, Z, NZ)": (0, 0, 0),
-            }
+            },
         }
 
-        block_module_counter_transitions = defaultdict(dict)
-        for t in self._transitions:
-            block_module_counter_transitions[t.current_state][t.formula] = (
-                t.counter_modifier
-            )
+        # Add blue block module
+        blue_block_module_delta_c = self._add_block_module_delta_c(
+            u_start=1, counter_state="(Z, Z, NZ)", block_colour="BLUE"
+        )
+        # Merge delta_c
+        for u in blue_block_module_delta_c.keys():
+            if u not in delta_c.keys():
+                delta_c[u] = {}
+            delta_c[u] |= blue_block_module_delta_c[u]
 
-        x = decision_node_counter_transitions | dict(block_module_counter_transitions)
-        return x
+        # Add green block module
+        green_block_module_delta_c = self._add_block_module_delta_c(
+            u_start=6, counter_state="(Z, NZ, -)", block_colour="GREEN"
+        )
+        # Merge delta_c
+        for u in green_block_module_delta_c.keys():
+            if u not in delta_c.keys():
+                delta_c[u] = {}
+            delta_c[u] |= green_block_module_delta_c[u]
+
+        # Add red block module
+        red_block_module_delta_c = self._add_block_module_delta_c(
+            u_start=11, counter_state="(NZ, -, -)", block_colour="RED"
+        )
+        # Merge delta_c
+        for u in red_block_module_delta_c.keys():
+            if u not in delta_c.keys():
+                delta_c[u] = {}
+            delta_c[u] |= red_block_module_delta_c[u]
+
+        return delta_c
 
     def _get_reward_transition_function(self) -> dict:
-        """Return the reward transition function."""
-        decision_node_reward_transitions = {
+        delta_r = {
             0: {
-                "/ (Z, Z, Z)": 0.0,
-                "/ (NZ, -, -)": 0.0,
-                "/ (Z, NZ, -)": 0.0,
-                "/ (Z, Z, NZ)": 0.0,
-            }
+                "/ (Z, Z, Z)": self._create_f_c(0.0),
+                "/ (NZ, -, -)": self._create_f_c(0.0),
+                "/ (Z, NZ, -)": self._create_f_c(0.0),
+                "/ (Z, Z, NZ)": self._create_f_c(0.0),
+            },
         }
 
-        # We have a set of reward functions each in the range [0, 1]
-        # Now need to rescale them to ensure monotonicity
-        block_module_reward_transitions = defaultdict(dict)
-        for t in self._transitions:
-            if t.reward_fn._enable_rescaling:
-                t.reward_fn._intercept = -t.current_state
-                t.reward_fn._min_reward = -t.current_state - 1
-                t.reward_fn._max_reward = -t.current_state
-                t.reward_fn = recaled_reward_function(
-                    rf=t.reward_fn,
-                    r_min=-10.0,
-                    r_max=1.0,
+        # Add blue block module
+        blue_block_module_delta_r = self._add_block_module_delta_r(
+            u_start=1, counter_state="(Z, Z, NZ)", block_colour="BLUE"
+        )
+        # Merge delta_r
+        for u in blue_block_module_delta_r.keys():
+            if u not in delta_r.keys():
+                delta_r[u] = {}
+            delta_r[u] |= blue_block_module_delta_r[u]
+
+        # Add green block module
+        green_block_module_delta_r = self._add_block_module_delta_r(
+            u_start=6, counter_state="(Z, NZ, -)", block_colour="GREEN"
+        )
+        # Merge delta_r
+        for u in green_block_module_delta_r.keys():
+            if u not in delta_r.keys():
+                delta_r[u] = {}
+            delta_r[u] |= green_block_module_delta_r[u]
+
+        # Add red block module
+        red_block_module_delta_r = self._add_block_module_delta_r(
+            u_start=11, counter_state="(NZ, -, -)", block_colour="RED"
+        )
+        # Merge delta_r
+        for u in red_block_module_delta_r.keys():
+            if u not in delta_r.keys():
+                delta_r[u] = {}
+            delta_r[u] |= red_block_module_delta_r[u]
+
+        return delta_r
+
+    def sample_counter_configurations(self) -> list[tuple[int, ...]]:
+        """Sample counter configurations."""
+        main_configurations = list(product(range(3), repeat=3))
+        random_configurations = np.random.randint(low=0, high=100_000, size=(15, 3))
+        random_configurations[5:, 0] = 0
+        random_configurations[10:, 1] = 0
+        random_configurations = [tuple(config) for config in random_configurations]
+        configurations = main_configurations + random_configurations
+        return configurations
+
+    def _add_block_module_delta_u(
+        self, u_start: int, counter_state: str, block_colour: str
+    ):
+        module_terminal_state = 0
+        base_u = u_start + 4
+
+        delta_u = {
+            base_u: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": base_u,
+                f"ABOVE_{block_colour} and VELOCITY_LOW / {counter_state}": base_u - 1,
+                f"not (ABOVE_{block_colour} and VELOCITY_LOW) / {counter_state}": (
+                    base_u
+                ),
+            },
+            base_u - 1: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (base_u - 1),
+                f"not SAFE_REGION_{block_colour} / {counter_state}": (base_u - 1),
+                f"GRASP_{block_colour} and VELOCITY_LOW / {counter_state}": (base_u - 1)
+                - 1,
+                f"not (GRASP_{block_colour} and VELOCITY_LOW) / {counter_state}": (
+                    base_u - 1
+                ),
+            },
+            base_u - 2: {
+                f"GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (base_u - 2),
+                f"not TIGHT_REGION_{block_colour} / {counter_state}": (base_u - 2),
+                f"TIGHT_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
+                    base_u - 2
                 )
-                t.reward_fn._intercept = -t.current_state / 10 - 1.0
+                - 1,
+                (
+                    f"TIGHT_REGION_{block_colour} and "
+                    f"not GRIPPER_CLOSED / {counter_state}"
+                ): (base_u - 2),
+            },
+            base_u - 3: {
+                f"GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (base_u - 3),
+                f"not RELEASE_REGION_{block_colour} / {counter_state}": (base_u - 3),
+                f"RELEASE_{block_colour} and VELOCITY_LOW / {counter_state}": (
+                    base_u - 3
+                )
+                - 1,
+                f"not (RELEASE_{block_colour} and VELOCITY_LOW) / {counter_state}": (
+                    base_u - 3
+                ),
+            },
+            base_u - 4: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (base_u - 4),
+                f"not RELEASE_REGION_{block_colour} / {counter_state}": (base_u - 4),
+                (
+                    f"RELEASE_REGION_{block_colour} and "
+                    f"not GRIPPER_CLOSED / {counter_state}"
+                ): (module_terminal_state),
+                f"RELEASE_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
+                    base_u - 4
+                ),
+            },
+        }
+        return delta_u
 
-            block_module_reward_transitions[t.current_state][t.formula] = t.reward_fn
+    def _add_block_module_delta_c(
+        self, u_start: int, counter_state: str, block_colour: str
+    ):
+        if block_colour == "RED":
+            module_terminal_counter_modifier = (-1, 0, 0)
+        elif block_colour == "GREEN":
+            module_terminal_counter_modifier = (0, -1, 0)
+        elif block_colour == "BLUE":
+            module_terminal_counter_modifier = (0, 0, -1)
+        else:
+            raise ValueError(f"Invalid block colour: {block_colour}")
 
-        x = decision_node_reward_transitions | dict(block_module_reward_transitions)
-        return x
+        base_u = u_start + 4
 
-    def _init_transitions(self) -> None:
-        """Add the block module to the state transition function."""
-        self._transitions = []
+        delta_c = {
+            base_u: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (0,),
+                f"ABOVE_{block_colour} and VELOCITY_LOW / {counter_state}": (0,),
+                f"not (ABOVE_{block_colour} and VELOCITY_LOW) / {counter_state}": (0,),
+            },
+            base_u - 1: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (0,),
+                f"not SAFE_REGION_{block_colour} / {counter_state}": (0,),
+                f"GRASP_{block_colour} and VELOCITY_LOW / {counter_state}": (0,),
+                f"not (GRASP_{block_colour} and VELOCITY_LOW) / {counter_state}": (0,),
+            },
+            base_u - 2: {
+                f"GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (0,),
+                f"not TIGHT_REGION_{block_colour} / {counter_state}": (0,),
+                f"TIGHT_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
+                    0,
+                ),
+                (
+                    f"TIGHT_REGION_{block_colour} and "
+                    f"not GRIPPER_CLOSED / {counter_state}"
+                ): (0,),
+            },
+            base_u - 3: {
+                f"GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (0,),
+                f"not RELEASE_REGION_{block_colour} / {counter_state}": (0,),
+                f"RELEASE_{block_colour} and VELOCITY_LOW / {counter_state}": (0,),
+                f"not (RELEASE_{block_colour} and VELOCITY_LOW) / {counter_state}": (
+                    0,
+                ),
+            },
+            base_u - 4: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (0,),
+                f"not RELEASE_REGION_{block_colour} / {counter_state}": (0,),
+                (
+                    f"RELEASE_REGION_{block_colour} and "
+                    f"not GRIPPER_CLOSED / {counter_state}"
+                ): module_terminal_counter_modifier,
+                f"RELEASE_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
+                    0,
+                ),
+            },
+        }
+        return delta_c
 
-        ######
-        # RED
-        ######
+    def _add_block_module_delta_r(
+        self, u_start: int, counter_state: str, block_colour: str
+    ):
+        if block_colour == "GREEN":
+            release_waypoint = cw.RELEASE_GREEN
+        elif block_colour == "RED":
+            release_waypoint = cw.RELEASE_RED
+        elif block_colour == "BLUE":
+            release_waypoint = cw.RELEASE_BLUE
+        else:
+            raise ValueError(f"Invalid block colour: {block_colour}")
 
-        # Move above red block
-        self._transitions += create_above_block_stage(
-            block_colour="RED",
-            counter_state="(NZ,-,-)",
-            current_state=15,
-            success_state=14,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Move to red block grasp position
-        self._transitions += create_grasp_stage(
-            block_colour="RED",
-            counter_state="(NZ,-,-)",
-            current_state=14,
-            success_state=13,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Grasp red block
-        self._transitions += create_grip_stage(
-            block_colour="RED",
-            counter_state="(NZ,-,-)",
-            current_state=13,
-            success_state=12,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Move to red block release position
-        self._transitions += create_release_position_stage(
-            block_colour="RED",
-            counter_state="(NZ,-,-)",
-            current_state=12,
-            success_state=11,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Release red block
-        self._transitions += create_drop_stage(
-            block_colour="RED",
-            counter_state="(NZ,-,-)",
-            current_state=11,
-            success_state=0,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(-1, 0, 0),
-        )
+        waypoint_above = getattr(cw, f"ABOVE_{block_colour}")
+        waypoint_grasp = getattr(cw, f"GRASP_{block_colour}")
 
-        ######
-        # GREEN
-        ######
+        base_u = u_start + 4
 
-        # Move aboove green block
-        self._transitions += create_above_block_stage(
-            block_colour="GREEN",
-            counter_state="(Z,NZ,-)",
-            current_state=10,
-            success_state=9,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Move to green block grasp position
-        self._transitions += create_grasp_stage(
-            block_colour="GREEN",
-            counter_state="(Z,NZ,-)",
-            current_state=9,
-            success_state=8,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Grasp green block
-        self._transitions += create_grip_stage(
-            block_colour="GREEN",
-            counter_state="(Z,NZ,-)",
-            current_state=8,
-            success_state=7,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Move to green block release position
-        self._transitions += create_release_position_stage(
-            block_colour="GREEN",
-            counter_state="(Z,NZ,-)",
-            current_state=7,
-            success_state=6,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Release green block
-        self._transitions += create_drop_stage(
-            block_colour="GREEN",
-            counter_state="(Z,NZ,-)",
-            current_state=6,
-            success_state=0,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, -1, 0),
-        )
+        delta_r = {
+            base_u: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (
+                    self._create_unscaled_f_c(-2)
+                ),
+                f"ABOVE_{block_colour} and VELOCITY_LOW / {counter_state}": (
+                    self._create_f_c(500)
+                ),
+                f"not (ABOVE_{block_colour} and VELOCITY_LOW) / {counter_state}": (
+                    self._create_f_w(waypoint_above)
+                ),
+            },
+            base_u - 1: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (
+                    self._create_unscaled_f_c(-2)
+                ),
+                f"not SAFE_REGION_{block_colour} / {counter_state}": self._create_f_pw(
+                    waypoint_grasp,
+                ),
+                f"GRASP_{block_colour} and VELOCITY_LOW / {counter_state}": (
+                    self._create_f_c(500)
+                ),
+                f"not (GRASP_{block_colour} and VELOCITY_LOW) / {counter_state}": (
+                    self._create_f_w(
+                        waypoint_grasp,
+                    )
+                ),
+            },
+            base_u - 2: {
+                f"GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (
+                    self._create_unscaled_f_c(-2)
+                ),
+                f"not TIGHT_REGION_{block_colour} / {counter_state}": self._create_f_pw(
+                    waypoint_grasp,
+                ),
+                f"TIGHT_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
+                    self._create_f_c(500)
+                ),
+                (
+                    f"TIGHT_REGION_{block_colour} and "
+                    f"not GRIPPER_CLOSED / {counter_state}"
+                ): (
+                    self._create_f_w(
+                        waypoint_grasp,
+                    )
+                ),
+            },
+            base_u - 3: {
+                f"GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (
+                    self._create_unscaled_f_c(-2)
+                ),
+                f"not RELEASE_REGION_{block_colour} / {counter_state}": (
+                    self._create_f_pw(release_waypoint)
+                ),
+                f"RELEASE_{block_colour} and VELOCITY_LOW / {counter_state}": (
+                    self._create_f_c(500)
+                ),
+                f"not (RELEASE_{block_colour} and VELOCITY_LOW) / {counter_state}": (
+                    self._create_f_w(release_waypoint)
+                ),
+            },
+            base_u - 4: {
+                f"not GRIPPER_OPEN_ACTION_EXECUTED / {counter_state}": (
+                    self._create_unscaled_f_c(-2)
+                ),
+                f"not RELEASE_REGION_{block_colour} / {counter_state}": (
+                    self._create_f_pw(release_waypoint)
+                ),
+                (
+                    f"RELEASE_REGION_{block_colour} and "
+                    f"not GRIPPER_CLOSED / {counter_state}"
+                ): (self._create_unscaled_f_c(500)),
+                f"RELEASE_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
+                    self._create_f_w(release_waypoint)
+                ),
+            },
+        }
+        return delta_r
 
-        ######
-        # BLUE
-        ######
+    def _init_transition_functions(self):
+        """Override of transition function initialisation for custom reward scaling."""
+        self.delta_u = {}
+        self.delta_c = {}
+        self.delta_r = {}
 
-        # Move aboove blue block
-        self._transitions += create_above_block_stage(
-            block_colour="BLUE",
-            counter_state="(Z,Z,NZ)",
-            current_state=5,
-            success_state=4,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Move to green block grasp position
-        self._transitions += create_grasp_stage(
-            block_colour="BLUE",
-            counter_state="(Z,Z,NZ)",
-            current_state=4,
-            success_state=3,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Grasp blue block
-        self._transitions += create_grip_stage(
-            block_colour="BLUE",
-            counter_state="(Z,Z,NZ)",
-            current_state=3,
-            success_state=2,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Move to blue block release position
-        self._transitions += create_release_position_stage(
-            block_colour="BLUE",
-            counter_state="(Z,Z,NZ)",
-            current_state=2,
-            success_state=1,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, 0),
-        )
-        # Release blue block
-        self._transitions += create_drop_stage(
-            block_colour="BLUE",
-            counter_state="(Z,Z,NZ)",
-            current_state=1,
-            success_state=0,
-            base_counter_modifier=(0, 0, 0),
-            success_counter_modifier=(0, 0, -1),
-        )
+        for u in self._delta_u.keys():
+            d_u = {}
+            d_c = {}
+            d_r = {}
+
+            for expr in self._delta_u[u]:
+                transition_formula = compile_transition_expression(
+                    expr, self.env_prop_enum
+                )
+                d_u[transition_formula] = self._delta_u[u][expr]
+                try:
+                    d_c[transition_formula] = self._delta_c[u][expr]
+                except KeyError as e:
+                    raise ValueError(
+                        f"Missing counter configuration for transition {u}: {expr}"
+                    ) from e
+
+                if "ACTION" not in expr:
+                    reward_fn = self._delta_r[u][expr]
+                    if u != 0:
+                        scaled_reward_fn = self._create_scaled_reward_function(
+                            reward_fn, u, 15
+                        )
+                    else:
+                        u_next = self._delta_u[u][expr]
+
+                        if u_next != 15:
+                            scaled_reward_fn = self._create_scaled_reward_function(
+                                reward_fn, u_next, 15
+                            )
+                        else:
+                            scaled_reward_fn = reward_fn
+                else:
+                    reward_fn = self._delta_r[u][expr]
+                    scaled_reward_fn = reward_fn
+
+                d_r[transition_formula] = scaled_reward_fn
+            self.delta_u[u] = d_u
+            self.delta_c[u] = d_c
+            self.delta_r[u] = d_r
+
+    def _create_scaled_reward_function(self, reward_fn: Callable, u: int, max_u: int):
+        def scaled_reward_fn(
+            obs: np.ndarray,
+            action: np.ndarray,
+            obs_next: np.ndarray,
+        ) -> float:
+            reward = reward_fn(obs, action, obs_next)
+            modified_reward = reward - u
+            scaled_reward = ((modified_reward - max_u) / (max_u)) + 2  # In [0, 1]
+            return scaled_reward - 1
+
+        return scaled_reward_fn
+
+    def _create_f_c(self, reward_val: float):
+        """Return a constant real number."""
+
+        def f_c(
+            obs: dict[str, np.ndarray],
+            action: np.ndarray,
+            obs_next: dict[str, np.ndarray],
+        ) -> float:
+            del obs, action, obs_next
+            return np.clip(reward_val, 0.0, 1.0)  # In [0, 1]
+
+        return f_c
+
+    def _create_unscaled_f_c(self, reward_val: float):
+        """Return a constant real number."""
+
+        def f_c(
+            obs: dict[str, np.ndarray],
+            action: np.ndarray,
+            obs_next: dict[str, np.ndarray],
+        ) -> float:
+            del obs, action, obs_next
+            return reward_val
+
+        return f_c
+
+    def _create_f_w(self, waypoint_postion: np.ndarray):
+        """Reward agent for moving towards waypoint."""
+
+        def f_w(
+            obs: np.ndarray,
+            action: np.ndarray,
+            obs_next: np.ndarray,
+        ) -> float:
+            del action, obs
+            ee_pos_next = obs_next[:3]
+            pos_err_next = float(np.linalg.norm(ee_pos_next - waypoint_postion))
+            unscaled_reward = -1.0 * pos_err_next  # In [-inf, 0]
+            clipped_reward = np.clip(unscaled_reward, -0.25, 0.0)  # In [-1, 0]
+            scaled_reward = (clipped_reward - (-0.25)) / (0.0 - (-0.25))  # In [0, 1]
+            return scaled_reward
+
+        return f_w
+
+    def _create_f_pw(self, waypoint: np.ndarray):
+        """Penalise agent for being outside of safe region."""
+        f_w = self._create_f_w(waypoint)
+
+        def f_pw(
+            obs: np.ndarray,
+            action: np.ndarray,
+            obs_next: np.ndarray,
+        ) -> float:
+            pos_reward = f_w(obs, action, obs_next)
+            return -1 + pos_reward
+
+        return f_pw
+
+
+if __name__ == "__main__":
+    crm = ContextSensitiveCRM()

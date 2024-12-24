@@ -500,7 +500,7 @@ if __name__ == "__main__":
         elif env.u == 1:
             delta = cw.RELEASE_BLUE - ee_pos
         else:
-            raise ValueError(f"Invalid state {env._u}")
+            raise ValueError(f"Invalid state {env.u}")
 
         if env.u in (0, 5, 4, 1, 10, 9, 6, 15, 14, 11):
             # Open gripper
