@@ -8,12 +8,7 @@ from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
 
 from crm.agents.sb3.vec import DispatchSubprocVecEnv
-from experiments.warehouse.lib.agents.context_sensitive import (
-    ContextSensitiveSubtaskLoggingCSAC,
-)
-from experiments.warehouse.lib.crossproducts.context_sensitive import (
-    ContextSensitiveCrossProductMDP,
-)
+from experiments.warehouse.lib.agents import LoggingCounterfactualSAC
 
 filterwarnings("ignore")
 
@@ -30,14 +25,22 @@ def main(config: DictConfig):
         )
 
     env = make_vec_env(
-        ContextSensitiveCrossProductMDP,
+        "Warehouse-ContextSensitive-v0",
         n_envs=config.train.n_procs,
         vec_env_cls=DispatchSubprocVecEnv,
-        env_kwargs={"render_mode": "rgb_array"},
         seed=config.train.seed,
+        env_kwargs={
+            "ground_env_kwargs": {
+                "control_type": "ee",
+                "render_mode": "rgb_array",
+            },
+            "crm_kwargs": {},
+            "lf_kwargs": {},
+            "crossproduct_kwargs": {},
+        },
     )
 
-    model = ContextSensitiveSubtaskLoggingCSAC(
+    model = LoggingCounterfactualSAC(
         "MlpPolicy",
         env,
         verbose=config.train.verbose,

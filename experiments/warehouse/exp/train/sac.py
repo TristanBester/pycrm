@@ -7,12 +7,7 @@ from omegaconf import DictConfig
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
 
-from experiments.warehouse.lib.agents.context_sensitive import (
-    ContextSensitiveSubtaskLoggingSAC,
-)
-from experiments.warehouse.lib.crossproducts.context_sensitive import (
-    ContextSensitiveCrossProductMDP,
-)
+from experiments.warehouse.lib.agents import LoggingSAC
 
 filterwarnings("ignore")
 
@@ -32,13 +27,21 @@ def main(config: DictConfig):
         )
 
     env = make_vec_env(
-        ContextSensitiveCrossProductMDP,
+        "Warehouse-ContextSensitive-v0",
         n_envs=config.train.n_procs,
-        env_kwargs={"render_mode": "rgb_array"},
         seed=config.train.seed,
+        env_kwargs={
+            "ground_env_kwargs": {
+                "control_type": "ee",
+                "render_mode": "rgb_array",
+            },
+            "crm_kwargs": {},
+            "lf_kwargs": {},
+            "crossproduct_kwargs": {},
+        },
     )
 
-    model = ContextSensitiveSubtaskLoggingSAC(
+    model = LoggingSAC(
         "MlpPolicy",
         env,
         verbose=config.train.verbose,
