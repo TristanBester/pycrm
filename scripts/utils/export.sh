@@ -5,7 +5,6 @@ source ../../.env
 set +o allexport
 echo -e "Setting up environment variables... DONE\n"
 
-# TODO: This should be added to centralised project configuration
 PROJECT_NAME=warehouse
 PROJECT_PATH=../../
 

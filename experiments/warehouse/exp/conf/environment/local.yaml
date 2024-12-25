@@ -1,9 +1,3 @@
-checkpoint_dir: "/Users/tristan/Projects/Mono/counter-machines/counting-reward-machines/experiments/pick_place/exp/context_sensitive/results/checkpoints/"
-result_dir: "/Users/tristan/Projects/Mono/counter-machines/counting-reward-machines/experiments/pick_place/exp/context_sensitive/results/eval_results/"
-eval_max_n: 3
-eval_n_proc: 4
-eval_min_seed: 0 
-eval_max_seed: 100
-eval_checkpoint_frequency: 100000
+checkpoint_dir: "/Users/tristan/Projects/Mono/counter-machines/counting-reward-machines/experiments/warehouse/exp/context_sensitive/results/checkpoints/"
 
 

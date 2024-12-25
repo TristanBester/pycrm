@@ -13,16 +13,15 @@ filterwarnings("ignore")
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
-def main(config: DictConfig):
-    method_name = f"SAC_{config.exp.name}_{config.train.seed}"
+def main(config: DictConfig) -> None:
+    """Train a SAC agent."""
+    method_name = f"SAC_{config.exp.name}_{config.train.seed}_{config.exp.control_type}"
+
     if config.exp.use_wandb:
         wandb.init(
             project=config.exp.wandb_project,
             name=method_name,
-            tags=[
-                "sac",
-                config.exp.name,
-            ],
+            tags=["sac", config.exp.name, config.exp.control_type],
             sync_tensorboard=True,
         )
 
@@ -32,12 +31,14 @@ def main(config: DictConfig):
         seed=config.train.seed,
         env_kwargs={
             "ground_env_kwargs": {
-                "control_type": "ee",
+                "control_type": config.exp.control_type,
                 "render_mode": "rgb_array",
             },
             "crm_kwargs": {},
             "lf_kwargs": {},
-            "crossproduct_kwargs": {},
+            "crossproduct_kwargs": {
+                "max_steps": config.exp.max_steps,
+            },
         },
     )
 
@@ -47,7 +48,7 @@ def main(config: DictConfig):
         verbose=config.train.verbose,
         tensorboard_log="logs/",
         seed=config.train.seed,
-        device="cuda",
+        device=config.hparams.device,
         ent_coef=config.hparams.ent_coef,
         buffer_size=config.hparams.buffer_size,
         batch_size=config.hparams.batch_size,

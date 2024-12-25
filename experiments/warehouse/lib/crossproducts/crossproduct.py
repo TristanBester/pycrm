@@ -21,18 +21,12 @@ class WarehouseCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
         super().__init__(ground_env, crm, lf, max_steps)
 
         self.observation_space = gym.spaces.Box(
-            low=-np.inf, high=np.inf, shape=(30,), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(30,), dtype=np.float64
         )
-        self.action_space = gym.spaces.Box(
-            low=-0.1, high=0.1, shape=(4,), dtype=np.float32
-        )
-        # self.action_space = self.ground_env.action_space
+        self.action_space = self.ground_env.action_space
         self.render_mode = self.ground_env.render_mode
         self.metadata = self.ground_env.metadata
         self.memory_scale = memory_scale
-
-        # FIXME: Remove this
-        self._last_action = None
 
     def _get_obs(
         self, ground_obs: np.ndarray, u: int, c: tuple[int, ...]
@@ -66,48 +60,3 @@ class WarehouseCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
             Ground observation - [agent_position].
         """
         return obs[:7]
-
-    # HACK: Below this point is hack code
-
-    def step(self, action: np.ndarray) -> tuple[np.ndarray, float, bool, bool, dict]:
-        """Step the environment."""
-        action = self._preprocess_action(action)
-
-        self.action = action
-        obs, reward, terminated, truncated, info = super().step(action)
-
-        if self._last_action is not None:
-            if self._last_action[-1] != self.action[-1]:
-                self._handle_gripper_state_change()
-
-        if self._last_action is None:
-            self._last_action = action
-        else:
-            self._last_action = action
-
-        return obs, reward, terminated, truncated, info
-
-    def _preprocess_action(self, action: np.ndarray) -> np.ndarray:
-        # Clip end-effector displacement
-        action[:3] = np.clip(action[:3], -0.1, 0.1)
-
-        # Set gripper action
-        if action[-1] <= 0:
-            # Close gripper
-            action[-1] = -1.0
-        else:
-            # Open gripper
-            action[-1] = 1.0
-        return action
-
-    def _handle_gripper_state_change(self):
-        # FIXME: Most of this logic should (probably) be moved to the ground environment
-        if self.action[-1] <= 0:
-            # Close gripper
-            action = np.concatenate([np.zeros(3), np.array([-1.0])])
-        else:
-            # Open gripper
-            action = np.concatenate([np.zeros(3), np.array([1.0])])
-
-        for _ in range(5):
-            self.ground_obs_next, _, _, _, _ = self.ground_env.step(action)

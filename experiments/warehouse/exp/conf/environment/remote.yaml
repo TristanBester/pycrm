@@ -1,7 +1,1 @@
 checkpoint_dir: "/datasets/tbester/checkpoints"
-result_dir: "/home-mscluster/tbester/csac-eval-results"
-eval_max_n: 3
-eval_n_proc: 16
-eval_min_seed: 0 
-eval_max_seed: 100
-eval_checkpoint_frequency: 100000

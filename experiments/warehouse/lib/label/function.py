@@ -244,7 +244,6 @@ class WarehouseLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
     def _test_ee_near_waypoint(
         self, ee_pos: np.ndarray, waypoint_pos: np.ndarray
     ) -> bool:
-        # FIXME: Pretty sure this is equivalent to an infinity norm test, use that to make more concise
         ee_pos_x, ee_pos_y, ee_pos_z = ee_pos
         waypoint_pos_x, waypoint_pos_y, waypoint_pos_z = waypoint_pos
         return (

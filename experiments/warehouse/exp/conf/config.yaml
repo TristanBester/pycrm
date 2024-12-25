@@ -12,9 +12,11 @@ hydra:
 exp:
   use_wandb: False 
   name: default
-  wandb_project: old-cs-v1
+  control_type: ee
+  wandb_project: cs-v2
   total_timesteps: 10000000
   log_interval: 1
+  max_steps: 500
 
 train:
   seed: 0 

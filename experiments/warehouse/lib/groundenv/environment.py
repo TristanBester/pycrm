@@ -66,13 +66,20 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
             render_pitch=render_pitch,
             render_roll=render_roll,
         )
+        self._last_action = None
 
     def step(
         self, action: np.ndarray
     ) -> tuple[dict[str, np.ndarray], float, bool, bool, dict]:
         """Step the environment."""
         action = self._preprocess_action(action)
-        return super().step(action)
+        obs, reward, terminated, truncated, info = super().step(action)
+
+        if self._last_action is not None and self._last_action[-1] != action[-1]:
+            obs = self._handle_gripper_state_change(action)
+
+        self._last_action = action
+        return obs, reward, terminated, truncated, info
 
     def _preprocess_action(self, action: np.ndarray) -> np.ndarray:
         """Preprocess the action."""
@@ -87,3 +94,19 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
             # Open gripper
             action[-1] = 1.0
         return action
+
+    def _handle_gripper_state_change(self, action: np.ndarray) -> dict[str, np.ndarray]:
+        """Allow gripper to close or open."""
+        action_dims = self.robot.action_space.shape[0]  # type: ignore
+
+        if action[-1] <= 0:
+            # Close gripper
+            action = np.concatenate([np.zeros(action_dims - 1), np.array([-1.0])])
+        else:
+            # Open gripper
+            action = np.concatenate([np.zeros(action_dims - 1), np.array([1.0])])
+
+        obs = {}
+        for _ in range(5):
+            obs, _, _, _, _ = super().step(action)
+        return obs
