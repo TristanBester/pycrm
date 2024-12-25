@@ -20,8 +20,13 @@ class WarehouseCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
         """Initialize the cross product MDP environment."""
         super().__init__(ground_env, crm, lf, max_steps)
 
+        ground_obs_size = self.ground_env.observation_space.shape[0]  # type: ignore
+        cfg_size = crm.encoded_configuration_size
         self.observation_space = gym.spaces.Box(
-            low=-np.inf, high=np.inf, shape=(30,), dtype=np.float64
+            low=-np.inf,
+            high=np.inf,
+            shape=(ground_obs_size + cfg_size,),
+            dtype=np.float64,
         )
         self.action_space = self.ground_env.action_space
         self.render_mode = self.ground_env.render_mode

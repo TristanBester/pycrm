@@ -41,6 +41,11 @@ class CountingRewardMachine(ABC):
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
 
+    @property
+    @abstractmethod
+    def encoded_configuration_size(self) -> int:
+        """Return the size of the encoded counter configuration."""
+
     @abstractmethod
     def _get_state_transition_function(self) -> dict:
         """Return the state transition function."""
