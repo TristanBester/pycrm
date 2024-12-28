@@ -229,6 +229,7 @@ experiments = [
     { name = "hydra-core" },
     { name = "moviepy" },
     { name = "panda-gym" },
+    { name = "tbparse" },
     { name = "tensorboard" },
     { name = "wandb" },
 ]
@@ -249,6 +250,7 @@ requires-dist = [
     { name = "numpy", specifier = "==1.26.4" },
     { name = "panda-gym", marker = "extra == 'experiments'", specifier = ">=3.0.7" },
     { name = "stable-baselines3", specifier = ">=2.3.2" },
+    { name = "tbparse", marker = "extra == 'experiments'", specifier = ">=0.0.9" },
     { name = "tensorboard", marker = "extra == 'experiments'", specifier = ">=2.18.0" },
     { name = "wandb", marker = "extra == 'experiments'", specifier = ">=0.19.0" },
 ]
@@ -1421,6 +1423,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ca/99/5a5b6f19ff9f083671ddf7b9632028436167cd3d33e11015754e41b249a4/sympy-1.13.1.tar.gz", hash = "sha256:9cebf7e04ff162015ce31c9c6c9144daa34a93bd082f54fd8f12deca4f47515f", size = 7533040 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/fe/81695a1aa331a842b582453b605175f419fe8540355886031328089d840a/sympy-1.13.1-py3-none-any.whl", hash = "sha256:db36cdc64bf61b9b24578b6f7bab1ecdd2452cf008f34faa33776680c26d66f8", size = 6189177 },
+]
+
+[[package]]
+name = "tbparse"
+version = "0.0.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pandas" },
+    { name = "tensorboard" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/97/0b/553a13cb39f8ccad888c2d9b07e04cb1a60011e1073771fd6b5d904b61c4/tbparse-0.0.9.tar.gz", hash = "sha256:528e7da6929148b612a517adb5fbdee709224cb7e2420489a9b6b174f2f808bc", size = 21362 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/17/7a/56818acfbf03ef6eae4c3e0a7091ab6ffd8c3b44af93f2982297c07b50f2/tbparse-0.0.9-py3-none-any.whl", hash = "sha256:51a001728bc539a1efed9f03450b1e0151ad14011c8c52f156cf55dc1fbaa884", size = 19595 },
 ]
 
 [[package]]

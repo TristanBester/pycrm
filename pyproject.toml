@@ -15,6 +15,7 @@ experiments = [
     "hydra-core>=1.3.2",
     "moviepy>=2.1.1",
     "panda-gym>=3.0.7",
+    "tbparse>=0.0.9",
     "tensorboard>=2.18.0",
     "wandb>=0.19.0",
 ]
