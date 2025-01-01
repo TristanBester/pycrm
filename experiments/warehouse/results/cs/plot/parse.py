@@ -14,6 +14,8 @@ def main() -> None:
         reader = SummaryReader(log_path)
         df = reader.scalars
         df["model_name"] = model_name
+        if "6000" in model_name:
+            continue
         df["algorithm"] = model_name.split("_")[0]
         df["seed"] = model_name.split("_")[2]
         all_dfs.append(df)

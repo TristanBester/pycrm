@@ -15,7 +15,10 @@ filterwarnings("ignore")
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
     """Train a SAC agent."""
-    method_name = f"SAC_{config.exp.name}_{config.train.seed}_{config.exp.control_type}"
+    method_name = (
+        f"SAC_{config.exp.name}_{config.train.seed}_{config.exp.control_type}_"
+        f"{config.exp.max_steps}"
+    )
 
     if config.exp.use_wandb:
         wandb.init(
@@ -60,7 +63,6 @@ def main(config: DictConfig) -> None:
         save_path=os.path.join(config.environment.checkpoint_dir, method_name),
         name_prefix="model",
         save_replay_buffer=False,
-        save_vecnormalize=False,
     )
     callback = CallbackList([checkpoint_callback])
 

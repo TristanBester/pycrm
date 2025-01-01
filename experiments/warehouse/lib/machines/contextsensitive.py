@@ -325,7 +325,7 @@ class ContextSensitiveCRM(CountingRewardMachine):
                     self._create_unscaled_f_c(-2)
                 ),
                 f"ABOVE_{block_colour} and VELOCITY_LOW / {counter_state}": (
-                    self._create_f_c(500)
+                    self._create_f_c(100)
                 ),
                 f"not (ABOVE_{block_colour} and VELOCITY_LOW) / {counter_state}": (
                     self._create_f_w(waypoint_above)
@@ -339,7 +339,7 @@ class ContextSensitiveCRM(CountingRewardMachine):
                     waypoint_grasp,
                 ),
                 f"GRASP_{block_colour} and VELOCITY_LOW / {counter_state}": (
-                    self._create_f_c(500)
+                    self._create_f_c(100)
                 ),
                 f"not (GRASP_{block_colour} and VELOCITY_LOW) / {counter_state}": (
                     self._create_f_w(
@@ -355,7 +355,7 @@ class ContextSensitiveCRM(CountingRewardMachine):
                     waypoint_grasp,
                 ),
                 f"TIGHT_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
-                    self._create_f_c(500)
+                    self._create_f_c(100)
                 ),
                 (
                     f"TIGHT_REGION_{block_colour} and "
@@ -374,7 +374,7 @@ class ContextSensitiveCRM(CountingRewardMachine):
                     self._create_f_pw(release_waypoint)
                 ),
                 f"RELEASE_{block_colour} and VELOCITY_LOW / {counter_state}": (
-                    self._create_f_c(500)
+                    self._create_f_c(100)
                 ),
                 f"not (RELEASE_{block_colour} and VELOCITY_LOW) / {counter_state}": (
                     self._create_f_w(release_waypoint)
@@ -390,7 +390,7 @@ class ContextSensitiveCRM(CountingRewardMachine):
                 (
                     f"RELEASE_REGION_{block_colour} and "
                     f"not GRIPPER_CLOSED / {counter_state}"
-                ): (self._create_unscaled_f_c(500)),
+                ): (self._create_unscaled_f_c(100)),
                 f"RELEASE_REGION_{block_colour} and GRIPPER_CLOSED / {counter_state}": (
                     self._create_f_w(release_waypoint)
                 ),

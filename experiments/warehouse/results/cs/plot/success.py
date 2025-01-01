@@ -13,7 +13,7 @@ def main():
     df = pd.read_csv(PARSED_LOG_PATH)
 
     x_values, csac_mean, csac_lower, csac_upper, sac_mean, sac_lower, sac_upper = (
-        compute_results_with_ci(df, "subtask/red/complete_1", 13_500_000)
+        compute_results_with_ci(df, "subtask/blue/complete_1", 6_000_000)
     )
 
     if not os.path.exists(OUTPUT_DIR):

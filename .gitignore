@@ -33,3 +33,7 @@ coverage.xml
 
 # Images
 *.png
+
+# Checkpoints
+checkpoints/
+*.zip

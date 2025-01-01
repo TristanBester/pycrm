@@ -17,7 +17,7 @@ obs, _ = env.reset()
 returns = 0
 rewards = []
 
-for i in range(5000):
+for i in range(20000):
     ee_pos = obs[:3]
 
     gripper_action = np.array([-1.0])
@@ -74,7 +74,7 @@ for i in range(5000):
     rewards.append(reward)
 
     env.render()
-    time.sleep(0.03)
+    time.sleep(0.005)
     if terminated or truncated:
         print(f"Terminated at step {i}")
         break

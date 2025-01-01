@@ -84,7 +84,7 @@ class PackCustomerOrderEnvironment(RobotTaskEnv):
     def _preprocess_action(self, action: np.ndarray) -> np.ndarray:
         """Preprocess the action."""
         # Clip end-effector displacement
-        action[:-1] = np.clip(action[:-1], -0.1, 0.1)
+        action[:-1] = np.clip(action[:-1], -0.025, 0.025)
 
         # Set gripper action
         if action[-1] <= 0:
