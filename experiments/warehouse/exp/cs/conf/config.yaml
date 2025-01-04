@@ -13,16 +13,16 @@ exp:
   use_wandb: False 
   name: default
   control_type: ee
-  wandb_project: context-sensitive-v1.5
-  total_timesteps: 20000000
+  wandb_project: context-sensitive-v1.8
+  total_timesteps: 15000000
   log_interval: 1
-  max_steps: 5000
+  max_steps: 15000
 
 train:
   seed: 0 
   verbose: 0
   n_procs: 3
-  checkpoint_interval: 10000
+  checkpoint_interval: 250000
 
 hparams:
   device: cuda

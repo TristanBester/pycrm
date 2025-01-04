@@ -22,7 +22,7 @@ sleep 30s
 sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] train/6k/csac.sbatch 10
 sleep 30s
 
-echo "TRAINING 10K..."
+echo "TRAINING 15K..."
 echo "Training 0-9..."
 sbatch --exclude=mscluster[8,9,35,42,44,46,47,54,57,59,61,62,65,67,68,75,76] train/15k/sac.sbatch 0
 sleep 30s

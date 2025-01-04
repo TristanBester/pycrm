@@ -31,6 +31,7 @@ class PackCustomerOrder(Task):
                 show_ee_identifier=self.show_ee_identifier,
                 show_waypoints=self.show_waypoints,
                 show_regions=self.show_regions,
+                frame_delay=0.0,
             )
         elif self.scene == "fancy":
             self.scene_manager = FancySceneManager(
@@ -38,6 +39,7 @@ class PackCustomerOrder(Task):
                 show_ee_identifier=self.show_ee_identifier,
                 show_waypoints=self.show_waypoints,
                 show_regions=self.show_regions,
+                frame_delay=0.0,
             )
         else:
             raise ValueError(f"Unknown scene type: {self.scene}")

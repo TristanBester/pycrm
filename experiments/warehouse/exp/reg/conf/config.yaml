@@ -13,10 +13,10 @@ exp:
   use_wandb: False 
   name: default
   control_type: ee
-  wandb_project: regular-v1.2
+  wandb_project: regular-v1.3
   total_timesteps: 5000000 
   log_interval: 1
-  max_steps: 1000
+  max_steps: 3500
 
 train:
   seed: 0 

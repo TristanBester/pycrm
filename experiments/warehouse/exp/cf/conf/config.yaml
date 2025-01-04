@@ -13,10 +13,10 @@ exp:
   use_wandb: False 
   name: default
   control_type: ee
-  wandb_project: context-free-v1.2
+  wandb_project: context-free-v1.3
   total_timesteps: 10000000 
   log_interval: 1
-  max_steps: 2000
+  max_steps: 6000
 
 train:
   seed: 0 

@@ -13,13 +13,13 @@ from crm.agents.sb3.sac import CounterfactualSAC
 filterwarnings("ignore")
 
 
-CHECKPOINT_DIR = "/Users/tristan/Projects/counting-reward-machines/checkpoints"
+CHECKPOINT_DIR = "/Users/tristan/Projects/counting-reward-machines/checkpoints_old"
 
 
 env = gym.make(
     "Warehouse-ContextSensitive-v0",
     ground_env_kwargs={"control_type": "ee", "render_mode": "rgb_array"},
-    crossproduct_kwargs={"max_steps": 30000},
+    crossproduct_kwargs={"max_steps": 15000},
 )
 
 
@@ -34,7 +34,7 @@ for filename in tqdm(os.listdir(CHECKPOINT_DIR)):
 
     obs, _ = env.reset()
 
-    for x in range(30000):
+    for x in range(15000):
         action, _ = agent.predict(obs, deterministic=False)
         obs, reward, terminated, truncated, _ = env.step(action)
 

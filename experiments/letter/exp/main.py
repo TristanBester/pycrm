@@ -61,3 +61,16 @@ if __name__ == "__main__":
     smoothed_returns = np.convolve(all_returns, np.ones((50,)) / 50, mode="valid")
     plt.plot(smoothed_returns)
     plt.show()
+
+    # DEMO of trained agent solving the environment
+    # Print counters and current thing agent it trying to do
+    # Add nice ASCII rendering
+    for _ in range(10):
+        obs, _ = cross_product.reset()
+        done = False
+        while not done:
+            action = int(np.argmax(q_table[tuple(obs)]))
+            obs, reward, terminated, truncated, _ = cross_product.step(action)
+            done = terminated or truncated
+            cross_product.render()
+            time.sleep(0.5)

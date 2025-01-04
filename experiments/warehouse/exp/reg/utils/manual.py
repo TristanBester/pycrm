@@ -54,7 +54,6 @@ for i in range(5000):
     rewards.append(reward)
 
     env.render()
-    time.sleep(0.03)
     if terminated or truncated:
         print(f"Terminated at step {i}")
         break
