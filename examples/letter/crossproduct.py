@@ -36,7 +36,7 @@ class LetterWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
         Returns:
             Cross product observation - [agent_position, machine state, counter state].
         """
-        return np.array([ground_obs[1], ground_obs[2], u, c[0]])
+        return np.array([ground_obs[0], ground_obs[1], ground_obs[2], u, c[0]])
 
     def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
         """Convert the cross product observation to a ground observation.
@@ -47,4 +47,4 @@ class LetterWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
         Returns:
             Ground observation - [agent_position].
         """
-        return obs[:2]
+        return obs[:3]

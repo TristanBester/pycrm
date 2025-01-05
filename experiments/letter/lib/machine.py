@@ -1,5 +1,5 @@
 from crm.automaton import CountingRewardMachine
-from examples.letter.label import Symbol
+from experiments.letter.lib.label import Symbol
 
 
 class LetterWorldCountingRewardMachine(CountingRewardMachine):
@@ -18,6 +18,11 @@ class LetterWorldCountingRewardMachine(CountingRewardMachine):
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
         return (0,)
+
+    @property
+    def encoded_configuration_size(self) -> int:
+        """Return the size of the encoded counter configuration."""
+        return 2
 
     def _get_state_transition_function(self) -> dict:
         """Return the state transition function."""
@@ -59,23 +64,23 @@ class LetterWorldCountingRewardMachine(CountingRewardMachine):
         """Return the reward transition function."""
         return {
             0: {
-                "A / (-)": 0,
-                "B / (-)": 0,
-                "C / (-)": 0,
-                "/ (-)": 0,
+                "A / (-)": -0.01,
+                "B / (-)": -0.01,
+                "C / (-)": -0.01,
+                "/ (-)": -0.01,
             },
             1: {
-                "A / (-)": 0,
-                "B / (-)": 0,
-                "C / (NZ)": 0,
-                "C / (Z)": 1,
-                "/ (-)": 0,
+                "A / (-)": -0.01,
+                "B / (-)": -0.01,
+                "C / (NZ)": -0.01,
+                "C / (Z)": 1.0,
+                "/ (-)": -0.01,
             },
         }
 
     def _get_possible_counter_configurations(self) -> list[tuple[int]]:
         """Return the possible counter configurations."""
-        return [(i,) for i in range(6)]
+        return [(i,) for i in range(20)]
 
     def sample_counter_configurations(self) -> list[tuple[int]]:
         """Return a sample counter configuration."""

@@ -27,7 +27,6 @@ class LetterWorld(gym.Env):
         """Reset the environment."""
         self.symbol_seen = False
         self.agent_position = np.array([1, 3])
-
         return self._get_obs(), {}
 
     def _get_obs(self):

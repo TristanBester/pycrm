@@ -21,43 +21,54 @@ if __name__ == "__main__":
         max_steps=100,
     )
 
-    q_table = defaultdict(lambda: np.zeros(cross_product.action_space.n))  # type: ignore
+    obs, _ = cross_product.reset()
+    cross_product.render()
 
-    all_returns = []
+    for _ in range(100):
+        print(obs)
+        action = int(input("Action: "))
 
-    for _ in tqdm(range(10000)):
-        obs, _ = cross_product.reset()
-        terminated = False
-        truncated = False
+        obs, reward, terminated, truncated, _ = cross_product.step(action)
+        cross_product.render()
 
-        returns = 0
-        done = False
-        while not done:
-            if np.random.random() < 0.1 or np.all(q_table[tuple(obs)] == 0):
-                action = np.random.randint(0, 4)
-            else:
-                action = int(np.argmax(q_table[tuple(obs)]))
-            next_obs, reward, terminated, truncated, _ = cross_product.step(action)
-            returns += reward
-            done = terminated or truncated
+    # q_table = defaultdict(lambda: np.zeros(cross_product.action_space.n))  # type: ignore
 
-            if not done:
-                q_table[tuple(obs)][action] += 0.1 * (
-                    reward
-                    + 0.99 * np.max(q_table[tuple(next_obs)])
-                    - q_table[tuple(obs)][action]
-                )
-            else:
-                q_table[tuple(obs)][action] += 0.1 * (
-                    reward - q_table[tuple(obs)][action]
-                )
+    # all_returns = []
 
-            obs = next_obs
+    # for _ in tqdm(range(10000)):
+    #     obs, _ = cross_product.reset()
+    #     terminated = False
+    #     truncated = False
 
-        all_returns.append(returns)
+    #     returns = 0
+    #     done = False
+    #     while not done:
+    #         if np.random.random() < 0.1 or np.all(q_table[tuple(obs)] == 0):
+    #             action = np.random.randint(0, 4)
+    #         else:
+    #             action = int(np.argmax(q_table[tuple(obs)]))
+    #         next_obs, reward, terminated, truncated, _ = cross_product.step(action)
+    #         returns += reward
+    #         done = terminated or truncated
+    #         print(obs)
 
-    all_returns = np.array(all_returns)
-    # Smooth using a rolling average
-    smoothed_returns = np.convolve(all_returns, np.ones((50,)) / 50, mode="valid")
-    plt.plot(smoothed_returns)
-    plt.show()
+    #         if not done:
+    #             q_table[tuple(obs)][action] += 0.1 * (
+    #                 reward
+    #                 + 0.99 * np.max(q_table[tuple(next_obs)])
+    #                 - q_table[tuple(obs)][action]
+    #             )
+    #         else:
+    #             q_table[tuple(obs)][action] += 0.1 * (
+    #                 reward - q_table[tuple(obs)][action]
+    #             )
+
+    #         obs = next_obs
+
+    #     all_returns.append(returns)
+
+    # all_returns = np.array(all_returns)
+    # # Smooth using a rolling average
+    # smoothed_returns = np.convolve(all_returns, np.ones((50,)) / 50, mode="valid")
+    # plt.plot(smoothed_returns)
+    # plt.show()
