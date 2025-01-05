@@ -1,23 +1,12 @@
 import os
-from warnings import filterwarnings
 
 import gymnasium as gym
 import hydra
-import matplotlib.pyplot as plt
 import numpy as np
-import wandb
 from omegaconf import DictConfig
-from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
-from stable_baselines3.common.env_util import make_vec_env
 
-from crm.agents.tabular.cql import CounterfactualQLearningAgent
+import experiments.letter.lib  # noqa: F401 - register the environment
 from crm.agents.tabular.ql import QLearningAgent
-from experiments.letter.lib.crossproduct import LetterWorldCrossProduct
-from experiments.letter.lib.ground import LetterWorld
-from experiments.letter.lib.label import LetterWorldLabellingFunction
-from experiments.letter.lib.machine import LetterWorldCountingRewardMachine
-
-filterwarnings("ignore")
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)

@@ -1,8 +1,9 @@
 import os
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from experiments.warehouse.results.utils import compute_results_with_ci
 
 PARSED_LOG_PATH = "../outputs/parsed_logs.csv"
@@ -13,7 +14,7 @@ def main() -> None:
     df = pd.read_csv(PARSED_LOG_PATH)
 
     x_values, csac_mean, csac_lower, csac_upper, sac_mean, sac_lower, sac_upper = (
-        compute_results_with_ci(df, "rollout/ep_rew_mean", 5_000_000)
+        compute_results_with_ci(df, "rollout/ep_rew_mean", 3_000_000)
     )
 
     if not os.path.exists(OUTPUT_DIR):

@@ -19,7 +19,7 @@ class LetterWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
         """Initialize the cross product Markov decision process environment."""
         super().__init__(ground_env, crm, lf, max_steps)
         self.observation_space = gym.spaces.Box(
-            low=0, high=100, shape=(5,), dtype=np.int32
+            low=0, high=100, shape=(5,), dtype=np.int64
         )
         self.action_space = self.ground_env.action_space
 

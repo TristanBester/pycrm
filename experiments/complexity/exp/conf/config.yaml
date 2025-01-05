@@ -9,6 +9,5 @@ hydra:
     dir: .
 
 exp:
-  n_runs: 20
-  n_episodes: 5000
-  log_dir: /Users/tristan/Projects/counting-reward-machines/experiments/letter/results/logs
+  max_n: 100
+  log_dir: /Users/tristan/Projects/counting-reward-machines/experiments/complexity/results/logs

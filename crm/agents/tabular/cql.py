@@ -7,7 +7,7 @@ from crm.crossproduct import CrossProduct
 
 class CounterfactualQLearningAgent(QLearningAgent):
     def learn(self, total_episodes: int) -> np.ndarray:
-        assert isinstance(self.env, CrossProduct)
+        assert isinstance(self.env.unwrapped, CrossProduct)
         returns = []
 
         for _ in tqdm(range(total_episodes)):
@@ -29,10 +29,10 @@ class CounterfactualQLearningAgent(QLearningAgent):
                 done = terminated or truncated
 
                 for o, a, o_, r, d, _ in zip(
-                    *self.env.generate_counterfactual_experience(
-                        self.env.to_ground_obs(obs),
+                    *self.env.unwrapped.generate_counterfactual_experience(
+                        self.env.unwrapped.to_ground_obs(obs),
                         action,
-                        self.env.to_ground_obs(next_obs),
+                        self.env.unwrapped.to_ground_obs(next_obs),
                     ),
                     strict=True,
                 ):

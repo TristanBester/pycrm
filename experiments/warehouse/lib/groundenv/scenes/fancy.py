@@ -1,5 +1,6 @@
 import time
 
+import matplotlib.pyplot as plt
 import numpy as np
 from panda_gym.pybullet import PyBullet
 
@@ -43,12 +44,46 @@ class FancySceneManager(BasicSceneManager):
         self._setup_conveyors()
         self._setup_tray()
 
+        self._setup_trajectory()
+
         if self.show_ee_identifier:
             self._setup_ee_pos_identifier()
         if self.show_waypoints:
             self._setup_waypoints()
         if self.show_regions:
             self._setup_regions()
+
+    def _setup_trajectory(self) -> None:
+        """Setup the trajectory."""
+        self.trajectory = np.load(
+            "/Users/tristan/Projects/counting-reward-machines/experiments/warehouse/exp/cs/utils/trajectory.npy"
+        )
+        # Take every 10th frame
+        # self.trajectory = self.trajectory[::]
+
+        # Create normalized indices from 0 to 1 based on position in array
+        normalized_indices = np.linspace(0, 1, len(self.trajectory))
+
+        # Apply colormap to normalized indices to show progression
+        colors = plt.get_cmap("jet")(normalized_indices)
+        colors = colors[:, :3]  # Keep only RGB values
+
+        # Add 0.5 alpha channel to colors
+        colors = np.concatenate([colors, np.full((colors.shape[0], 1), 0.3)], axis=1)
+
+        # 400
+        # 900
+        # 1350
+        # end
+        for i in range(len(self.trajectory))[:]:
+            self.sim.create_sphere(
+                body_name=f"trajectory_{i}",
+                radius=0.01,
+                mass=0.0,
+                ghost=True,
+                position=self.trajectory[i],
+                rgba_color=colors[i],
+            )
 
     def animate_red_block(self) -> None:
         """Animate the red block."""

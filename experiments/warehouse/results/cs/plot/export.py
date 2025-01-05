@@ -24,7 +24,7 @@ def main() -> None:
         sac_mean_return,
         sac_lower_return,
         sac_upper_return,
-    ) = compute_results_with_ci(df, "rollout/ep_rew_mean", 5_000_000)
+    ) = compute_results_with_ci(df, "rollout/ep_rew_mean", 10_000_000)
     (
         x_values_success,
         csac_mean_success,
@@ -33,7 +33,7 @@ def main() -> None:
         sac_mean_success,
         sac_lower_success,
         sac_upper_success,
-    ) = compute_results_with_ci(df, "subtask/red/complete_1", 5_000_000)
+    ) = compute_results_with_ci(df, "subtask/blue/complete_1", 10_000_000)
 
     # Take the values from each array at every 1000 steps
     x_values_return = x_values_return[::100]
@@ -68,7 +68,9 @@ def main() -> None:
         "sac_lower_success": sac_lower_success,
         "sac_upper_success": sac_upper_success,
     }
-    pd.DataFrame(data).to_csv(os.path.join(OUTPUT_DIR, "regular.csv"), index=False)
+    pd.DataFrame(data).to_csv(
+        os.path.join(OUTPUT_DIR, "context-sensitive.csv"), index=False
+    )
 
 
 if __name__ == "__main__":
