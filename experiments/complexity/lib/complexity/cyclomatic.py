@@ -3,6 +3,7 @@ import scipy
 
 
 def cyclomatic_complexity(graph: nx.DiGraph) -> int:
+    """Compute the cyclomatic complexity of a graph."""
     # Number of edges
     n_edges = graph.number_of_edges()
     # Number of nodes

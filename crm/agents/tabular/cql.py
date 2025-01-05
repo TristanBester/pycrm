@@ -6,7 +6,10 @@ from crm.crossproduct import CrossProduct
 
 
 class CounterfactualQLearningAgent(QLearningAgent):
+    """Counterfactual Q-Learning Agent."""
+
     def learn(self, total_episodes: int) -> np.ndarray:
+        """Train the agent using counterfactual experience generation."""
         assert isinstance(self.env.unwrapped, CrossProduct)
         returns = []
 
@@ -20,7 +23,7 @@ class CounterfactualQLearningAgent(QLearningAgent):
                 if np.random.random() < self.epsilon or np.all(
                     self.q_table[tuple(obs)] == 0
                 ):
-                    action = np.random.randint(0, self.env.action_space.n)
+                    action = np.random.randint(0, self.env.action_space.n)  # type: ignore
                 else:
                     action = self.get_action(obs)
 

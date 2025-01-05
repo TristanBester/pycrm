@@ -6,6 +6,8 @@ from tqdm import tqdm
 
 
 class QLearningAgent:
+    """Q-Learning Agent."""
+
     def __init__(
         self,
         env: gym.Env,
@@ -13,6 +15,7 @@ class QLearningAgent:
         learning_rate: float = 0.01,
         discount_factor: float = 0.99,
     ) -> None:
+        """Initialise the Q-Learning agent."""
         self.env = env
         self.epsilon = epsilon
         self.learning_rate = learning_rate
@@ -20,23 +23,23 @@ class QLearningAgent:
         self.q_table = defaultdict(lambda: np.zeros(env.action_space.n))  # type: ignore
 
     def get_action(self, obs: np.ndarray) -> int:
+        """Get the action with the largest Q-value."""
         return int(np.argmax(self.q_table[tuple(obs)]))
 
     def learn(self, total_episodes: int) -> np.ndarray:
-        step_counter = 0
+        """Train the agent."""
         returns = []
 
         for _ in tqdm(range(total_episodes)):
             obs, _ = self.env.reset()
             done = False
             return_ = 0
-            ep_len = 0
 
             while not done:
                 if np.random.random() < self.epsilon or np.all(
                     self.q_table[tuple(obs)] == 0
                 ):
-                    action = np.random.randint(0, self.env.action_space.n)
+                    action = np.random.randint(0, self.env.action_space.n)  # type: ignore
                 else:
                     action = self.get_action(obs)
 

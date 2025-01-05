@@ -4,9 +4,14 @@ import pandas as pd
 from tbparse import SummaryReader
 from tqdm import tqdm
 
-LOG_DIR = "/Users/tristan/Projects/counting-reward-machines/experiments/warehouse/results/reg/logs"
+LOG_DIR = (
+    "/Users/tristan/Projects/counting-reward-machines/"
+    "experiments/warehouse/results/reg/logs"
+)
+
 
 def main() -> None:
+    """Main function."""
     all_dfs = []
     for model_name in tqdm(os.listdir(LOG_DIR)):
         log_path = os.path.join(LOG_DIR, model_name)
@@ -23,6 +28,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-
-    

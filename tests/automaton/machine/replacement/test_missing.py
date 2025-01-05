@@ -76,6 +76,11 @@ class CRM(CountingRewardMachine):
         """Return the initial counter configuration of the machine."""
         return (0,)
 
+    @property
+    def encoded_configuration_size(self) -> int:
+        """Return the size of the encoded configuration."""
+        return 2
+
 
 class MissingCounterTransitionCRM(CRM):
     """Concrete implementation of a counting reward machine."""

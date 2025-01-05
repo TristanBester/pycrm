@@ -2,6 +2,7 @@ import networkx as nx
 
 
 def compute_crm_transition_graph() -> nx.DiGraph:
+    """Compute the CRM transition graph."""
     graph = nx.DiGraph()
     transitions = _compute_crm_transitions()
 
@@ -11,6 +12,7 @@ def compute_crm_transition_graph() -> nx.DiGraph:
 
 
 def _compute_crm_transitions() -> dict:
+    """Compute the CRM transitions."""
     delta_u_0 = {
         (("M",), 0, ("-", "-")): 0,
         (("E",), 0, ("-", "-")): 1,

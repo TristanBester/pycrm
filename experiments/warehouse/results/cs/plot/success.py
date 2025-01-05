@@ -9,7 +9,8 @@ PARSED_LOG_PATH = "../outputs/parsed_logs.csv"
 OUTPUT_DIR = "../outputs"
 
 
-def main():
+def main() -> None:
+    """Main function."""
     df = pd.read_csv(PARSED_LOG_PATH)
 
     x_values, csac_mean, csac_lower, csac_upper, sac_mean, sac_lower, sac_upper = (

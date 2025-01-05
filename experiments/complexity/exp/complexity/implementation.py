@@ -14,6 +14,7 @@ from experiments.complexity.lib.complexity.cyclomatic import cyclomatic_complexi
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
+    """Main function."""
     rm_complexity = np.zeros(config.exp.max_n)
     crm_complexity = np.zeros(config.exp.max_n)
 

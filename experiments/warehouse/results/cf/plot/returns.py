@@ -1,7 +1,6 @@
 import os
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from experiments.warehouse.results.utils import compute_results_with_ci
@@ -11,6 +10,7 @@ OUTPUT_DIR = "../outputs"
 
 
 def main() -> None:
+    """Main function."""
     df = pd.read_csv(PARSED_LOG_PATH)
 
     x_values, csac_mean, csac_lower, csac_upper, sac_mean, sac_lower, sac_upper = (

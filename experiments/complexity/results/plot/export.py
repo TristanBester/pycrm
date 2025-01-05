@@ -8,6 +8,7 @@ OUTPUT_DIR = "../outputs"
 
 
 def main() -> None:
+    """Main function."""
     rm_edge_count = np.load(os.path.join(LOG_PATH, "theoretical/rm_edge_count.npy"))
     rm_node_count = np.load(os.path.join(LOG_PATH, "theoretical/rm_node_count.npy"))
     rm_complexity = np.load(os.path.join(LOG_PATH, "implementation/rm_complexity.npy"))

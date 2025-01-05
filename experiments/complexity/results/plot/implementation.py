@@ -8,6 +8,7 @@ OUTPUT_DIR = "../outputs"
 
 
 def main() -> None:
+    """Main function."""
     rm_complexity = np.load(os.path.join(LOG_PATH, "implementation/rm_complexity.npy"))
     crm_complexity = np.load(
         os.path.join(LOG_PATH, "implementation/crm_complexity.npy")

@@ -13,6 +13,7 @@ from experiments.complexity.lib.automata import (
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
+    """Main function."""
     rm_node_count = np.zeros(config.exp.max_n)
     rm_edge_counts = np.zeros(config.exp.max_n)
     crm_node_count = np.zeros(config.exp.max_n)

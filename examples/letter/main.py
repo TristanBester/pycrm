@@ -1,10 +1,3 @@
-import time
-from collections import defaultdict
-
-import matplotlib.pyplot as plt
-import numpy as np
-from tqdm import tqdm
-
 from examples.letter.crossproduct import LetterWorldCrossProduct
 from examples.letter.ground import LetterWorld
 from examples.letter.label import LetterWorldLabellingFunction
@@ -31,7 +24,7 @@ if __name__ == "__main__":
         obs, reward, terminated, truncated, _ = cross_product.step(action)
         cross_product.render()
 
-    # q_table = defaultdict(lambda: np.zeros(cross_product.action_space.n))  # type: ignore
+    # q_table = defaultdict(lambda: np.zeros(cross_product.action_space.n))
 
     # all_returns = []
 

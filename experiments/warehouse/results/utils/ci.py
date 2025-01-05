@@ -5,6 +5,7 @@ from tqdm import trange
 def get_bootstrap_ci_for_mean(
     dataset: np.ndarray, n_samples: int = 10000, alpha=0.01
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Get the bootstrap confidence interval for the mean."""
     bootstrap_estimates = _get_bootstrap_mean_estimates(dataset, n_samples)
     mean = np.mean(dataset, axis=0)
     quatiles = np.quantile(bootstrap_estimates, [alpha, 1 - alpha], axis=0)
@@ -14,6 +15,7 @@ def get_bootstrap_ci_for_mean(
 def _get_bootstrap_mean_estimates(
     dataset: np.ndarray, n_samples: int = 10000
 ) -> np.ndarray:
+    """Get the bootstrap mean estimates."""
     means = []
 
     for _ in trange(n_samples):

@@ -7,19 +7,22 @@ from tqdm import tqdm
 from experiments.warehouse.results.utils.ci import get_bootstrap_ci_for_mean
 
 
-def compute_results_with_ci(df, statistic, max_steps, alpha=0.01):
+def compute_results_with_ci(
+    df, statistic, max_steps, alpha=0.01
+) -> tuple[np.ndarray, ...]:
+    """Compute the results with confidence intervals."""
     algo_results = _load_all_results_for_statistic(df, statistic, max_steps)
 
     x_values = np.arange(0, max_steps, 1_000)
-    print(f"Computing CSAC CI...")
+    print("Computing CSAC CI...")
     csac_mean, csac_lower, csac_upper = get_bootstrap_ci_for_mean(
-        algo_results["CSAC"],
+        algo_results["CSAC"],  # type: ignore
         10000,
         alpha,  # type: ignore
     )
-    print(f"Computing SAC CI...")
+    print("Computing SAC CI...")
     sac_mean, sac_lower, sac_upper = get_bootstrap_ci_for_mean(
-        algo_results["SAC"],
+        algo_results["SAC"],  # type: ignore
         10000,
         alpha,  # type: ignore
     )
@@ -27,15 +30,17 @@ def compute_results_with_ci(df, statistic, max_steps, alpha=0.01):
     return x_values, csac_mean, csac_lower, csac_upper, sac_mean, sac_lower, sac_upper
 
 
-def _load_all_results_for_statistic(df: pd.DataFrame, statistic: str, max_steps: int):
+def _load_all_results_for_statistic(
+    df: pd.DataFrame, statistic: str, max_steps: int
+) -> defaultdict:
     algo_seed_combinations = []
     for _, r in df[["algorithm", "seed"]].drop_duplicates().iterrows():
         algo_seed_combinations.append((r.algorithm, r.seed))
 
     algo_results = defaultdict(list)
-    print(f"Loading results...")
+    print("Loading results...")
     for algo, seed in tqdm(algo_seed_combinations):
-        # Load rowws for this algo and seed
+        # Load rows for this algo and seed
         df_algo_seed = df[(df.algorithm == algo) & (df.seed == seed)]
         df_algo_seed = df_algo_seed.sort_values(by="step")
         df_algo_seed = df_algo_seed[df_algo_seed.step < max_steps].copy()
@@ -59,7 +64,7 @@ def _load_all_results_for_statistic(df: pd.DataFrame, statistic: str, max_steps:
     return algo_results
 
 
-def _standardize_length(x_values, y_values, x_min, x_max, step):
+def _standardize_length(x_values, y_values, x_min, x_max, step) -> np.ndarray:
     df_result = pd.DataFrame(
         {
             "x": x_values,

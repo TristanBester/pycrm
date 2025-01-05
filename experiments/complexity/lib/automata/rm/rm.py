@@ -2,6 +2,7 @@ import networkx as nx
 
 
 def compute_rm_transition_graph(max_n: int = 3) -> nx.DiGraph:
+    """Compute the RM transition graph."""
     graph = nx.DiGraph()
     transitions = _compute_rm_transitions(max_n)
 
@@ -11,6 +12,7 @@ def compute_rm_transition_graph(max_n: int = 3) -> nx.DiGraph:
 
 
 def _compute_rm_transitions(max_n: int = 3) -> dict:
+    """Compute the RM transitions."""
     delta_u = {
         (("M",), 0): 1,
         (("E",), 0): 0,

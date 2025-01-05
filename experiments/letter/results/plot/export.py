@@ -1,6 +1,5 @@
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -11,6 +10,7 @@ OUTPUT_DIR = "../outputs"
 
 
 def main() -> None:
+    """Main function."""
     ql_results = np.load(os.path.join(LOG_PATH, "results_ql.npy"))
     cql_results = np.load(os.path.join(LOG_PATH, "results_cql.npy"))
 

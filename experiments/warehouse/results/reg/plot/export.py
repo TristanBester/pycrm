@@ -1,7 +1,5 @@
 import os
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from experiments.warehouse.results.utils import compute_results_with_ci
@@ -11,6 +9,7 @@ OUTPUT_DIR = "../outputs"
 
 
 def main() -> None:
+    """Main function."""
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
