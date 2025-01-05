@@ -221,6 +221,7 @@ source = { editable = "." }
 dependencies = [
     { name = "cloudpickle" },
     { name = "gymnasium" },
+    { name = "huggingface-sb3" },
     { name = "numpy" },
     { name = "panda-gym" },
     { name = "stable-baselines3" },
@@ -250,6 +251,7 @@ dev = [
 requires-dist = [
     { name = "cloudpickle", specifier = "==3.0.0" },
     { name = "gymnasium", specifier = "==0.29.1" },
+    { name = "huggingface-sb3", specifier = ">=3.0" },
     { name = "hydra-core", marker = "extra == 'experiments'", specifier = ">=1.3.2" },
     { name = "moviepy", marker = "extra == 'experiments'", specifier = ">=2.1.1" },
     { name = "numpy", specifier = "==1.26.4" },
@@ -442,6 +444,40 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/0d/f8/5699ddb3e1c4f6d97b8930e573074849b921da8374fccd141f0f3a9bd713/gymnasium-0.29.1.tar.gz", hash = "sha256:1a532752efcb7590478b1cc7aa04f608eb7a2fdad5570cd217b66b6a35274bb1", size = 820485 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a8/4d/3cbfd81ed84db450dbe73a89afcd8bc405273918415649ac6683356afe92/gymnasium-0.29.1-py3-none-any.whl", hash = "sha256:61c3384b5575985bb7f85e43213bcb40f36fcdff388cae6bc229304c71f2843e", size = 953939 },
+]
+
+[[package]]
+name = "huggingface-hub"
+version = "0.27.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "filelock" },
+    { name = "fsspec" },
+    { name = "packaging" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "tqdm" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/36/c6/e3709b61de8e7832dbe19f0d9637e81356cede733d99359fbce125423774/huggingface_hub-0.27.0.tar.gz", hash = "sha256:902cce1a1be5739f5589e560198a65a8edcfd3b830b1666f36e4b961f0454fac", size = 379286 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/8c/fbdc0a88a622d9fa54e132d7bf3ee03ec602758658a2db5b339a65be2cfe/huggingface_hub-0.27.0-py3-none-any.whl", hash = "sha256:8f2e834517f1f1ddf1ecc716f91b120d7333011b7485f665a9a412eacb1a2a81", size = 450537 },
+]
+
+[[package]]
+name = "huggingface-sb3"
+version = "3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cloudpickle" },
+    { name = "huggingface-hub" },
+    { name = "numpy" },
+    { name = "pyyaml" },
+    { name = "wasabi" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4b/df/db480915a4f86bd253eb0ee56b47bece40d8fcf2926d58a2b9891299aedc/huggingface_sb3-3.0.tar.gz", hash = "sha256:abaf901808dc5827976e3029646e463da65536068d910cd8ef4a8e985087d515", size = 10411 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/2c/e8c25087c6e43e5e68659f2a4651988831d4b3e70791c433537c90d147ce/huggingface_sb3-3.0-py3-none-any.whl", hash = "sha256:f543f1e5d840425044b9f83cd6915da77cc308c1a7dd4585208f17efad1e8321", size = 9676 },
 ]
 
 [[package]]
@@ -1615,6 +1651,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0d/9a/828968f7c6256a2440123f9602a403fe2f7730a3286e0e344a84cb9a0821/wandb-0.19.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:370d96c23217cd5a16c1f56e02cda9b0f1e2805f4dd6fa942645a726a0e9b549", size = 20169998 },
     { url = "https://files.pythonhosted.org/packages/43/5b/3f436aa647681bf1b6a3fd694c974a40d33be5c40b492277020da360a5cf/wandb-0.19.0-py3-none-win32.whl", hash = "sha256:ab50cc3233727765fbb7b9266cf824f53637c8de2be47ba107542e3ad21ba307", size = 19563293 },
     { url = "https://files.pythonhosted.org/packages/cd/c8/c778a55aeab47ea918c82023fad837cdf5e686dc2249b67a723d452da390/wandb-0.19.0-py3-none-win_amd64.whl", hash = "sha256:0fe8af679306b959b22260b4a67f22186829433809f76e48e70d25c04c2dcf94", size = 19563296 },
+]
+
+[[package]]
+name = "wasabi"
+version = "1.1.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ac/f9/054e6e2f1071e963b5e746b48d1e3727470b2a490834d18ad92364929db3/wasabi-1.1.3.tar.gz", hash = "sha256:4bb3008f003809db0c3e28b4daf20906ea871a2bb43f9914197d540f4f2e0878", size = 30391 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/06/7c/34330a89da55610daa5f245ddce5aab81244321101614751e7537f125133/wasabi-1.1.3-py3-none-any.whl", hash = "sha256:f76e16e8f7e79f8c4c8be49b4024ac725713ab10cd7f19350ad18a8e3f71728c", size = 27880 },
 ]
 
 [[package]]

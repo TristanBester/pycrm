@@ -37,3 +37,6 @@ coverage.xml
 # Checkpoints
 checkpoints/
 *.zip
+
+# Numpy
+*.npy
