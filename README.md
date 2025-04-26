@@ -13,14 +13,12 @@
 
 ## 🌟 Overview
 
-Counting Reward Machines (CRMs) are formal models that combine the expressive power of reward machines with counter mechanisms inspired by formal language theory. This framework provides a principled way to:
+Counting Reward Machines (CRMs) are formal models that offer Turing-complete reward specification in RL. This framework provides a principled way to:
 
 - Specify complex, temporally-extended tasks
 - Generate counterfactual learning experiences
 - Dramatically improve reinforcement learning efficiency
 - Enable interpretable reward structures
-
-CRMs define rewards based on symbolic events and their counts, allowing for elegant specification of tasks that would be cumbersome to express with standard reward functions.
 
 ## ✨ Features
 
@@ -28,7 +26,7 @@ CRMs define rewards based on symbolic events and their counts, allowing for eleg
 - 🔄 **Cross-Product Environments**: Combine ground environments with CRMs to create learning tasks
 - 🏗️ **Modular Design**: Easily compose CRMs for complex task specifications
 - 📊 **Expressive Power Hierarchy**: Regular, context-free, and context-sensitive CRMs
-- 🧪 **Example Environments**: Complete worked examples for quick understanding
+- 🧪 **Example Environments**: Complete worked examples to get you started
 - 📝 **Comprehensive Documentation**: Detailed guides and API references
 
 ## 🚀 Quick Start
@@ -53,8 +51,8 @@ class SimpleCRM(CountingRewardMachine):
 # Create a cross-product environment
 cross_product = create_cross_product_environment(
     ground_env=your_environment,
-    crm=SimpleCRM(),
     lf=your_labelling_function
+    crm=SimpleCRM(),
 )
 
 # Train with counterfactual experiences
@@ -64,7 +62,7 @@ agent.learn(total_episodes=1000)
 
 ## 🔍 Hierarchy of CRMs
 
-CRMs come in three main variants, each with increasing expressive power:
+CRMs are able to model tasks at all levels of the Chomsky reward hierarchy. They can be used to specify tasks that are regular, context-free, or context-sensitive. This allows for a wide range of applications in reinforcement learning.
 
 | Type | Description | Counter Logic | Example Task |
 |------|-------------|---------------|--------------|
@@ -89,26 +87,17 @@ The CRM framework consists of several key components:
 - **Labelling Function**: Maps environment observations to symbolic events
 - **Counting Reward Machine**: Formal specification of the task
 - **Cross-Product Environment**: Combines all components into a learning environment
-- **RL Agents**: Algorithms that leverage counterfactual experiences
+- **RL Agents**: Algorithms that leverage counterfactual experiences for increased sample efficiency
 
-## 📊 Performance
-
-Counterfactual experience generation enables dramatic improvements in learning efficiency:
-
-| Environment | Standard Q-Learning | Counterfactual Q-Learning | Speedup |
-|-------------|---------------------|---------------------------|---------|
-| Letter World | ~4500 episodes | ~400 episodes | 11.25x |
-| Warehouse | ~8000 episodes | ~650 episodes | 12.30x |
-| Minecraft | ~12000 episodes | ~800 episodes | 15.00x |
 
 ## 📋 Citation
 
 If you use Counting Reward Machines in your research, please cite:
 
 ```bibtex
-@article{neary2023counting,
-  title={Counting Reward Machines: Expressivity and Counterfactual Experience Generation},
-  author={Neary, Cyrus and Bester, Tristan and Brafman, Ronen I and Desai, Andrey and Tamar, Aviv},
+@article{bester2023counting,
+  title={Counting Reward Automata: Sample Efficient Reinforcement Learning Through the Exploitation of Reward Function Structure},
+  author={Bester, Tristan and Rosman, Benjamin and James, Steven and Tasse, Geraud Nangue},
   journal={arXiv preprint arXiv:2312.11364},
   year={2023}
 }
@@ -131,11 +120,11 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv pip install -e ".[dev]"
 
 # Run tests
-pytest
+uv run pytest
 
 # Run tox for testing across environments
 uv pip install tox
-tox
+uv run tox
 ```
 
 Tox is used to ensure compatibility across multiple Python versions and environments. It runs the test suite, linting, and type checking all at once.
@@ -143,9 +132,3 @@ Tox is used to ensure compatibility across multiple Python versions and environm
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- The project builds on research from formal language theory and reward machines
-- Thanks to all contributors and the reinforcement learning community
-- Special thanks to our research partners and supporting institutions
