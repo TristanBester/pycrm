@@ -1,0 +1,117 @@
+---
+title: 'Examples'
+description: 'Learn from practical examples of using Counting Reward Machines'
+---
+
+# Examples
+
+## Letter World Example
+
+The Letter World example demonstrates how to use CRMs in a simple grid world environment where the agent needs to visit letters in a specific sequence.
+
+### Ground Environment
+
+```python
+from examples.letter.ground import LetterWorld
+
+env = LetterWorld()
+# Grid world with letters where agent can move in 4 directions
+```
+
+### Labelling Function
+
+```python
+from examples.letter.label import LetterWorldLabellingFunction
+
+class LetterWorldLabellingFunction:
+    def __call__(self, state):
+        # Convert state to abstract labels
+        # Returns current letter position
+        return (current_letter,)
+```
+
+### Counting Reward Machine
+
+```python
+from examples.letter.machine import LetterWorldCountingRewardMachine
+
+class LetterWorldCountingRewardMachine:
+    def __init__(self):
+        self.states = {0, 1, 2, 3}  # Terminal state is 3
+        self.initial_state = 0
+
+    def step(self, labels, counters):
+        # Process transitions based on letters visited
+        # Return next state and reward
+        return next_state, reward
+```
+
+### Putting It All Together
+
+```python
+from examples.letter.crossproduct import LetterWorldCrossProduct
+
+# Create components
+ground_env = LetterWorld()
+lf = LetterWorldLabellingFunction()
+crm = LetterWorldCountingRewardMachine()
+
+# Create cross-product environment
+env = LetterWorldCrossProduct(
+    ground_env=ground_env,
+    crm=crm,
+    lf=lf,
+    max_steps=100,
+)
+
+# Run an episode
+obs, _ = env.reset()
+done = False
+
+while not done:
+    action = env.action_space.sample()  # Your policy here
+    obs, reward, terminated, truncated, _ = env.step(action)
+    done = terminated or truncated
+```
+
+## Training an Agent
+
+Here's an example of training a Q-learning agent:
+
+```python
+import numpy as np
+from collections import defaultdict
+
+# Initialize Q-table
+q_table = defaultdict(lambda: np.zeros(env.action_space.n))
+
+# Training loop
+for episode in range(1000):
+    obs, _ = env.reset()
+    done = False
+    
+    while not done:
+        # Epsilon-greedy action selection
+        if np.random.random() < 0.1:
+            action = env.action_space.sample()
+        else:
+            action = np.argmax(q_table[tuple(obs)])
+            
+        # Take step
+        next_obs, reward, terminated, truncated, _ = env.step(action)
+        done = terminated or truncated
+        
+        # Q-learning update
+        q_table[tuple(obs)][action] += 0.1 * (
+            reward + 0.99 * np.max(q_table[tuple(next_obs)])
+            - q_table[tuple(obs)][action]
+        )
+        
+        obs = next_obs
+```
+
+## Next Steps
+
+- Check the [API Reference](/api-reference) for detailed documentation
+- Learn about [Core Concepts](/concepts)
+- Follow the [Getting Started](/getting-started) guide 

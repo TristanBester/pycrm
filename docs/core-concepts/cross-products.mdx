@@ -1,0 +1,282 @@
+---
+title: 'Cross-Product Environments'
+description: 'Combining ground environments with reward machines to create learning tasks'
+---
+
+import { Callout } from 'nextra/components'
+
+# Cross-Product Environments
+
+<Callout type="info">
+  Cross-product environments combine a ground environment with a Counting Reward Machine to create a new environment where rewards are determined by the machine's response to symbolic events.
+</Callout>
+
+## Introduction to Cross-Products
+
+In the Counting Reward Machine (CRM) framework, a cross-product environment combines three key components:
+
+1. **Ground Environment**: The base environment that defines the world dynamics
+2. **Labelling Function**: Translates environment observations to symbolic events
+3. **Reward Machine**: Specifies rewards based on sequences of events
+
+The cross-product creates a new environment that extends the ground environment with additional state information from the reward machine. This approach:
+
+- Preserves the original environment dynamics
+- Adds reward structure based on high-level task specifications
+- Tracks machine states and counters as part of the observation
+- Automatically manages the interaction between components
+
+## Cross-Product Architecture
+
+The cross-product environment works by:
+
+1. Taking actions in the ground environment
+2. Converting observations to symbolic events via the labelling function
+3. Updating the reward machine state based on events
+4. Determining rewards according to the reward machine's transition function
+5. Augmenting the observation with reward machine state information
+
+This process effectively "wraps" the ground environment with the task structure defined by the reward machine.
+
+## Creating a Cross-Product Environment
+
+To create a custom cross-product environment, you need to subclass the `CrossProduct` base class:
+
+```python
+from crm.crossproduct import CrossProduct
+import gymnasium as gym
+import numpy as np
+
+class MyCrossProduct(CrossProduct[GroundObsType, ObsType, ActType, RenderFrame]):
+    """Custom cross-product environment."""
+    
+    def __init__(
+        self,
+        ground_env: gym.Env,
+        crm: CountingRewardMachine,
+        lf: LabellingFunction,
+        max_steps: int,
+    ) -> None:
+        """Initialize the cross-product environment."""
+        super().__init__(ground_env, crm, lf, max_steps)
+        # Define observation and action spaces
+        self.observation_space = gym.spaces.Box(...)
+        self.action_space = self.ground_env.action_space
+```
+
+### Required Method Implementations
+
+You must implement two abstract methods:
+
+#### 1. `_get_obs`
+
+This method combines ground environment observations with reward machine state information:
+
+```python
+def _get_obs(
+    self, ground_obs: GroundObsType, u: int, c: tuple[int, ...]
+) -> ObsType:
+    """Create observation from ground observation and machine state."""
+    # Combine ground observation with machine state
+    return np.concatenate([
+        ground_obs,
+        np.array([u]),  # Machine state
+        np.array(c)     # Counter values
+    ])
+```
+
+#### 2. `to_ground_obs`
+
+This method extracts the ground observation from a cross-product observation:
+
+```python
+def to_ground_obs(self, obs: ObsType) -> GroundObsType:
+    """Extract ground observation from cross-product observation."""
+    # Extract just the ground observation part
+    return obs[:ground_obs_dim]
+```
+
+## Example: Letter World Cross-Product
+
+Here's a complete example from the Letter World environment:
+
+```python
+import gymnasium as gym
+import numpy as np
+
+from crm.automaton import CountingRewardMachine
+from crm.crossproduct import CrossProduct
+from crm.label import LabellingFunction
+
+
+class LetterWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
+    """Cross product of the Letter World environment."""
+
+    def __init__(
+        self,
+        ground_env: gym.Env,
+        crm: CountingRewardMachine,
+        lf: LabellingFunction[np.ndarray, int],
+        max_steps: int,
+    ) -> None:
+        """Initialize the cross product environment."""
+        super().__init__(ground_env, crm, lf, max_steps)
+        self.observation_space = gym.spaces.Box(
+            low=0, high=100, shape=(3,), dtype=np.int32
+        )
+        self.action_space = self.ground_env.action_space
+
+    def _get_obs(
+        self, ground_obs: np.ndarray, u: int, c: tuple[int, ...]
+    ) -> np.ndarray:
+        """Get the cross product observation."""
+        return np.array([ground_obs[0], ground_obs[1], ground_obs[2], u, c[0]])
+
+    def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
+        """Convert cross-product observation to ground observation."""
+        return obs[:3]
+```
+
+This cross-product:
+- Extends the Letter World environment with CRM state information
+- Augments the observation with the current machine state (`u`) and counter value (`c[0]`)
+- Preserves the original action space
+
+## Using Cross-Product Environments
+
+Once created, a cross-product environment can be used like any standard Gym environment:
+
+```python
+# Create components
+ground_env = LetterWorld()
+lf = LetterWorldLabellingFunction()
+crm = LetterWorldCountingRewardMachine()
+
+# Create cross-product environment
+env = LetterWorldCrossProduct(
+    ground_env=ground_env,
+    crm=crm,
+    lf=lf,
+    max_steps=500,
+)
+
+# Use standard Gym interface
+obs, _ = env.reset()
+action = env.action_space.sample()
+next_obs, reward, terminated, truncated, info = env.step(action)
+```
+
+### Interpreting Observations
+
+The observation from a cross-product environment contains both ground environment information and reward machine state:
+
+```python
+# Example observation breakdown
+# [ground_obs elements, reward machine state, counter values]
+# For Letter World: [symbol_seen, row, col, machine_state, counter]
+```
+
+You can extract the reward machine state and counter values from the observation to understand the current task progress.
+
+## Counterfactual Experience Generation
+
+One powerful feature of cross-product environments is their ability to generate counterfactual experiences:
+
+```python
+# Generate counterfactual experiences for RL algorithms
+(
+    obs_buffer,
+    action_buffer,
+    next_obs_buffer,
+    reward_buffer,
+    done_buffer,
+    info_buffer
+) = env.generate_counterfactual_experience(ground_obs, action, next_ground_obs)
+```
+
+This method:
+1. Takes a ground environment transition (obs, action, next_obs)
+2. Generates experiences for all possible reward machine states and counter configurations
+3. Returns batches of experience tuples that can be used for more efficient learning
+
+Counterfactual experience generation significantly accelerates learning by allowing the agent to learn from transitions it hasn't actually experienced, but that would produce known rewards according to the reward machine's structure.
+
+## Behind the Scenes: How Cross-Products Work
+
+The cross-product implements the following key methods:
+
+### reset()
+
+Initializes both the ground environment and reward machine:
+
+```python
+def reset(self, *, seed=None, options=None):
+    """Reset the cross-product environment."""
+    self.steps = 0
+    self.u = self.crm.u_0        # Initial machine state
+    self.c = self.crm.c_0        # Initial counter configuration
+    self._ground_obs, _ = self.ground_env.reset()
+    
+    return self._get_obs(self._ground_obs, self.u, self.c), {}
+```
+
+### step(action)
+
+Handles the full interaction cycle:
+
+```python
+def step(self, action):
+    """Take a step in the cross-product environment."""
+    # Take action in ground environment
+    self._ground_obs_next, _, _, _, _ = self.ground_env.step(action)
+    
+    # Convert to symbolic events
+    self._props = self.lf(self._ground_obs, action, self._ground_obs_next)
+    
+    # Update reward machine
+    self.u, self.c, reward_fn = self.crm.transition(self.u, self.c, self._props)
+    reward = reward_fn(self._ground_obs, action, self._ground_obs_next)
+    
+    # Check termination
+    terminated = self.u in self.crm.F
+    truncated = self.steps >= self.max_steps
+    
+    return new_observation, reward, terminated, truncated, {}
+```
+
+## Type Parameters
+
+The `CrossProduct` class uses generic type parameters for flexibility:
+
+```python
+CrossProduct[GroundObsType, ObsType, ActType, RenderFrame]
+```
+
+Where:
+- `GroundObsType`: Type of ground environment observations
+- `ObsType`: Type of cross-product environment observations
+- `ActType`: Type of actions
+- `RenderFrame`: Type returned by the render method
+
+These type parameters help ensure type safety when working with different environment types.
+
+## Best Practices
+
+When creating cross-product environments:
+
+1. **Clear State Augmentation**: Design `_get_obs` to add machine state information in a logical way
+2. **Consistent Types**: Ensure observation and action spaces are compatible with RL algorithms
+3. **Reasonable Max Steps**: Set an appropriate `max_steps` value for your task
+4. **Use Counterfactual Learning**: Take advantage of counterfactual experience generation for faster learning
+5. **Type Annotations**: Use appropriate type parameters for better code safety
+
+## Summary
+
+Cross-product environments are the glue that binds together ground environments, labelling functions, and reward machines. They:
+
+- Create a seamless interface between environment dynamics and task specifications
+- Preserve the Gym environment API for compatibility with standard RL algorithms
+- Augment observations with reward machine state information
+- Provide counterfactual experience generation for accelerated learning
+
+By properly implementing a cross-product environment, you can transform any Gym-compatible environment into a structured task-learning environment guided by a reward machine's specifications.

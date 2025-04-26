@@ -1,0 +1,289 @@
+---
+title: 'Cross-Product'
+description: 'Get started with Counting Reward Machines in minutes'
+---
+
+# Letter World Cross-Product Example
+
+This example demonstrates how the cross-product MDP behaves like a standard Gymnasium environment while adding the power of Counting Reward Machines.
+
+## The Letter World Environment
+
+The Letter World is a simple grid environment where an agent navigates to find specific letters:
+- Letter 'A' has a 50% chance of turning into letter 'B' when visited
+- Letter 'C' gives a reward when visited after seeing letter 'B'
+- The agent must learn to visit 'A', hope it turns into 'B', and then visit 'C'
+
+Here's what the environment looks like:
+
+```
++-------------+
+|. . . . . . .|
+|A . x . . C .|
+|. . . . . . .|
++-------------+
+```
+
+Where:
+- `A` represents letter 'A' (or 'B' after transformation)
+- `C` represents letter 'C'
+- `x` represents the agent
+
+## Components
+
+To create our cross-product environment, we need several components:
+
+1. **Ground Environment**: The basic grid world (`LetterWorld`)
+2. **Labelling Function**: Maps transitions to symbols (`LetterWorldLabellingFunction`)
+3. **Counting Reward Machine**: Defines rewards based on symbol history (`LetterWorldCountingRewardMachine`)
+4. **Cross-Product**: Combines all the above (`LetterWorldCrossProduct`)
+
+## Setting Up the Environment
+
+First, let's import the necessary components and create our environment:
+
+```python
+from examples.letter.core.crossproduct import LetterWorldCrossProduct
+from examples.letter.core.ground import LetterWorld
+from examples.letter.core.label import LetterWorldLabellingFunction
+from examples.letter.core.machine import LetterWorldCountingRewardMachine
+
+# Create the ground environment
+ground_env = LetterWorld()
+
+# Create labelling function and counting reward machine
+lf = LetterWorldLabellingFunction()
+crm = LetterWorldCountingRewardMachine()
+
+# Create the cross-product environment
+cross_product = LetterWorldCrossProduct(
+    ground_env=ground_env,
+    crm=crm,
+    lf=lf,
+    max_steps=100,  # Set maximum number of steps
+)
+```
+
+## Using the Environment Like a Standard Gym Environment
+
+The cross-product environment works just like any other Gymnasium environment:
+
+```python
+# Reset the environment
+obs, info = cross_product.reset(seed=42)
+print(f"Initial observation: {obs}")
+
+# Sample a random action
+action = cross_product.action_space.sample()
+
+# Take a step in the environment
+next_obs, reward, terminated, truncated, info = cross_product.step(action)
+print(f"Action: {action}")
+print(f"Observation: {next_obs}")
+print(f"Reward: {reward}")
+```
+
+Output:
+```
+Initial observation: [0 1 3 0 0]
+Action: 3
+Observation: [0 2 3 0 0]
+Reward: -0.1
+```
+
+The observation is structured as:
+- First part: Ground observation (symbol_seen, agent_row, agent_col)
+- Last part: Machine state and counter values
+
+## Running an Episode
+
+Let's run a full episode with the cross-product environment:
+
+```python
+# Reset and run an episode
+obs, info = cross_product.reset(seed=0)
+total_reward = 0
+step_count = 0
+
+print("Initial environment state:")
+ground_env.render()
+
+# Run for several steps
+for _ in range(10):
+    action = cross_product.action_space.sample()
+    next_obs, reward, terminated, truncated, info = cross_product.step(action)
+    
+    total_reward += reward
+    step_count += 1
+    
+    print(f"\nStep {step_count}:")
+    print(f"  Action: {action}")
+    print(f"  Observation: {next_obs}")
+    print(f"  Reward: {reward}")
+    
+    # Render the environment
+    ground_env.render()
+    
+    if terminated or truncated:
+        print(f"Episode ended after {step_count} steps")
+        break
+```
+
+Sample output:
+```
+Initial environment state:
++-------------+
+|. . . . . . .|
+|A . x . . C .|
+|. . . . . . .|
++-------------+
+
+Step 1:
+  Action: 0
+  Observation: [0 1 4 0 0]
+  Reward: -0.1
+
++-------------+
+|. . . . . . .|
+|A . . x . C .|
+|. . . . . . .|
++-------------+
+
+Step 2:
+  Action: 3
+  Observation: [0 2 4 0 0]
+  Reward: -0.1
+
++-------------+
+|. . . . . . .|
+|A . . . . C .|
+|. . . x . . .|
++-------------+
+```
+
+## Using a Specific Action Sequence
+
+You can also execute a specific sequence of actions:
+
+```python
+# Reset the environment
+obs, info = cross_product.reset(seed=0)
+
+# Define a specific action sequence to test
+# (0=RIGHT, 1=LEFT, 2=UP, 3=DOWN)
+actions = [1, 1, 1, 2]  # Move to letter A
+
+for i, action in enumerate(actions):
+    next_obs, reward, terminated, truncated, info = cross_product.step(action)
+    print(f"\nStep {i+1} with action {action}:")
+    print(f"  Observation: {next_obs}")
+    print(f"  Reward: {reward}")
+    
+    ground_env.render()
+```
+
+Sample output for this sequence:
+```
+Step 1 with action 1:
+  Observation: [0 1 2 0 0]
+  Reward: -0.1
+
++-------------+
+|. . . . . . .|
+|A x . . . C .|
+|. . . . . . .|
++-------------+
+
+Step 2 with action 1:
+  Observation: [0 1 1 0 0]
+  Reward: -0.1
+
++-------------+
+|. . . . . . .|
+|x A . . . C .|
+|. . . . . . .|
++-------------+
+
+Step 3 with action 1:
+  Observation: [0 1 0 0 0]
+  Reward: -0.1
+
++-------------+
+|x . . . . . .|
+|A . . . . C .|
+|. . . . . . .|
++-------------+
+
+Step 4 with action 2:
+  Observation: [0 0 0 0 0]
+  Reward: -0.1
+
++-------------+
+|x . . . . . .|
+|A . . . . C .|
+|. . . . . . .|
++-------------+
+```
+
+## What Makes It Special?
+
+The cross-product environment extends a standard Gym environment with:
+
+1. **Symbol Tracking**: It tracks which symbols have been seen
+2. **Counter Values**: It maintains counters as defined by the reward machine
+3. **State Memory**: The reward can depend on the history of previously seen symbols
+4. **Reward Shaping**: Complex reward signals based on achieving specific goals
+
+For example, in our Letter World:
+- Visiting letter 'A' increments a counter
+- Visiting letter 'B' resets the counter but changes the machine state
+- Visiting letter 'C' after 'B' with a zero counter gives a large positive reward
+
+## The Counting Reward Machine
+
+Let's look at how the counting reward machine is structured:
+
+```python
+def _get_state_transition_function(self) -> dict:
+    """Return the state transition function."""
+    return {
+        0: {
+            "A / (-)": 0,
+            "B / (-)": 1,
+            "C / (-)": 0,
+            "/ (-)": 0,
+        },
+        1: {
+            "A / (-)": 1,
+            "B / (-)": 1,
+            "C / (NZ)": 1,
+            "C / (Z)": -1,
+            "/ (-)": 1,
+        },
+    }
+```
+
+This defines how the machine state changes based on observed symbols and counter conditions. The notation:
+- "A / (-)" means "observe symbol A with any counter value"
+- "C / (Z)" means "observe symbol C with zero counter value"
+- "C / (NZ)" means "observe symbol C with non-zero counter value"
+
+## Conclusion
+
+The cross-product environment combines the simplicity of standard Gym environments with the power of Counting Reward Machines. This allows you to:
+
+1. Use it with any RL algorithm designed for Gym environments
+2. Define complex reward structures based on symbol history
+3. Track progress toward multi-step goals
+4. Shape rewards to guide exploration and learning
+
+This example demonstrates that using Counting Reward Machines doesn't require changing your existing RL algorithms - it just gives you more expressive power in defining rewards!
+
+## Source Code
+
+You can find the complete source code for this example here:
+- [environment_example.py](https://github.com/TristanBester/counting-reward-machines/blob/main/examples/letter/environment_example.py)
+- [Letter World Core Components](https://github.com/TristanBester/counting-reward-machines/tree/main/examples/letter/core)
+
+Feel free to experiment with it and adapt it to your own reinforcement learning tasks!
+

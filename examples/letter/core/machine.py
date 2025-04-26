@@ -1,5 +1,5 @@
 from crm.automaton import CountingRewardMachine
-from examples.letter.label import Symbol
+from examples.letter.core.label import Symbol
 
 
 class LetterWorldCountingRewardMachine(CountingRewardMachine):
@@ -64,17 +64,17 @@ class LetterWorldCountingRewardMachine(CountingRewardMachine):
         """Return the reward transition function."""
         return {
             0: {
-                "A / (-)": 0,
-                "B / (-)": 0,
-                "C / (-)": 0,
-                "/ (-)": 0,
+                "A / (-)": -0.1,
+                "B / (-)": -0.1,
+                "C / (-)": -0.1,
+                "/ (-)": -0.1,
             },
             1: {
-                "A / (-)": 0,
-                "B / (-)": 0,
-                "C / (NZ)": 0,
+                "A / (-)": -0.1,
+                "B / (-)": -0.1,
+                "C / (NZ)": -0.1,
                 "C / (Z)": 1,
-                "/ (-)": 0,
+                "/ (-)": -0.1,
             },
         }
 

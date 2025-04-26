@@ -1,0 +1,69 @@
+---
+title: 'Core Concepts'
+description: 'Understanding the fundamental concepts of Counting Reward Machines'
+---
+
+# Core Concepts
+
+Counting Reward Machines (CRMs) provide a formal way to specify reward functions for reinforcement learning tasks. This page explains the key concepts and components.
+
+## Counting Reward Machines
+
+A CRM is an automaton that:
+- Maintains internal counters
+- Processes sequences of abstract labels
+- Generates rewards based on state transitions
+- Can express complex temporal and counting behaviors
+
+### Components
+
+1. **States**: Finite set of automaton states
+2. **Counters**: Integer variables that track occurrences
+3. **Transitions**: State changes based on labels and counter values
+4. **Reward Function**: Maps transitions to numerical rewards
+
+## Labelling Functions
+
+Labelling functions bridge the gap between concrete environment states and abstract CRM inputs:
+
+```python
+class LetterWorldLabellingFunction:
+    def __call__(self, state) -> tuple:
+        # Map concrete state to abstract labels
+        return abstract_labels
+```
+
+## Cross-Product Construction
+
+The cross-product construction combines:
+1. Ground MDP (environment)
+2. CRM
+3. Labelling function
+
+This creates an augmented MDP where:
+- States combine environment state and CRM state
+- Transitions maintain consistency
+- Rewards come from the CRM
+
+```python
+class CrossProduct:
+    def __init__(self, ground_env, crm, lf):
+        self.ground_env = ground_env
+        self.crm = crm
+        self.lf = lf
+```
+
+## Example: Letter World
+
+The Letter World example demonstrates these concepts:
+
+1. **Ground Environment**: Grid world with letters
+2. **Labels**: Current letter position
+3. **CRM**: Tracks letter sequence and counts
+4. **Reward**: Based on achieving specific patterns
+
+## Next Steps
+
+- See the [API Reference](/api-reference) for detailed documentation
+- Check out [Examples](/examples) for more use cases
+- Read the [Getting Started](/getting-started) guide for implementation details 

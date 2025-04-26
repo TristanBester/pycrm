@@ -41,7 +41,7 @@ class LetterWorld(gym.Env):
         if not self.symbol_seen and np.array_equal(
             self.agent_position, self.A_POSITION
         ):
-            self.symbol_seen = np.random.random() < 0.1
+            self.symbol_seen = np.random.random() < 0.5
         return self._get_obs(), 0, False, False, {}
 
     def _update_agent_position(self, action: int) -> None:

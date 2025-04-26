@@ -40,3 +40,6 @@ checkpoints/
 
 # Numpy
 *.npy
+
+# Experiments
+experiments/

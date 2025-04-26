@@ -1,0 +1,91 @@
+---
+title: 'Quick Start'
+description: 'Get started with Counting Reward Machines in minutes'
+---
+
+# Quick Start Guide
+
+This guide will help you create your first Counting Reward Machine (CRM) environment in minutes.
+
+## Basic Example
+
+We'll use the Letter World example, where an agent needs to visit letters in a specific sequence.
+
+```python
+from examples.letter.ground import LetterWorld
+from examples.letter.label import LetterWorldLabellingFunction
+from examples.letter.machine import LetterWorldCountingRewardMachine
+from examples.letter.crossproduct import LetterWorldCrossProduct
+
+# 1. Create the ground environment
+ground_env = LetterWorld()
+
+# 2. Create the labelling function
+lf = LetterWorldLabellingFunction()
+
+# 3. Create the CRM
+crm = LetterWorldCountingRewardMachine()
+
+# 4. Create the cross-product MDP
+env = LetterWorldCrossProduct(
+    ground_env=ground_env,
+    crm=crm,
+    lf=lf,
+    max_steps=100,
+)
+
+# Use like a standard Gym environment
+obs, _ = env.reset()
+action = env.action_space.sample()  # Random action
+next_obs, reward, terminated, truncated, info = env.step(action)
+```
+
+## What's Happening?
+
+1. **Ground Environment** (`LetterWorld`): A grid world where the agent can move around. The ground environment is a simply a subclass of `gymnasium.Env` (OpenAI Gym environment).
+2. **Labelling Function** (`LetterWorldLabellingFunction`): Converts agent positions to letter labels.
+3. **CRM** (`LetterWorldCountingRewardMachine`): Defines rewards based on letter sequences.
+4. **Cross-Product** (`LetterWorldCrossProduct`): Combines everything to automatically generate a `gymnasium.Gym` environment for the cross-product MDP.
+
+## Training a Simple Agent
+
+Here's a basic Q-learning implementation:
+
+```python
+import numpy as np
+from collections import defaultdict
+
+# Initialize Q-table
+q_table = defaultdict(lambda: np.zeros(env.action_space.n))
+
+# Training loop
+for episode in range(100):
+    obs, _ = env.reset()
+    done = False
+    
+    while not done:
+        # Choose action (epsilon-greedy)
+        if np.random.random() < 0.1:
+            action = env.action_space.sample()
+        else:
+            action = np.argmax(q_table[tuple(obs)])
+            
+        # Take step
+        next_obs, reward, terminated, truncated, _ = env.step(action)
+        done = terminated or truncated
+        
+        # Update Q-value
+        q_table[tuple(obs)][action] += 0.1 * (
+            reward + 0.99 * np.max(q_table[tuple(next_obs)])
+            - q_table[tuple(obs)][action]
+        )
+        
+        obs = next_obs
+```
+
+## Next Steps
+
+- Learn about [States and Transitions](/core-concepts/states-transitions)
+- Understand [Labelling Functions](/core-concepts/labelling)
+- See the full [Letter World Example](/worked-examples/letter-world)
+- Check the [Installation Guide](/installation) for setup options 
