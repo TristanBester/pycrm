@@ -17,7 +17,7 @@ In the Counting Reward Machine (CRM) framework, labelling functions play a criti
 
 ## Core Concept
 
-A labelling function maps an environment transition (observation, action, next observation) to a set of symbolic events. This abstraction layer provides several benefits:
+A labelling function maps an environment transition (observation, action, next observation) to a set of symbolic events (a truth assignment for a set of propositions). This abstraction layer provides several benefits:
 
 - **Modularity**: Separate environment dynamics from task specification
 - **Reusability**: Same environment can support different tasks by changing the labelling
@@ -186,53 +186,6 @@ When creating labelling functions:
 3. **Handle edge cases**: Consider all possible transitions and what they should mean
 4. **Document conditions**: Clearly document when each event is triggered
 5. **Use clear naming**: Name your event detection methods descriptively
-
-## Advanced Patterns
-
-### Multiple Events Per Transition
-
-A transition can trigger multiple events simultaneously:
-
-```python
-@LabellingFunction.event
-def detect_event_a(self, obs, action, next_obs):
-    # Logic for event A
-    return Symbol.A if condition_a else None
-
-@LabellingFunction.event
-def detect_event_b(self, obs, action, next_obs):
-    # Logic for event B (can occur simultaneously with A)
-    return Symbol.B if condition_b else None
-```
-
-### Compound Events
-
-You can define events that depend on multiple conditions:
-
-```python
-@LabellingFunction.event
-def detect_compound_event(self, obs, action, next_obs):
-    if condition_1 and condition_2 and not condition_3:
-        return Symbol.COMPOUND
-    return None
-```
-
-### Context-Dependent Events
-
-Events can depend on action history or context beyond the current transition:
-
-```python
-class ContextLabellingFunction(LabellingFunction[ObsType, ActType]):
-    def __init__(self):
-        self.context = {}  # Store context information
-        
-    @LabellingFunction.event
-    def detect_context_event(self, obs, action, next_obs):
-        # Use and update context
-        if some_condition and self.context.get('flag'):
-            return Symbol.CONTEXT_EVENT
-        return None
-```
 
 ## Summary
 

@@ -28,7 +28,7 @@ Tabular agents are suitable for environments with discrete state and action spac
 
 The standard Q-Learning algorithm is implemented in `crm.agents.tabular.ql`. This provides a baseline implementation that uses the standard Q-learning update rule:
 
-```python
+```
 Q(s,a) ← Q(s,a) + α[r + γ·max_a'Q(s',a') - Q(s,a)]
 ```
 
@@ -140,13 +140,13 @@ The CRM framework is designed to be extensible, and we're committed to supportin
 - Custom agent architectures or learning algorithms
 - Specialized handling for your environment type
 
-Please [open an issue on our GitHub repository](https://github.com/cyrusneary/counting-reward-machines/issues/new) with the following information:
+Please [open an issue on our GitHub repository](https://github.com/TristanBester/counting-reward-machines/issues/new) with the following information:
 
 1. The algorithm or implementation you need
 2. Your use case or environment
 3. Any specific requirements or constraints
 
-Our development team actively monitors issues and will prioritize implementing requested features based on community needs. We believe in making the CRM framework as versatile and useful as possible for all users.
+We actively monitors issues and will prioritize implementing requested features based on community needs. We believe in making the CRM framework as versatile and useful as possible for all users.
 
 ## Example Usage
 

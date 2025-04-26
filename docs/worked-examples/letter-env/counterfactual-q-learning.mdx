@@ -1,5 +1,5 @@
 ---
-title: 'Counterfactual Q-Learning'
+title: '6 - Counterfactual Q-Learning'
 description: 'Accelerate learning with counterfactual experiences using Counting Reward Machines'
 ---
 
@@ -7,9 +7,9 @@ import { Callout } from 'nextra/components'
 
 # Counterfactual Q-Learning in Letter World
 
-<Callout type="info">
-  Counterfactual Q-Learning uses the structure of Counting Reward Machines to generate additional learning experiences, dramatically improving sample efficiency.
-</Callout>
+<Info>
+	Counterfactual Q-Learning uses the structure of Counting Reward Machines to generate additional learning experiences, dramatically improving sample efficiency.
+</Info>
 
 ## The Concept
 
@@ -23,6 +23,11 @@ By utilizing the symbolic representation in the CRM, we can:
 ## Implementation Comparison
 
 Let's compare standard Q-Learning with Counterfactual Q-Learning in the Letter World environment.
+
+<Warning>
+	The examples are not distributed in the PyPI package currently. Please see the [Installation Guide](/installation)
+	for information on how to setup a development build.
+</Warning>
 
 ### Standard Q-Learning
 
@@ -205,16 +210,6 @@ This approach is particularly useful in environments where:
 - Task structures have clear symbolic representations
 - Sample efficiency is critical
 
-## Source Code
-
-You can find the complete source code for this example in the repository:
-
-- [Counterfactual Q-Learning Implementation (cq_learning.py)](https://github.com/tmrob2/counting-reward-machines/blob/main/examples/letter/cq_learning.py)
-- [Q-Learning Implementation (q_learning.py)](https://github.com/tmrob2/counting-reward-machines/blob/main/examples/letter/q_learning.py)
-- [Letter World Environment (ground.py)](https://github.com/tmrob2/counting-reward-machines/blob/main/examples/letter/core/ground.py)
-- [Labelling Function (label.py)](https://github.com/tmrob2/counting-reward-machines/blob/main/examples/letter/core/label.py)
-- [Counting Reward Machine (machine.py)](https://github.com/tmrob2/counting-reward-machines/blob/main/examples/letter/core/machine.py)
-- [Cross-Product Environment (crossproduct.py)](https://github.com/tmrob2/counting-reward-machines/blob/main/examples/letter/core/crossproduct.py)
 
 ## Conclusion
 

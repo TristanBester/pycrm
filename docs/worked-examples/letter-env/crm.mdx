@@ -1,5 +1,5 @@
 ---
-title: 'Counting Reward Machine'
+title: '3 - Counting Reward Machine'
 description: 'Defining rewards based on symbolic event sequences'
 ---
 
@@ -29,6 +29,11 @@ For the Letter World environment, we define a CRM that rewards the agent for vis
 ## Implementation Details
 
 The Letter World CRM is implemented as a subclass of the `CountingRewardMachine` base class:
+
+<Warning>
+	The examples are not distributed in the PyPI package currently. Please see the [Installation Guide](/installation)
+	for information on how to setup a development build.
+</Warning>
 
 ```python
 from crm.automaton import CountingRewardMachine
@@ -275,6 +280,6 @@ next_obs, reward, terminated, truncated, info = env.step(action)
 
 ## Next Steps
 
-- See how everything comes together in the [Cross-Product Environment](/docs/worked-examples/letter-env/cross-product)
-- Learn about [Q-Learning with CRMs](/docs/worked-examples/letter-env/q-learning)
-- Explore [Counterfactual Q-Learning](/docs/worked-examples/letter-env/counterfactual-q-learning) for more efficient learning
+- See how everything comes together in the [Cross-Product Environment](/worked-examples/letter-env/cross-product)
+- Learn about [Q-Learning with CRMs](/worked-examples/letter-env/q-learning)
+- Explore [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning) for more efficient learning

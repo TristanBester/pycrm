@@ -4,12 +4,16 @@ description: 'Get started with Counting Reward Machines in minutes'
 ---
 
 # Quick Start Guide
-
-This guide will help you create your first Counting Reward Machine (CRM) environment in minutes.
+This guide will help you get up and running with Counting Reward Machines (CRMs) in minutes.
 
 ## Basic Example
 
 We'll use the Letter World example, where an agent needs to visit letters in a specific sequence.
+
+<Warning>
+	The examples are not distributed in the PyPI package currently. Please see the [Installation Guide](/installation)
+	for information on how to setup a development build.
+</Warning>
 
 ```python
 from examples.letter.ground import LetterWorld
@@ -43,13 +47,17 @@ next_obs, reward, terminated, truncated, info = env.step(action)
 ## What's Happening?
 
 1. **Ground Environment** (`LetterWorld`): A grid world where the agent can move around. The ground environment is a simply a subclass of `gymnasium.Env` (OpenAI Gym environment).
-2. **Labelling Function** (`LetterWorldLabellingFunction`): Converts agent positions to letter labels.
+2. **Labelling Function** (`LetterWorldLabellingFunction`): Converts agent positions to truth assignments for a set of propositions.
 3. **CRM** (`LetterWorldCountingRewardMachine`): Defines rewards based on letter sequences.
 4. **Cross-Product** (`LetterWorldCrossProduct`): Combines everything to automatically generate a `gymnasium.Gym` environment for the cross-product MDP.
 
 ## Training a Simple Agent
 
 Here's a basic Q-learning implementation:
+
+<Note>
+	Detailed walkthrough of Q-learning with CRMs is given in the [Letter World Example](/worked-examples/letter-env/ground-environment)	
+</Note>
 
 ```python
 import numpy as np
@@ -68,16 +76,16 @@ for episode in range(100):
         if np.random.random() < 0.1:
             action = env.action_space.sample()
         else:
-            action = np.argmax(q_table[tuple(obs)])
+            action = np.argmax(q_table[obs])
             
         # Take step
         next_obs, reward, terminated, truncated, _ = env.step(action)
         done = terminated or truncated
         
         # Update Q-value
-        q_table[tuple(obs)][action] += 0.1 * (
-            reward + 0.99 * np.max(q_table[tuple(next_obs)])
-            - q_table[tuple(obs)][action]
+        q_table[obs][action] += 0.1 * (
+            reward + 0.99 * np.max(q_table[next_obs])
+            - q_table[obs][action]
         )
         
         obs = next_obs
@@ -85,7 +93,11 @@ for episode in range(100):
 
 ## Next Steps
 
-- Learn about [States and Transitions](/core-concepts/states-transitions)
-- Understand [Labelling Functions](/core-concepts/labelling)
-- See the full [Letter World Example](/worked-examples/letter-world)
-- Check the [Installation Guide](/installation) for setup options 
+#### Worked Examples
+	- See our [Letter World Example](/worked-examples/letter-env/ground-environment) for a complete walkthrough of using CRMs in practice. 
+
+#### Core Concepts
+	- [Labelling Functions](/core-concepts/labelling-functions)
+	- [Automata](/core-concepts/automata)
+	- [Cross-Product MDPs](/core-concepts/cross-products)
+	- [Agents](/core-concepts/agents)

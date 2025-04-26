@@ -9,9 +9,8 @@ description: 'Install and set up Counting Reward Machines'
 
 Before installing Counting Reward Machines, ensure you have:
 
-- Python 3.8 or higher
+- Python 3.10 or higher
 - pip (Python package installer)
-- virtualenv (recommended)
 
 ## Quick Install
 
@@ -27,7 +26,7 @@ For development or the latest features, install from source:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/counting-reward-machines.git
+git clone https://github.com/TristanBester/counting-reward-machines.git
 cd counting-reward-machines
 
 # Create and activate virtual environment
@@ -38,29 +37,16 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -e .
 ```
 
-## Dependencies
-
-The package automatically installs these core dependencies:
-
-- `gymnasium`: For environment interfaces
-- `numpy`: For numerical operations
-- `networkx`: For graph operations
-
 ## Verification
 
 Verify your installation:
 
-```python
-from examples.letter.ground import LetterWorld
-from examples.letter.machine import LetterWorldCountingRewardMachine
-
-# Should run without errors
-env = LetterWorld()
-crm = LetterWorldCountingRewardMachine()
+```bash
+pip show crm
 ```
 
 ## Next Steps
 
 - Follow the [Quick Start Guide](/quickstart) to create your first CRM
-- Read about [Core Concepts](/core-concepts/states-transitions)
-- Try the [Letter World Example](/worked-examples/letter-world) 
+- Read about [Core Concepts](/core-concepts/labelling-functions)
+- Try the [Letter World Example](/worked-examples/letter-env/ground-environment) 

@@ -60,7 +60,7 @@ agent = CounterfactualQLearningAgent(env=cross_product)
 agent.learn(total_episodes=1000)
 ```
 
-## 🔍 Hierarchy of CRMs
+## 🔍 Chomsky Reward Hierarchy 
 
 CRMs are able to model tasks at all levels of the Chomsky reward hierarchy. They can be used to specify tasks that are regular, context-free, or context-sensitive. This allows for a wide range of applications in reinforcement learning.
 

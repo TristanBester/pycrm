@@ -1,5 +1,5 @@
 ---
-title: 'Cross-Product'
+title: '4 - Cross-Product'
 description: 'Get started with Counting Reward Machines in minutes'
 ---
 
@@ -39,6 +39,11 @@ To create our cross-product environment, we need several components:
 4. **Cross-Product**: Combines all the above (`LetterWorldCrossProduct`)
 
 ## Setting Up the Environment
+
+<Warning>
+	The examples are not distributed in the PyPI package currently. Please see the [Installation Guide](/installation)
+	for information on how to setup a development build.
+</Warning>
 
 First, let's import the necessary components and create our environment:
 
@@ -276,14 +281,11 @@ The cross-product environment combines the simplicity of standard Gym environmen
 2. Define complex reward structures based on symbol history
 3. Track progress toward multi-step goals
 4. Shape rewards to guide exploration and learning
+5. Benefit from the sample efficiency of counterfactual experiences
 
 This example demonstrates that using Counting Reward Machines doesn't require changing your existing RL algorithms - it just gives you more expressive power in defining rewards!
 
-## Source Code
+## Next Steps
 
-You can find the complete source code for this example here:
-- [environment_example.py](https://github.com/TristanBester/counting-reward-machines/blob/main/examples/letter/environment_example.py)
-- [Letter World Core Components](https://github.com/TristanBester/counting-reward-machines/tree/main/examples/letter/core)
-
-Feel free to experiment with it and adapt it to your own reinforcement learning tasks!
-
+- Learn about [Q-Learning with CRMs](/worked-examples/letter-env/q-learning)
+- Explore [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning) for more efficient learning

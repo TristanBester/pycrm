@@ -13,13 +13,12 @@ import { Callout } from 'nextra/components'
 
 ## Introduction to Reward Machines
 
-Reinforcement learning agents typically learn from simple reward signals that are functions of the current state or state-action pair. While effective for basic tasks, this approach struggles with temporally extended goals that depend on sequences of events or require counting.
+Reinforcement learning agents typically learn from simple reward signals that are functions of the current state or state-action pair. While effective for basic tasks, this approach struggles with temporally extended goals that depend on complex sequences of events.
 
 Reward Machines (RMs) address this limitation by providing a formal framework to specify tasks through automata that map sequences of events to rewards. These machines:
 
 - Define rewards based on the history of events, not just the current state
 - Enable specification of temporally extended tasks with complex logic
-- Separate task specification (what to do) from environment dynamics (how to do it)
 - Allow for structured, interpretable task definitions
 
 ## Types of Reward Machines
@@ -28,22 +27,20 @@ The CRM framework supports two main types of Reward Machines:
 
 ### Vanilla Reward Machines
 
-Vanilla Reward Machines define rewards based on sequences of symbolic events, without counting. They consist of:
+Vanilla Reward Machines are a special case of Counting Reward Machines and define rewards based on sequences of symbolic events, without an extended automaton memory. They consist of:
 
 - **States**: Different phases of the task
 - **Transitions**: Rules for moving between states based on symbolic events
 - **Rewards**: Values assigned during transitions
 
-These are equivalent to classical finite-state machines where transitions are triggered by symbolic events and produce rewards.
-
 ### Counting Reward Machines (CRMs)
 
-Counting Reward Machines extend Vanilla RMs with counter variables that can track occurrences of events. They add:
+Counting Reward Machines extend Vanilla RMs with counter variables as an extended automaton memory that can track occurrences of events. They add:
 
 - **Counters**: Variables that increment or decrement based on events
 - **Counter Conditions**: Rules that use counter values to determine transitions
 
-This extension significantly increases the expressive power, allowing for tasks that require counting or balancing events (e.g., collecting exactly N objects, or ensuring equal numbers of different actions).
+This extension significantly increases the expressive power of RMs to include any task which can be expressed as a well-defined algorithm.
 
 ## Components of a Reward Machine
 
@@ -164,7 +161,7 @@ class SequenceRM(CountingRewardMachine):
         return {
             0: {"A / (-)": 1, "/ (-)": 0},
             1: {"B / (-)": 2, "/ (-)": 1},
-            2: {"C / (-)": -1, "/ (-)": 2},
+            2: {"C / (-)": -1, "/ (-)": 2}, # -1 denotes terminal state
         }
     
     def _get_counter_transition_function(self) -> dict:
@@ -209,11 +206,9 @@ def _get_state_transition_function(self) -> dict:
     }
 ```
 
-However, the CRM framework still requires the full syntax (`"EVENT / (-)"`) for backward compatibility.
-
 ## Creating a Counting Reward Machine
 
-Counting Reward Machines are used for tasks that require tracking occurrences of events. Here's an example that counts and balances events:
+Counting Reward Machines are used for more complex task specifications. Here's an example that counts and balances events:
 
 ```python
 class BalancedCRM(CountingRewardMachine):
@@ -393,10 +388,10 @@ def c_0(self) -> tuple[int, ...]:
 def _get_counter_transition_function(self) -> dict:
     return {
         0: {
-            "A / (-)": (1, 0),  # Increment first counter only
-            "B / (-)": (0, 1),  # Increment second counter only
-            "C / (-)": (1, 1),  # Increment both counters
-            "/ (-)": (0, 0),    # No change to any counter
+            "A / (-,-)": (1, 0),  # Increment first counter only
+            "B / (-,-)": (0, 1),  # Increment second counter only
+            "C / (-,-)": (1, 1),  # Increment both counters
+            "/ (-,-)": (0, 0),    # No change to any counter
         }
     }
 ```
@@ -409,7 +404,7 @@ def _get_state_transition_function(self) -> dict:
         0: {
             "A / (Z,NZ)": 1,  # A with first counter=0, second counter>0
             "B / (NZ,Z)": 2,  # B with first counter>0, second counter=0
-            "/ (-)": 0,
+            "/ (-,-)": 0,
         }
     }
 ```
@@ -442,18 +437,18 @@ When creating Reward Machines:
 2. **Use Meaningful States**: Design states to represent logical phases of the task
 3. **Consistent Structure**: Ensure all three transition functions have the same keys
 4. **Default Transitions**: Always include `"/ (-)"` transitions for all states
-5. **Terminal States**: Use `-1` to indicate task completion
+5. **Terminal States**: Use `-1` to indicate task completion or failure
 6. **Counter Limits**: Set bounds on counter values to prevent unbounded counting
 7. **Test Transitions**: Verify that all possible event combinations are handled
 
 ## Summary
 
-Reward Machines provide a powerful and flexible framework for specifying complex tasks in reinforcement learning:
+Counting Reward Machines provide a powerful and flexible framework for specifying complex tasks in reinforcement learning:
 
 - **Vanilla Reward Machines** define tasks based on sequences of events
-- **Counting Reward Machines** add counters to track occurrences of events
+- **Counting Reward Machines** add counters to enable more complex task specifications 
 - The formalism cleanly separates task specification from environment dynamics
 - Boolean logic allows for complex event conditions
 - Custom reward functions enable sophisticated reward shaping
 
-By using Reward Machines, you can create agents that learn to solve tasks requiring memory, counting, and complex sequential behavior in a structured, interpretable way.
+By using Counting Reward Machines, you can create agents that learn to solve tasks requiring memory, counting, and complex sequential behavior in a structured, interpretable way.
