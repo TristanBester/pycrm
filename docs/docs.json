@@ -1,0 +1,85 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Starter Kit",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#3F8C9F",
+    "light": "#5BBCD2",
+    "dark": "#37747F",
+    "anchors": {
+      "from": "#7E57C2",
+      "to": "#5BBCD2"
+    }
+  },
+  "theme": "prism",
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:hi@mintlify.com"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://dashboard.mintlify.com"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Code",
+      "icon": "code",
+      "url": "https://github.com/TristanBester/counting-reward-machines"
+    },
+    {
+      "name": "Paper",
+      "icon": "book-open-cover",
+      "url": "https://arxiv.org/abs/2312.11364"
+    },
+    {
+      "name": "Demo",
+      "icon": "robot",
+      "url": "https://crm.tristanbester.xyz"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "installation",
+        "quickstart"
+      ]
+    },
+    {
+      "group": "Example",
+      "pages": [
+        "worked-examples/letter-env/ground-environment",
+        "worked-examples/letter-env/labelling-function",
+        "worked-examples/letter-env/crm",
+        "worked-examples/letter-env/cross-product",
+        "worked-examples/letter-env/q-learning",
+        "worked-examples/letter-env/counterfactual-q-learning"
+      ]
+    },
+    {
+      "group": "Code Concepts",
+      "pages": [
+        "core-concepts/labelling-functions",
+        "core-concepts/automata",
+        "core-concepts/cross-products",
+        "core-concepts/agents"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/TristanBester/counting-reward-machines"
+  }
+}
