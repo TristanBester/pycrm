@@ -42,7 +42,7 @@ dev-dependencies = [
 ]
 
 [tool.pyright]
-exclude = [".venv", "experiments/warehouse/results"]
+exclude = [".venv", "experiments"]
 pythonVersion = "3.12"
 venvPath = "."
 venv = ".venv"
