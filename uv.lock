@@ -175,7 +175,9 @@ dependencies = [
     { name = "gymnasium" },
     { name = "numpy" },
     { name = "stable-baselines3" },
+    { name = "tensorboard" },
     { name = "torch" },
+    { name = "tqdm" },
 ]
 
 [package.optional-dependencies]
@@ -210,8 +212,10 @@ requires-dist = [
     { name = "panda-gym", marker = "extra == 'experiments'", specifier = ">=3.0.7" },
     { name = "stable-baselines3", specifier = ">=2.3.2" },
     { name = "tbparse", marker = "extra == 'experiments'", specifier = ">=0.0.9" },
+    { name = "tensorboard", specifier = ">=2.19.0" },
     { name = "tensorboard", marker = "extra == 'experiments'", specifier = ">=2.18.0" },
     { name = "torch", specifier = "==2.6.0" },
+    { name = "tqdm", specifier = ">=4.67.1" },
     { name = "tqdm", marker = "extra == 'experiments'", specifier = ">=4.67.1" },
     { name = "wandb", marker = "extra == 'experiments'", specifier = ">=0.19.0" },
 ]

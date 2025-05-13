@@ -9,7 +9,9 @@ dependencies = [
     "gymnasium==0.29.1",
     "numpy==1.26.4",
     "stable-baselines3>=2.3.2",
+    "tensorboard>=2.19.0",
     "torch==2.6.0",
+    "tqdm>=4.67.1",
 ]
 
 [project.optional-dependencies]
@@ -46,6 +48,8 @@ exclude = [".venv", "experiments"]
 pythonVersion = "3.12"
 venvPath = "."
 venv = ".venv"
+reportPrivateImportUsage = "none"
+
 
 [tool.ruff]
 line-length = 88
