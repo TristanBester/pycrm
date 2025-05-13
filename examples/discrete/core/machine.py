@@ -137,7 +137,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
             agent_pos = next_obs[:2]
             target_one_pos = next_obs[4:6]
             dist = float(np.linalg.norm(agent_pos - target_one_pos))
-            return -dist
+            return -dist * 0.25
 
         return nav_t_1_reward
 

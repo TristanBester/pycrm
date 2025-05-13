@@ -61,3 +61,65 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
             Ground observation.
         """
         return obs[:12]
+
+
+class PuckWorldLoggingWrapper(gym.Wrapper):
+    """Logging wrapper for the Puck World environment.
+
+    Wrapper used to log subtask success rates during training.
+    """
+
+    def __init__(self, env: PuckWorldCrossProduct) -> None:
+        """Initialize the logging wrapper."""
+        super().__init__(env)
+        self.t_1_1 = False
+        self.t_1_2 = False
+
+    def reset(self, **kwargs) -> tuple[np.ndarray, dict]:
+        """Reset the environment."""
+        assert isinstance(self.env, PuckWorldCrossProduct)
+        obs, info = self.env.reset(**kwargs)
+        self.u = self.env.u
+        self.c = self.env.c
+
+        subtask_info = self._get_subtask_info()
+        info["subtask_info"] = subtask_info
+        return obs, info
+
+    def step(self, action: np.ndarray) -> tuple[np.ndarray, float, bool, bool, dict]:
+        """Step the environment."""
+        assert isinstance(self.env, PuckWorldCrossProduct)
+        last_u = self.env.u
+        last_c = self.env.c
+
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        curr_u = self.env.u
+        curr_c = self.env.c
+
+        self.u = self.env.u
+        self.c = self.env.c
+
+        if last_u != curr_u or last_c != curr_c:
+            print(f"{last_u} -> {curr_u}\t{last_c} -> {curr_c}")
+
+        self._update_subtask_info()
+        subtask_info = self._get_subtask_info()
+
+        info["subtask_info"] = subtask_info
+        return obs, float(reward), terminated, truncated, info
+
+    def _get_subtask_info(self) -> dict:
+        """Get the subtask information.
+
+        Returns:
+            Subtask information.
+        """
+        return {
+            "subtask/t_1_1_complete": int(self.t_1_1),
+            "subtask/t_1_2_complete": int(self.t_1_2),
+        }
+
+    def _update_subtask_info(self) -> None:
+        """Update the subtask information."""
+        if self.u == 3 and self.c[0] == 0:
+            self.t_1_1 = True

@@ -1,6 +1,15 @@
 import numpy as np
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from stable_baselines3.common.utils import safe_mean
+from stable_baselines3.dqn import DQN
+
+from examples.discrete.core import (
+    PuckWorld,
+    PuckWorldCountingRewardMachine,
+    PuckWorldCrossProduct,
+    PuckWorldLabellingFunction,
+    PuckWorldLoggingWrapper,
+)
 
 
 class LoggingMixin(OffPolicyAlgorithm):
@@ -33,3 +42,45 @@ class LoggingMixin(OffPolicyAlgorithm):
         for i, done in enumerate(dones):  # type: ignore
             if done:
                 infos[i]["episode"].update(infos[i]["subtask_info"])
+
+
+class LoggingDQN(LoggingMixin, DQN):
+    """DQN with subtask logging."""
+
+
+def main():
+    """Run the tabular experiment - compare QL and CQL agents."""
+    # Initialize environment components
+    ground_env = PuckWorld()
+    lf = PuckWorldLabellingFunction()
+    crm = PuckWorldCountingRewardMachine()
+    cross_product = PuckWorldCrossProduct(
+        ground_env=ground_env,
+        crm=crm,
+        lf=lf,
+        max_steps=200,
+    )
+    env = PuckWorldLoggingWrapper(cross_product)
+
+    agent = LoggingDQN(
+        policy="MlpPolicy",
+        env=env,  # Must be a CrossProduct environment
+        exploration_fraction=0.25,
+        tensorboard_log="logs/",
+        verbose=1,
+        learning_rate=0.0001,
+        tau=1.0,
+        target_update_interval=10000,
+        buffer_size=1000000,
+        learning_starts=1000,
+        batch_size=32,
+    )
+
+    agent.learn(
+        total_timesteps=1_000_000,
+        log_interval=100,
+    )
+
+
+if __name__ == "__main__":
+    main()
