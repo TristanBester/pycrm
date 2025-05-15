@@ -58,7 +58,7 @@ def main():
         ground_env=ground_env,
         crm=crm,
         lf=lf,
-        max_steps=200,
+        max_steps=100,
     )
     env = PuckWorldLoggingWrapper(cross_product)
 
@@ -78,7 +78,7 @@ def main():
 
     agent.learn(
         total_timesteps=1_000_000,
-        log_interval=100,
+        log_interval=1,
     )
 
 

@@ -74,6 +74,7 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
         super().__init__(env)
         self.t_1_1 = False
         self.t_1_2 = False
+        self.t_1_3 = False
 
     def reset(self, **kwargs) -> tuple[np.ndarray, dict]:
         """Reset the environment."""
@@ -81,6 +82,10 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
         obs, info = self.env.reset(**kwargs)
         self.u = self.env.u
         self.c = self.env.c
+
+        self.t_1_1 = False
+        self.t_1_2 = False
+        self.t_1_3 = False
 
         subtask_info = self._get_subtask_info()
         info["subtask_info"] = subtask_info
@@ -100,7 +105,7 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
         self.c = self.env.c
 
         if last_u != curr_u or last_c != curr_c:
-            print(f"{last_u} -> {curr_u}\t{last_c} -> {curr_c}")
+            print(f"U: {last_u} -> {curr_u}\tC: {last_c} -> {curr_c}")
 
         self._update_subtask_info()
         subtask_info = self._get_subtask_info()
@@ -117,9 +122,14 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
         return {
             "subtask/t_1_1_complete": int(self.t_1_1),
             "subtask/t_1_2_complete": int(self.t_1_2),
+            "subtask/t_1_3_complete": int(self.t_1_3),
         }
 
     def _update_subtask_info(self) -> None:
         """Update the subtask information."""
         if self.u == 3 and self.c[0] == 0:
             self.t_1_1 = True
+        if self.u == 0 and self.c[0] == 0:
+            self.t_1_2 = True
+        if self.u == 0 and self.c[0] == 1:
+            self.t_1_3 = True

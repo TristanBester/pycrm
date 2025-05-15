@@ -114,6 +114,11 @@ class CountingRewardMachine(ABC):
                 reward_fn = self.delta_r[u][transition_formula]
                 break
 
+        # if self.env_prop_enum.T_1 in props:
+        #     print("T_1 in props")
+        #     print(f"U: {u} -> {u_next}")
+        #     print(f"C: {c} -> {c_next}")
+
         if u_next is not None and c_next is not None and reward_fn is not None:
             return u_next, c_next, reward_fn
 

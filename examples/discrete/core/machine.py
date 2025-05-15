@@ -22,7 +22,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
     @property
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
-        return (1, 0, 0)
+        return (2, 0, 0)
 
     @property
     def encoded_configuration_size(self) -> int:
@@ -38,7 +38,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         return {
             0: {
                 "T_1 / (Z,-,-)": -1,  # FIXME: Should be 1
-                "T_1 / (NZ,-,-)": -1,
+                "T_1 / (NZ,-,-)": 0,
                 "T_2 / (-,-,-)": 0,
                 "T_3 / (-,-,-)": 0,
                 "A / (-,-,-)": 0,
@@ -96,7 +96,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         return {
             0: {
                 "T_1 / (Z,-,-)": 0,
-                "T_1 / (NZ,-,-)": 0,
+                "T_1 / (NZ,-,-)": 100,
                 "T_2 / (-,-,-)": self._create_nav_t_1_reward(),
                 "T_3 / (-,-,-)": self._create_nav_t_1_reward(),
                 "A / (-,-,-)": self._create_nav_t_1_reward(),
@@ -137,7 +137,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
             agent_pos = next_obs[:2]
             target_one_pos = next_obs[4:6]
             dist = float(np.linalg.norm(agent_pos - target_one_pos))
-            return -dist * 0.25
+            return -dist
 
         return nav_t_1_reward
 
