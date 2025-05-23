@@ -19,7 +19,7 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
         """Initialize the cross product Markov decision process environment."""
         super().__init__(ground_env, crm, lf, max_steps)
         self.observation_space = gym.spaces.Box(
-            low=0, high=100, shape=(16,), dtype=np.int32
+            low=0, high=100, shape=(16,), dtype=np.float32
         )
         self.action_space = self.ground_env.action_space
 
@@ -41,14 +41,16 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
         """Get the cross product observation.
 
         Args:
-            ground_obs: The ground observation.
+            ground_obs: The ground observation.z
             u: The number of symbols seen.
             c: The counter configuration.
 
         Returns:
             Cross product observation - [ground obs, machine state, counter state].
         """
-        crm_cfg = np.array([u, *c])
+        u_enc = np.zeros(len(self.crm.U) + 1, dtype=np.float32)
+        u_enc[u] = 1
+        crm_cfg = u_enc
         return np.concatenate((ground_obs, crm_cfg))
 
     def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
@@ -72,9 +74,9 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
     def __init__(self, env: PuckWorldCrossProduct) -> None:
         """Initialize the logging wrapper."""
         super().__init__(env)
-        self.t_1_1 = False
-        self.t_1_2 = False
-        self.t_1_3 = False
+        self.t_1 = False
+        self.t_2 = False
+        self.t_3 = False
 
     def reset(self, **kwargs) -> tuple[np.ndarray, dict]:
         """Reset the environment."""
@@ -83,9 +85,9 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
         self.u = self.env.u
         self.c = self.env.c
 
-        self.t_1_1 = False
-        self.t_1_2 = False
-        self.t_1_3 = False
+        self.t_1 = False
+        self.t_2 = False
+        self.t_3 = False
 
         subtask_info = self._get_subtask_info()
         info["subtask_info"] = subtask_info
@@ -98,14 +100,15 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
         last_c = self.env.c
 
         obs, reward, terminated, truncated, info = self.env.step(action)
+
         curr_u = self.env.u
         curr_c = self.env.c
 
         self.u = self.env.u
         self.c = self.env.c
 
-        if last_u != curr_u or last_c != curr_c:
-            print(f"U: {last_u} -> {curr_u}\tC: {last_c} -> {curr_c}")
+        # if last_u != curr_u or last_c != curr_c:
+        #     print(f"U: {last_u} -> {curr_u}\tC: {last_c} -> {curr_c}")
 
         self._update_subtask_info()
         subtask_info = self._get_subtask_info()
@@ -120,16 +123,16 @@ class PuckWorldLoggingWrapper(gym.Wrapper):
             Subtask information.
         """
         return {
-            "subtask/t_1_1_complete": int(self.t_1_1),
-            "subtask/t_1_2_complete": int(self.t_1_2),
-            "subtask/t_1_3_complete": int(self.t_1_3),
+            "subtask/t_1_complete": int(self.t_1),
+            "subtask/t_2_complete": int(self.t_2),
+            "subtask/t_3_complete": int(self.t_3),
         }
 
     def _update_subtask_info(self) -> None:
         """Update the subtask information."""
-        if self.u == 3 and self.c[0] == 0:
-            self.t_1_1 = True
-        if self.u == 0 and self.c[0] == 0:
-            self.t_1_2 = True
-        if self.u == 0 and self.c[0] == 1:
-            self.t_1_3 = True
+        if self.u == 1:
+            self.t_1 = True
+        if self.u == 2:
+            self.t_2 = True
+        if self.u == 3:
+            self.t_3 = True

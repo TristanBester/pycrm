@@ -93,16 +93,16 @@ class PuckWorld(gym.Env):
     def _update_agent_position_velocity(self, action) -> None:
         """Update agent position and velocity based on selected action."""
         if action == self.RIGHT:
-            self.agent_vel[0] += 0.01
+            self.agent_vel[0] += 0.05
         elif action == self.LEFT:
-            self.agent_vel[0] -= 0.01
+            self.agent_vel[0] -= 0.05
         elif action == self.UP:
-            self.agent_vel[1] += 0.01
+            self.agent_vel[1] += 0.05
         elif action == self.DOWN:
-            self.agent_vel[1] -= 0.01
+            self.agent_vel[1] -= 0.05
 
         self.agent_vel += np.random.normal(0, 0.01, size=2)
-        self.agent_vel = np.clip(self.agent_vel, -0.05, 0.05)
+        self.agent_vel = np.clip(self.agent_vel, -0.15, 0.15)
         self.agent_pos += self.agent_vel
 
         # Agent wraps around map if it goes out of bounds
@@ -153,19 +153,15 @@ class PuckWorld(gym.Env):
 
     def _set_target_one_pos(self):
         """Set target one position randomly."""
-        self.target_one_pos = np.random.uniform(-1.0, 1.0, size=2)
-        # print("SET TARGET ONE POS:", self.target_one_pos)
-        # self.target_one_pos = np.array([-0.25, -0.25])
-        # while True:
-        #     self.target_one_pos = np.random.uniform(-0.2, 0.2, size=2)
+        while True:
+            self.target_one_pos = np.random.uniform(-1.0, 1.0, size=2)
 
-        # # Ensure target one is not too close to the other targets
-        # dist_one = np.linalg.norm(self.target_one_pos - self.target_two_pos)
-        # dist_two = np.linalg.norm(self.target_one_pos - self.target_three_pos)
-        #
-        # if dist_one > 0.45 and dist_two > 0.45:
-        #     break
-        #
+            # Ensure target one is not too close to the other targets
+            dist_one = np.linalg.norm(self.target_one_pos - self.target_two_pos)
+            dist_two = np.linalg.norm(self.target_one_pos - self.target_three_pos)
+
+            if dist_one > 0.45 and dist_two > 0.45:
+                break
 
     def _set_target_two_pos(self):
         """Set target two position randomly."""

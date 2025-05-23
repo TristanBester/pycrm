@@ -17,7 +17,7 @@ class Symbol(Enum):
 class PuckWorldLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
     """Labelling function for the Puck World environment."""
 
-    TARGET_THRESHOLD = 0.125
+    TARGET_THRESHOLD = 0.15
     ADVERSARY_THRESHOLD = 0.1
 
     @LabellingFunction.event

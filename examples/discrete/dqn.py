@@ -58,7 +58,7 @@ def main():
         ground_env=ground_env,
         crm=crm,
         lf=lf,
-        max_steps=100,
+        max_steps=300,
     )
     env = PuckWorldLoggingWrapper(cross_product)
 
@@ -68,17 +68,11 @@ def main():
         exploration_fraction=0.25,
         tensorboard_log="logs/",
         verbose=1,
-        learning_rate=0.0001,
-        tau=1.0,
-        target_update_interval=10000,
-        buffer_size=1000000,
-        learning_starts=1000,
-        batch_size=32,
     )
 
     agent.learn(
-        total_timesteps=1_000_000,
-        log_interval=1,
+        total_timesteps=500_000,
+        log_interval=10,
     )
 
 
