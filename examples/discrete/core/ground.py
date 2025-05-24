@@ -124,17 +124,17 @@ class PuckWorld(gym.Env):
 
     def _update_target_one_position(self) -> None:
         """Update target one position if agent gets close enough."""
-        if np.linalg.norm(self.agent_pos - self.target_one_pos) < 0.1:
+        if np.linalg.norm(self.agent_pos - self.target_one_pos) < 0.15:
             self._set_target_one_pos()
 
     def _update_target_two_position(self) -> None:
         """Update target two position if agent gets close enough."""
-        if np.linalg.norm(self.agent_pos - self.target_two_pos) < 0.1:
+        if np.linalg.norm(self.agent_pos - self.target_two_pos) < 0.15:
             self._set_target_two_pos()
 
     def _update_target_three_position(self) -> None:
         """Update target three position if agent gets close enough."""
-        if np.linalg.norm(self.agent_pos - self.target_three_pos) < 0.1:
+        if np.linalg.norm(self.agent_pos - self.target_three_pos) < 0.15:
             self._set_target_three_pos()
 
     def _get_obs(self):

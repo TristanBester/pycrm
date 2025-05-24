@@ -1,9 +1,8 @@
 import numpy as np
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from stable_baselines3.common.utils import safe_mean
-from stable_baselines3.dqn import DQN
-from crm.agents.sb3.dqn import CounterfactualDQN
 
+from crm.agents.sb3.dqn import CounterfactualDQN
 from examples.discrete.core import (
     PuckWorld,
     PuckWorldCountingRewardMachine,
@@ -59,7 +58,7 @@ def main():
         ground_env=ground_env,
         crm=crm,
         lf=lf,
-        max_steps=300,
+        max_steps=1000,
     )
     env = PuckWorldLoggingWrapper(cross_product)
 
@@ -67,12 +66,19 @@ def main():
         policy="MlpPolicy",
         env=env,  # Must be a CrossProduct environment
         exploration_fraction=0.25,
+        exploration_final_eps=0.1,
         tensorboard_log="logs/",
         verbose=1,
+        learning_rate=0.0001,
+        tau=1.0,
+        target_update_interval=10000,
+        buffer_size=1000000,
+        learning_starts=1000,
+        batch_size=32,
     )
 
     agent.learn(
-        total_timesteps=500_000,
+        total_timesteps=5_000_000,
         log_interval=10,
     )
 

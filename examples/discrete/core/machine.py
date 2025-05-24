@@ -22,7 +22,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
     @property
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
-        return (0,)
+        return (0, 0, 0)
 
     @property
     def encoded_configuration_size(self) -> int:
@@ -37,25 +37,28 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         """Return the state transition function."""
         return {
             0: {
-                "T_1 / (-)": 1,
-                "T_2 / (-)": 0,
-                "T_3 / (-)": 0,
-                "A / (-)": 0,
-                "/ (-)": 0,
+                "T_1 / (Z,-,-)": 1,
+                "T_1 / (NZ,-,-)": 0,
+                "T_2 / (-,-,-)": 0,
+                "T_3 / (-,-,-)": 0,
+                "A / (-,-,-)": 0,
+                "/ (-,-,-)": 0,
             },
             1: {
-                "T_1 / (-)": 1,
-                "T_2 / (-)": 2,
-                "T_3 / (-)": 1,
-                "A / (-)": 1,
-                "/ (-)": 1,
+                "T_1 / (-,-,-)": 1,
+                "T_2 / (-,Z,-)": 2,
+                "T_2 / (-,NZ,-)": 1,
+                "T_3 / (-,-,-)": 1,
+                "A / (-,-,-)": 1,
+                "/ (-,-,-)": 1,
             },
             2: {
-                "T_1 / (-)": 2,
-                "T_2 / (-)": 2,
-                "T_3 / (-)": -1,
-                "A / (-)": 2,
-                "/ (-)": 2,
+                "T_1 / (-,-,-)": 2,
+                "T_2 / (-,-,-)": 2,
+                "T_3 / (-,-,Z)": -1,
+                "T_3 / (-,-,NZ)": 2,
+                "A / (-,-,-)": 2,
+                "/ (-,-,-)": 2,
             },
         }
 
@@ -63,25 +66,28 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         """Return the counter transition function."""
         return {
             0: {
-                "T_1 / (-)": (0,),
-                "T_2 / (-)": (0,),
-                "T_3 / (-)": (0,),
-                "A / (-)": (0,),
-                "/ (-)": (0,),
+                "T_1 / (Z,-,-)": (0, 0, 0),
+                "T_1 / (NZ,-,-)": (-1, 0, 0),
+                "T_2 / (-,-,-)": (0, 0, 0),
+                "T_3 / (-,-,-)": (0, 0, 0),
+                "A / (-,-,-)": (0, 0, 0),
+                "/ (-,-,-)": (0, 0, 0),
             },
             1: {
-                "T_1 / (-)": (0,),
-                "T_2 / (-)": (0,),
-                "T_3 / (-)": (0,),
-                "A / (-)": (0,),
-                "/ (-)": (0,),
+                "T_1 / (-,-,-)": (0, 0, 0),
+                "T_2 / (-,Z,-)": (0, 0, 0),
+                "T_2 / (-,NZ,-)": (0, -1, 0),
+                "T_3 / (-,-,-)": (0, 0, 0),
+                "A / (-,-,-)": (0, 0, 0),
+                "/ (-,-,-)": (0, 0, 0),
             },
             2: {
-                "T_1 / (-)": (0,),
-                "T_2 / (-)": (0,),
-                "T_3 / (-)": (0,),
-                "A / (-)": (0,),
-                "/ (-)": (0,),
+                "T_1 / (-,-,-)": (0, 0, 0),
+                "T_2 / (-,-,-)": (0, 0, 0),
+                "T_3 / (-,-,Z)": (0, 0, 0),
+                "T_3 / (-,-,NZ)": (0, 0, -1),
+                "A / (-,-,-)": (0, 0, 0),
+                "/ (-,-,-)": (0, 0, 0),
             },
         }
 
@@ -89,32 +95,35 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         """Return the reward transition function."""
         return {
             0: {
-                "T_1 / (-)": 100,
-                "T_2 / (-)": self._create_nav_t_1_reward(),
-                "T_3 / (-)": self._create_nav_t_1_reward(),
-                "A / (-)": self._create_nav_t_1_reward(),
-                "/ (-)": self._create_nav_t_1_reward(),
+                "T_1 / (Z,-,-)": 100,
+                "T_1 / (NZ,-,-)": 100,
+                "T_2 / (-,-,-)": self._create_nav_t_1_reward(),
+                "T_3 / (-,-,-)": self._create_nav_t_1_reward(),
+                "A / (-,-,-)": self._create_nav_t_1_reward(),
+                "/ (-,-,-)": self._create_nav_t_1_reward(),
             },
             1: {
-                "T_1 / (-)": self._create_nav_t_2_reward(),
-                "T_2 / (-)": 100,
-                "T_3 / (-)": self._create_nav_t_2_reward(),
-                "A / (-)": self._create_nav_t_2_reward(),
-                "/ (-)": self._create_nav_t_2_reward(),
+                "T_1 / (-,-,-)": self._create_nav_t_2_reward(),
+                "T_2 / (-,Z,-)": 100,
+                "T_2 / (-,NZ,-)": 100,
+                "T_3 / (-,-,-)": self._create_nav_t_2_reward(),
+                "A / (-,-,-)": self._create_nav_t_2_reward(),
+                "/ (-,-,-)": self._create_nav_t_2_reward(),
             },
             2: {
-                "T_1 / (-)": self._create_nav_t_3_reward(),
-                "T_2 / (-)": self._create_nav_t_3_reward(),
-                "T_3 / (-)": 100,
-                "A / (-)": self._create_nav_t_3_reward(),
-                "/ (-)": self._create_nav_t_3_reward(),
+                "T_1 / (-,-,-)": self._create_nav_t_3_reward(),
+                "T_2 / (-,-,-)": self._create_nav_t_3_reward(),
+                "T_3 / (-,-,Z)": 100,
+                "T_3 / (-,-,NZ)": 100,
+                "A / (-,-,-)": self._create_nav_t_3_reward(),
+                "/ (-,-,-)": self._create_nav_t_3_reward(),
             },
         }
 
     def _get_possible_counter_configurations(self) -> list[tuple[int, ...]]:
         """Return the possible counter configurations."""
         # return list(product(range(2), repeat=3))
-        return [(0,)]
+        return [(0, 0, 0)]
 
     def _create_nav_t_1_reward(
         self,
@@ -129,7 +138,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
             agent_pos = next_obs[:2]
             target_one_pos = next_obs[4:6]
             dist = float(np.linalg.norm(agent_pos - target_one_pos))
-            return -dist
+            return -dist - 10
 
         return nav_t_1_reward
 
@@ -146,7 +155,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
             agent_pos = next_obs[:2]
             target_two_pos = next_obs[6:8]
             dist = float(np.linalg.norm(agent_pos - target_two_pos))
-            return -dist
+            return -dist - 5
 
         return nav_t_2_reward
 
