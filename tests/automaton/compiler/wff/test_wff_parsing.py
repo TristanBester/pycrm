@@ -38,6 +38,11 @@ def valid_expressions() -> list[dict[str, str]]:
             "expression": "/(Z)",
             "expected": "",
         },
+        {
+            "description": "Reward machine expression (no counters)",
+            "expression": "EVENT_A and not EVENT_B",
+            "expected": "EVENT_A and not EVENT_B",
+        },
     ]
 
 
@@ -50,10 +55,6 @@ def invalid_expressions() -> list[dict[str, str]]:
             - expression (str): Invalid input expression to test
     """
     return [
-        {
-            "description": "Missing counter expression",
-            "expression": "EVENT_A and not EVENT_B",
-        },
         {
             "description": "Invalid format",
             "expression": "EVENT_A and not EVENT_B (Z, Z, Z)",

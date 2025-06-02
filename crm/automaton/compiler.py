@@ -36,12 +36,23 @@ def compile_transition_expression(expression: str, env_props: EnumMeta) -> Calla
 
 
 def _extract_wff(expression: str) -> str:
-    if "/" not in expression:
+    if not len(expression):
         raise ValueError(
             "Invalid transition expression. "
             "Required format is 'WFF / COUNTER_STATS', "
             "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
         )
+
+    if "/" not in expression:
+        if "(" in expression and ")" in expression:
+            raise ValueError(
+                "Invalid transition expression. "
+                "Required format is 'WFF / COUNTER_STATS', "
+                "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+            )
+        else:
+            # Reward machine expression, use counting reward machine emulation
+            expression += " / "
     return expression.split("/")[0].strip()
 
 
