@@ -1,9 +1,11 @@
 import numpy as np
+import wandb
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from stable_baselines3.common.utils import safe_mean
+import sys
 
-from crm.agents.sb3.dqn import CounterfactualDQN
-from examples.discrete.core import (
+from crm.agents.sb3.ddpg import CounterfactualDDPG
+from examples.continuous.core import (
     PuckWorld,
     PuckWorldCountingRewardMachine,
     PuckWorldCrossProduct,
@@ -44,12 +46,18 @@ class LoggingMixin(OffPolicyAlgorithm):
                 infos[i]["episode"].update(infos[i]["subtask_info"])
 
 
-class LoggingCDQN(LoggingMixin, CounterfactualDQN):
-    """DQN with subtask logging."""
+class LoggingCDDPG(LoggingMixin, CounterfactualDDPG):
+    """DDPG with subtask logging."""
 
 
 def main():
     """Run the tabular experiment - compare QL and CQL agents."""
+    wandb.init(
+        project="crm-examples-v1",
+        name="C-DDPG",
+        sync_tensorboard=True,
+    )
+
     # Initialize environment components
     ground_env = PuckWorld()
     lf = PuckWorldLabellingFunction()
@@ -58,28 +66,25 @@ def main():
         ground_env=ground_env,
         crm=crm,
         lf=lf,
-        max_steps=1000,
+        max_steps=100,
     )
     env = PuckWorldLoggingWrapper(cross_product)
 
-    agent = LoggingCDQN(
+    agent = LoggingCDDPG(
         policy="MlpPolicy",
         env=env,  # Must be a CrossProduct environment
-        exploration_fraction=0.25,
-        exploration_final_eps=0.1,
         tensorboard_log="logs/",
         verbose=1,
-        learning_rate=0.0001,
-        tau=1.0,
-        target_update_interval=10000,
-        buffer_size=1000000,
-        learning_starts=1000,
-        batch_size=32,
+        buffer_size=7_500_000,
+        batch_size=2_500,
+        learning_rate=0.001,
+        device="cuda",
+        seed=int(sys.argv[1]),
     )
 
     agent.learn(
         total_timesteps=5_000_000,
-        log_interval=10,
+        log_interval=1,
     )
 
 

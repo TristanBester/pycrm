@@ -1,10 +1,11 @@
 import numpy as np
 import sys
+from torch import seed
 import wandb
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from stable_baselines3.common.utils import safe_mean
-from stable_baselines3.dqn import DQN
 
+from crm.agents.sb3.dqn import CounterfactualDQN
 from examples.discrete.core import (
     PuckWorld,
     PuckWorldCountingRewardMachine,
@@ -46,7 +47,7 @@ class LoggingMixin(OffPolicyAlgorithm):
                 infos[i]["episode"].update(infos[i]["subtask_info"])
 
 
-class LoggingDQN(LoggingMixin, DQN):
+class LoggingCDQN(LoggingMixin, CounterfactualDQN):
     """DQN with subtask logging."""
 
 
@@ -54,7 +55,7 @@ def main():
     """Run the tabular experiment - compare QL and CQL agents."""
     wandb.init(
         project="crm-examples-discrete-v1",
-        name="DQN",
+        name="C-DQN",
         sync_tensorboard=True,
     )
 
@@ -70,7 +71,7 @@ def main():
     )
     env = PuckWorldLoggingWrapper(cross_product)
 
-    agent = LoggingDQN(
+    agent = LoggingCDQN(
         policy="MlpPolicy",
         env=env,  # Must be a CrossProduct environment
         exploration_fraction=0.25,
