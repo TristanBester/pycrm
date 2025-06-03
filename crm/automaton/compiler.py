@@ -39,7 +39,7 @@ def _extract_wff(expression: str) -> str:
     if not len(expression):
         raise ValueError(
             "Invalid transition expression. "
-            "Required format is 'WFF / COUNTER_STATS', "
+            "Required format is 'WFF / COUNTER_STATES', "
             "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
         )
 
@@ -47,23 +47,44 @@ def _extract_wff(expression: str) -> str:
         if "(" in expression and ")" in expression:
             raise ValueError(
                 "Invalid transition expression. "
-                "Required format is 'WFF / COUNTER_STATS', "
+                "Required format is 'WFF / COUNTER_STATES', "
                 "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
             )
         else:
             # Reward machine expression, use counting reward machine emulation
-            expression += " / "
+            expression += " /"
     return expression.split("/")[0].strip()
 
 
 def _extract_counter_states(expression: str) -> str:
-    if "/" not in expression or not ("(" in expression and ")" in expression):
+    if not len(expression):
         raise ValueError(
             "Invalid transition expression. "
-            "Required format is 'WFF / COUNTER_STATS', "
+            "Required format is 'WFF / COUNTER_STATES', "
             "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
         )
-    return expression.split("/")[1].strip()
+
+    if "/" not in expression:
+        pattern = re.compile(r"\((?:\s*(?:Z|NZ|-)\s*,)*\s*(?:Z|NZ|-)\s*\)")
+
+        if pattern.search(expression):
+            raise ValueError(
+                "Invalid transition expression. "
+                "Required format is 'WFF / COUNTER_STATES', "
+                "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+            )
+        else:
+            # Reward machine expression, use counting reward machine emulation
+            return "(Z)"
+
+    counter_states = expression.split("/")[1].strip()
+    if counter_states == "" or "(" not in counter_states or ")" not in counter_states:
+        raise ValueError(
+            "Invalid transition expression. "
+            "Required format is 'WFF / COUNTER_STATES', "
+            "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+        )
+    return counter_states
 
 
 def _construct_callable_wff_expression_str_repr(

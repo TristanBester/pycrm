@@ -30,6 +30,7 @@ class CountingRewardMachine(ABC):
         # Handle reward-transition function
         self._replace_ccrm_rewards()
         self._init_transition_functions()
+        self._set_c_0_implementation()
 
     @property
     @abstractmethod
@@ -38,13 +39,13 @@ class CountingRewardMachine(ABC):
 
     @property
     @abstractmethod
-    def c_0(self) -> tuple[int, ...]:
-        """Return the initial counter configuration of the machine."""
-
-    @property
-    @abstractmethod
     def encoded_configuration_size(self) -> int:
         """Return the size of the encoded counter configuration."""
+
+    @property
+    def c_0(self) -> tuple[int, ...]:
+        """Return the initial counter configuration of the machine."""
+        return self._c_0
 
     @abstractmethod
     def _get_state_transition_function(self) -> dict:
@@ -213,3 +214,32 @@ class CountingRewardMachine(ABC):
             if u > max_state:
                 max_state = u
         return max_state
+
+    def _set_c_0_implementation(self) -> None:
+        """Override the c_0 property implementation for reward machines."""
+        # Check if subclass has explicity overridden c_0
+        if type(self).c_0 is not CountingRewardMachine.c_0:
+            # Subclass has overridden c_0
+            if self._is_reward_machine():
+                raise ValueError(
+                    "Reward machines do not have a c_0 property. "
+                    "Do not implement c_0 in your subclass. This property will be "
+                    "automatically set by the compiler."
+                )
+        else:
+            # Subclass has not overridden c_0
+            if not self._is_reward_machine():
+                raise ValueError(
+                    "Counting reward machines must have a c_0 property. "
+                    "Implement c_0 in your subclass."
+                )
+            else:
+                self._c_0 = (0,)
+
+    def _is_reward_machine(self) -> bool:
+        """Analyse transition function to determine if automaton is reward machine."""
+        sample_transition_expression = list(self._delta_u[0].keys())[0]
+        if " / " in sample_transition_expression:
+            return False
+        else:
+            return True

@@ -29,9 +29,9 @@ def valid_expressions() -> list[dict[str, str]]:
             "expected": "(-, -, NZ, Z)",
         },
         {
-            "description": "Simple counter expression",
-            "expression": "not (EVENT_A and EVENT_B) / X",
-            "expected": "X",
+            "description": "Reward machine expression (no counters)",
+            "expression": "not (EVENT_A and EVENT_B)",
+            "expected": "(Z)",
         },
     ]
 
@@ -46,10 +46,6 @@ def invalid_expressions() -> list[dict[str, str]]:
     """
     return [
         {
-            "description": "Missing counter expression",
-            "expression": "EVENT_A and not EVENT_B",
-        },
-        {
             "description": "Invalid format",
             "expression": "EVENT_A and not EVENT_B (Z, Z, Z)",
         },
@@ -60,18 +56,6 @@ def invalid_expressions() -> list[dict[str, str]]:
         {
             "description": "Counters only",
             "expression": "(Z, Z)",
-        },
-        {
-            "description": "Incomplete counter parentheses - left",
-            "expression": "(Z, Z",
-        },
-        {
-            "description": "Incomplete counter parentheses - right",
-            "expression": "Z, Z)",
-        },
-        {
-            "description": "Single counter value",
-            "expression": "Z",
         },
     ]
 
@@ -112,5 +96,5 @@ class TestCounterStateParsing:
 
     def test_counter_state_parsing_stripped(self) -> None:
         """Tests that whitespace is properly stripped from the counter expression."""
-        expression = "EVENT_A and not EVENT_B / (Z, Z) "
+        expression = "EVENT_A and not EVENT_B /          (Z, Z)               "
         assert _extract_counter_states(expression) == "(Z, Z)"
