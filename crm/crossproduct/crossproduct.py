@@ -4,7 +4,7 @@ from typing import Generic, TypeVar
 import gymnasium as gym
 import numpy as np
 
-from crm.automaton import CountingRewardMachine
+from crm.automaton import CountingRewardMachine, RewardMachine, RmToCrmAdapter
 from crm.label import LabellingFunction
 
 GroundObsType = TypeVar("GroundObsType")
@@ -19,15 +19,19 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
     def __init__(
         self,
         ground_env: gym.Env,
-        crm: CountingRewardMachine,
+        machine: CountingRewardMachine | RewardMachine,
         lf: LabellingFunction[GroundObsType, ActType],
         max_steps: int,
     ) -> None:
         """Initialize the cross product Markov decision process environment."""
         self.ground_env = ground_env
-        self.crm = crm
         self.lf = lf
         self.max_steps = max_steps
+
+        if not isinstance(machine, CountingRewardMachine):
+            self.crm = RmToCrmAdapter(rm=machine)
+        else:
+            self.crm = machine
 
     @abstractmethod
     def _get_obs(

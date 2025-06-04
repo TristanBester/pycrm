@@ -30,7 +30,6 @@ class CountingRewardMachine(ABC):
         # Handle reward-transition function
         self._replace_ccrm_rewards()
         self._init_transition_functions()
-        self._set_c_0_implementation()
 
     @property
     @abstractmethod
@@ -39,13 +38,8 @@ class CountingRewardMachine(ABC):
 
     @property
     @abstractmethod
-    def encoded_configuration_size(self) -> int:
-        """Return the size of the encoded counter configuration."""
-
-    @property
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
-        return self._c_0
 
     @abstractmethod
     def _get_state_transition_function(self) -> dict:
@@ -114,11 +108,6 @@ class CountingRewardMachine(ABC):
                 c_next = tuple(np.array(c) + np.array(c_delta))
                 reward_fn = self.delta_r[u][transition_formula]
                 break
-
-        # if self.env_prop_enum.T_1 in props:
-        #     print("T_1 in props")
-        #     print(f"U: {u} -> {u_next}")
-        #     print(f"C: {c} -> {c_next}")
 
         if u_next is not None and c_next is not None and reward_fn is not None:
             return u_next, c_next, reward_fn
@@ -189,6 +178,7 @@ class CountingRewardMachine(ABC):
                 try:
                     d_c[transition_formula] = self._delta_c[u][expr]
                 except KeyError:
+                    breakpoint()
                     raise ValueError(
                         f"Missing counter configuration for transition {u}: {expr}"
                     ) from None
@@ -215,31 +205,92 @@ class CountingRewardMachine(ABC):
                 max_state = u
         return max_state
 
-    def _set_c_0_implementation(self) -> None:
-        """Override the c_0 property implementation for reward machines."""
-        # Check if subclass has explicity overridden c_0
-        if type(self).c_0 is not CountingRewardMachine.c_0:
-            # Subclass has overridden c_0
-            if self._is_reward_machine():
-                raise ValueError(
-                    "Reward machines do not have a c_0 property. "
-                    "Do not implement c_0 in your subclass. This property will be "
-                    "automatically set by the compiler."
-                )
-        else:
-            # Subclass has not overridden c_0
-            if not self._is_reward_machine():
-                raise ValueError(
-                    "Counting reward machines must have a c_0 property. "
-                    "Implement c_0 in your subclass."
-                )
-            else:
-                self._c_0 = (0,)
 
-    def _is_reward_machine(self) -> bool:
-        """Analyse transition function to determine if automaton is reward machine."""
-        sample_transition_expression = list(self._delta_u[0].keys())[0]
-        if " / " in sample_transition_expression:
-            return False
-        else:
-            return True
+class RewardMachine(ABC):
+    """Base class for all reward machines."""
+
+    def __init__(self, env_prop_enum: EnumMeta) -> None:
+        """Initialise the counting reward machine.
+
+        Args:
+            env_prop_enum (EnumMeta): Enum class containing environment properties.
+        """
+        self.env_prop_enum = env_prop_enum
+
+    @property
+    @abstractmethod
+    def u_0(self) -> int:
+        """Return the initial state of the machine."""
+
+    @abstractmethod
+    def _get_state_transition_function(self) -> dict:
+        """Return the state transition function."""
+
+    @abstractmethod
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+
+
+class RmToCrmAdapter(CountingRewardMachine):
+    """Adapter class to convert a reward machine to a counting reward machine."""
+
+    def __init__(self, rm: RewardMachine) -> None:
+        """Initialise the adapter."""
+        self._rm = rm
+        super().__init__(env_prop_enum=rm.env_prop_enum)
+
+    @property
+    def u_0(self) -> int:
+        """Return the initial state of the machine."""
+        return self._rm.u_0
+
+    @property
+    def c_0(self) -> tuple[int, ...]:
+        """Return the initial counter configuration of the machine."""
+        return (0,)
+
+    def _get_state_transition_function(self) -> dict:
+        """Return the state transition function."""
+        updated_transition_function = self._transition_converter(
+            self._rm._get_state_transition_function()
+        )
+        return updated_transition_function
+
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+        updated_transition_function = self._transition_converter(
+            self._rm._get_reward_transition_function()
+        )
+        return updated_transition_function
+
+    def _get_counter_transition_function(self) -> dict:
+        """Return the counter transition function."""
+        emulating_transition_function = {}
+
+        for state, mapping in self._rm._get_state_transition_function().items():
+            emulating_mapping = {}
+
+            for expr in mapping.keys():
+                expr += " / (Z)"
+                emulating_mapping[expr] = (0,)
+
+            emulating_transition_function[state] = emulating_mapping
+        return emulating_transition_function
+
+    def sample_counter_configurations(self) -> list[tuple[int, ...]]:
+        """Return counter configurations for counterfactual experience generation."""
+        return [(0,)]
+
+    def _transition_converter(self, transition_function: dict) -> dict:
+        """Convert a transition function to a CRM transition function."""
+        updated_transition_function = {}
+
+        for state, mapping in transition_function.items():
+            updated_mapping = {}
+
+            for expr, v in mapping.items():
+                expr += " / (Z)"
+                updated_mapping[expr] = v
+            updated_transition_function[state] = updated_mapping
+
+        return updated_transition_function
