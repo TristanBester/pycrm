@@ -21,7 +21,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
     @property
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
-        return (5,)
+        return (10,)
 
     @property
     def encoded_configuration_size(self) -> int:
@@ -101,6 +101,11 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
             (3,),
             (4,),
             (5,),
+            (6,),
+            (7,),
+            (8,),
+            (9,),
+            (10,),
         ]
 
     def _create_nav_t_1_reward(
