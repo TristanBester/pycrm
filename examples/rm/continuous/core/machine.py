@@ -35,8 +35,32 @@ class PuckWorldRewardMachine(RewardMachine):
                 "DEFAULT": 1,
             },
             2: {
-                "T_3": -1,
+                "T_3": 3,
                 "DEFAULT": 2,
+            },
+            3: {
+                "T_1": 4,
+                "DEFAULT": 3,
+            },
+            4: {
+                "T_2": 5,
+                "DEFAULT": 4,
+            },
+            5: {
+                "T_3": 6,
+                "DEFAULT": 5,
+            },
+            6: {
+                "T_1": 7,
+                "DEFAULT": 6,
+            },
+            7: {
+                "T_2": 8,
+                "DEFAULT": 7,
+            },
+            8: {
+                "T_3": -1,
+                "DEFAULT": 8,
             },
         }
 
@@ -52,6 +76,30 @@ class PuckWorldRewardMachine(RewardMachine):
                 "DEFAULT": self._create_nav_t_2_reward(),
             },
             2: {
+                "T_3": 10,
+                "DEFAULT": self._create_nav_t_3_reward(),
+            },
+            3: {
+                "T_1": 10,
+                "DEFAULT": self._create_nav_t_1_reward(),
+            },
+            4: {
+                "T_2": 10,
+                "DEFAULT": self._create_nav_t_2_reward(),
+            },
+            5: {
+                "T_3": 10,
+                "DEFAULT": self._create_nav_t_3_reward(),
+            },
+            6: {
+                "T_1": 10,
+                "DEFAULT": self._create_nav_t_1_reward(),
+            },
+            7: {
+                "T_2": 10,
+                "DEFAULT": self._create_nav_t_2_reward(),
+            },
+            8: {
                 "T_3": 10,
                 "DEFAULT": self._create_nav_t_3_reward(),
             },

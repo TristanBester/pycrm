@@ -36,9 +36,6 @@ class PuckWorld(gym.Env):
         self._set_target_one_pos()
         self._set_target_two_pos()
         self._set_target_three_pos()
-
-        print("------ RESET -------")
-
         return self._get_obs(), {}
 
     def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:

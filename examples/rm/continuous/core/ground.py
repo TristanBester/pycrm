@@ -32,23 +32,18 @@ class PuckWorld(gym.Env):
         self.agent_vel = np.array([0.0, 0.0])
         self.adversary_pos = np.array([0.8, 0.8])
 
-        # Randomly set the positions of the targets
         self._set_target_one_pos()
         self._set_target_two_pos()
         self._set_target_three_pos()
-
-        print("------ RESET -------")
 
         return self._get_obs(), {}
 
     def step(self, action: np.ndarray) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Step the environment."""
+        action = np.clip(action, -0.15, 0.15)
         self._update_agent_position_velocity(action)
 
         self._update_adversary_position()
-        self._update_target_one_position()
-        self._update_target_two_position()
-        self._update_target_three_position()
 
         return self._get_obs(), 0.0, False, False, {}
 
@@ -112,24 +107,6 @@ class PuckWorld(gym.Env):
         self.adversary_pos[0] += np.sign(dx) * 0.005
         self.adversary_pos[1] += np.sign(dy) * 0.005
 
-    def _update_target_one_position(self) -> None:
-        """Update target one position if agent gets close enough."""
-        return
-        if np.linalg.norm(self.agent_pos - self.target_one_pos) < 0.15:
-            self._set_target_one_pos()
-
-    def _update_target_two_position(self) -> None:
-        """Update target two position if agent gets close enough."""
-        return
-        if np.linalg.norm(self.agent_pos - self.target_two_pos) < 0.15:
-            self._set_target_two_pos()
-
-    def _update_target_three_position(self) -> None:
-        """Update target three position if agent gets close enough."""
-        return
-        if np.linalg.norm(self.agent_pos - self.target_three_pos) < 0.15:
-            self._set_target_three_pos()
-
     def _get_obs(self):
         """Get the current observation from environment state."""
         return np.concatenate(
@@ -146,50 +123,12 @@ class PuckWorld(gym.Env):
 
     def _set_target_one_pos(self):
         """Set target one position randomly."""
-        self.target_one_pos = np.array([-0.75, -0.75])  # Fixed position for testing
-        # while True:
-        # self.target_one_pos = np.random.uniform(-1.0, 1.0, size=2)
-        #
-        # # Ensure target one is not too close to the other targets
-        # dist_one = np.linalg.norm(self.target_one_pos - self.target_two_pos)
-        # dist_two = np.linalg.norm(self.target_one_pos - self.target_three_pos)
-        #
-        # if dist_one > 0.45 and dist_two > 0.45:
-        #     break
+        self.target_one_pos = np.array([-0.75, -0.75])
 
     def _set_target_two_pos(self):
         """Set target two position randomly."""
-        self.target_two_pos = np.array([-0.75, 0.75])  # Fixed position for testing
-        # while True:
-        #     self.target_two_pos = np.random.uniform(-1, 1, size=2)
-        #
-        #     # Ensure target two is not too close to the other targets
-        #     dist_one = np.linalg.norm(self.target_two_pos - self.target_one_pos)
-        #     dist_two = np.linalg.norm(self.target_two_pos - self.target_three_pos)
-        #
-        #     if dist_one > 0.45 and dist_two > 0.45:
-        #         break
-        #
+        self.target_two_pos = np.array([-0.75, 0.75])
 
     def _set_target_three_pos(self):
         """Set target three position randomly."""
-        self.target_three_pos = np.array([0.75, 0.75])  # Fixed position for testing
-        # while True:
-        #     self.target_three_pos = np.random.uniform(-1, 1, size=2)
-        #
-        #     # Ensure target three is not too close to the other targets
-        #     dist_one = np.linalg.norm(self.target_three_pos - self.target_one_pos)
-        #     dist_two = np.linalg.norm(self.target_three_pos - self.target_two_pos)
-        #
-        #     if dist_one > 0.45 and dist_two > 0.45:
-        #         break
-
-
-if __name__ == "__main__":
-    env = PuckWorld()
-    env.reset()
-    for _ in range(100):
-        env.render()
-        action = env.action_space.sample()
-        obs, reward, done, _, info = env.step(action)
-        print(obs, reward, done, info)
+        self.target_three_pos = np.array([0.75, 0.75])
