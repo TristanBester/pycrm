@@ -44,7 +44,9 @@ def _extract_wff(expression: str) -> str:
         )
 
     if "/" not in expression:
-        if "(" in expression and ")" in expression:
+        # Check if the parentheses are counter states (Z, NZ, -) or part of WFF
+        pattern = re.compile(r"\((?:\s*(?:Z|NZ|-)\s*,)*\s*(?:Z|NZ|-)\s*\)")
+        if pattern.search(expression):
             raise ValueError(
                 "Invalid transition expression. "
                 "Required format is 'WFF / COUNTER_STATES', "
@@ -95,12 +97,36 @@ def _construct_callable_wff_expression_str_repr(
     if wff_expr == "":
         return "True"
 
-    # Preprend enum name to each proposition
-    wff_expr = re.sub(r"(([A-Z]+_*)+)", rf"{enum_name}.\1", wff_expr)
-    # Add "in props" after each "Proposition
+        # Handle logical operators first (case insensitive)
+    # Replace OR and AND first
+    wff_expr = re.sub(r"\bOR\b", "or", wff_expr, flags=re.IGNORECASE)
+    wff_expr = re.sub(r"\bAND\b", "and", wff_expr, flags=re.IGNORECASE)
+
+    # Handle NOT - this needs special handling for the "not in" syntax
+    # First, replace standalone NOT with "not"
+    wff_expr = re.sub(r"\bNOT\b", "not", wff_expr, flags=re.IGNORECASE)
+
+    # Fix the case where "not" appears between two expressions (should be "and not")
+    # This handles cases like "EVENT_A NOT EVENT_B" -> "EVENT_A and not EVENT_B"
+    # But avoid matching "and not" or "or not" which are already correct
+    # Use a more specific pattern that only matches when "not" is between two identifiers
+    wff_expr = re.sub(
+        r"(\b[A-Z_][A-Z0-9_]*\b)\s+not\s+(\b[A-Z_][A-Z0-9_]*\b)",
+        r"\1 and not \2",
+        wff_expr,
+    )
+
+    # Get the actual enum values to avoid matching logical operators
+    enum_values = list(env_props.__members__.keys())
+
+    # Replace each enum value with the proper enum reference
+    for enum_value in enum_values:
+        # Use word boundaries to avoid partial matches
+        wff_expr = re.sub(rf"\b{enum_value}\b", f"{enum_name}.{enum_value}", wff_expr)
+
+    # Add "in props" after each enum reference
     wff_expr = re.sub(rf"{enum_name}\.(\w+)", rf"{enum_name}.\1 in props", wff_expr)
-    # Replace negation syntax
-    wff_expr = re.sub(rf"not {enum_name}\.(\w+)", rf"{enum_name}.\1 not", wff_expr)
+
     return wff_expr
 
 

@@ -25,7 +25,7 @@ def wff_construction_cases() -> list[dict[str, str]]:
         {
             "description": "Compound expression with AND and NOT",
             "wff": "EVENT_A and not EVENT_B",
-            "expected": "EnvProps.EVENT_A in props and EnvProps.EVENT_B not in props",
+            "expected": "EnvProps.EVENT_A in props and not EnvProps.EVENT_B in props",
         },
         {
             "description": "Nested expression with NOT",
@@ -38,6 +38,47 @@ def wff_construction_cases() -> list[dict[str, str]]:
             "description": "Empty expression (tautology)",
             "wff": "",
             "expected": "True",
+        },
+        # Case insensitivity tests
+        {
+            "description": "Uppercase NOT operator",
+            "wff": "EVENT_A NOT EVENT_B",
+            "expected": "EnvProps.EVENT_A in props and not EnvProps.EVENT_B in props",
+        },
+        {
+            "description": "Uppercase OR operator",
+            "wff": "EVENT_A OR EVENT_B",
+            "expected": "EnvProps.EVENT_A in props or EnvProps.EVENT_B in props",
+        },
+        {
+            "description": "Uppercase AND operator",
+            "wff": "EVENT_A AND EVENT_B",
+            "expected": "EnvProps.EVENT_A in props and EnvProps.EVENT_B in props",
+        },
+        {
+            "description": "Mixed case NOT operator",
+            "wff": "EVENT_A Not EVENT_B",
+            "expected": "EnvProps.EVENT_A in props and not EnvProps.EVENT_B in props",
+        },
+        {
+            "description": "Mixed case OR operator",
+            "wff": "EVENT_A Or EVENT_B",
+            "expected": "EnvProps.EVENT_A in props or EnvProps.EVENT_B in props",
+        },
+        {
+            "description": "Mixed case AND operator",
+            "wff": "EVENT_A And EVENT_B",
+            "expected": "EnvProps.EVENT_A in props and EnvProps.EVENT_B in props",
+        },
+        {
+            "description": "Complex expression with uppercase operators",
+            "wff": "NOT (EVENT_A OR EVENT_B)",
+            "expected": "not (EnvProps.EVENT_A in props or EnvProps.EVENT_B in props)",
+        },
+        {
+            "description": "Complex expression with mixed case operators",
+            "wff": "Not (EVENT_A Or EVENT_B)",
+            "expected": "not (EnvProps.EVENT_A in props or EnvProps.EVENT_B in props)",
         },
     ]
 
@@ -87,3 +128,40 @@ class TestWffCallableConstruction:
         assert wff_callable([EnvProps.EVENT_A]) is True
         assert wff_callable([EnvProps.EVENT_B]) is True
         assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is True
+
+    def test_wff_callable_construction_case_insensitive_not(self) -> None:
+        """Tests construction and evaluation of WFF callable with case-insensitive NOT."""
+        wff_expr = "EVENT_A NOT EVENT_B"
+        wff_callable = _construct_wff_callable(wff_expr, EnvProps)
+        assert wff_callable([]) is False
+        assert wff_callable([EnvProps.EVENT_A]) is True
+        assert wff_callable([EnvProps.EVENT_B]) is False
+        assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is False
+
+    def test_wff_callable_construction_case_insensitive_or(self) -> None:
+        """Tests construction and evaluation of WFF callable with case-insensitive OR."""
+        wff_expr = "EVENT_A OR EVENT_B"
+        wff_callable = _construct_wff_callable(wff_expr, EnvProps)
+        assert wff_callable([]) is False
+        assert wff_callable([EnvProps.EVENT_A]) is True
+        assert wff_callable([EnvProps.EVENT_B]) is True
+        assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is True
+
+    def test_wff_callable_construction_case_insensitive_and(self) -> None:
+        """Tests construction and evaluation of WFF callable with case-insensitive AND."""
+        wff_expr = "EVENT_A AND EVENT_B"
+        wff_callable = _construct_wff_callable(wff_expr, EnvProps)
+        assert wff_callable([]) is False
+        assert wff_callable([EnvProps.EVENT_A]) is False
+        assert wff_callable([EnvProps.EVENT_B]) is False
+        assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is True
+
+    def test_wff_callable_construction_mixed_case_operators(self) -> None:
+        """Tests construction and evaluation of WFF callable with mixed case operators."""
+        wff_expr = "NOT (EVENT_A Or EVENT_B)"
+        wff_callable = _construct_wff_callable(wff_expr, EnvProps)
+        # This should be equivalent to: not (EVENT_A or EVENT_B)
+        assert wff_callable([]) is True
+        assert wff_callable([EnvProps.EVENT_A]) is False
+        assert wff_callable([EnvProps.EVENT_B]) is False
+        assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is False

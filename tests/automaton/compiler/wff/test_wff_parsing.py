@@ -43,6 +43,11 @@ def valid_expressions() -> list[dict[str, str]]:
             "expression": "EVENT_A and not EVENT_B",
             "expected": "EVENT_A and not EVENT_B",
         },
+        {
+            "description": "Complex reward machine expression",
+            "expression": "not (EVENT_A or EVENT_B or EVENT_C)",
+            "expected": "not (EVENT_A or EVENT_B or EVENT_C)",
+        },
     ]
 
 

@@ -40,6 +40,24 @@ class TestTransitionExpressionCompilation:
         assert transition_callable([EnvProps.EVENT_B], [0, 0]) is False
         assert transition_callable([EnvProps.EVENT_B], [0, 1]) is False
 
+    def test_de_morgans_law_expression(self) -> None:
+        """Test compilation of a complex transition expression with multiple conditions.
+
+        Tests the transition expression "not (EVENT_A or EVENT_B) / (Z)" which should
+        evaluate to True only when EVENT_A is not present and EVENT_B is not present,
+        and the counter is 0.
+        """
+        transition_expr = "not (EVENT_A or EVENT_B) / (Z)"
+        transition_callable = compile_transition_expression(transition_expr, EnvProps)
+        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is False
+        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [1]) is False
+        assert transition_callable([EnvProps.EVENT_A], [0]) is False
+        assert transition_callable([EnvProps.EVENT_A], [1]) is False
+        assert transition_callable([EnvProps.EVENT_B], [0]) is False
+        assert transition_callable([EnvProps.EVENT_B], [1]) is False
+        assert transition_callable([], [0]) is True
+        assert transition_callable([], [1]) is False
+
     def test_tautological_transition_expression(self) -> None:
         """Test compilation of a tautological transition expression.
 
@@ -59,13 +77,13 @@ class TestTransitionExpressionCompilation:
     def test_invalid_wff_transition_expression(self) -> None:
         """Test compilation fails for invalid well-formed formula transition expression.
 
-        Tests that compiling an expression without counter conditions ("EVENT_A and
-        not EVENT_B") raises a ValueError with appropriate message.
+        Tests that compiling an expression with incorrect counter conditions ("EVENT_A and
+        not EVENT_B (Z, Z, Z)") raises a ValueError with appropriate message.
 
         Raises:
             ValueError: When transition expression is missing counter conditions.
         """
-        transition_expr = "EVENT_A and not EVENT_B"
+        transition_expr = "EVENT_A and not EVENT_B (Z, Z, Z)"
         with pytest.raises(ValueError) as exc_info:
             compile_transition_expression(transition_expr, EnvProps)
         assert "Invalid transition expression." in str(exc_info.value)
@@ -83,3 +101,31 @@ class TestTransitionExpressionCompilation:
         with pytest.raises(ValueError) as exc_info:
             compile_transition_expression(transition_expr, EnvProps)
         assert "Invalid transition expression." in str(exc_info.value)
+
+    def test_case_insensitive_logical_operators(self) -> None:
+        """Test compilation of transition expressions with case-insensitive logical operators.
+
+        Tests that logical operators (NOT, OR, AND) work regardless of case.
+        """
+        # Test uppercase operators
+        transition_expr = "EVENT_A NOT EVENT_B / (Z)"
+        transition_callable = compile_transition_expression(transition_expr, EnvProps)
+        assert transition_callable([EnvProps.EVENT_A], [0]) is True
+        assert transition_callable([EnvProps.EVENT_B], [0]) is False
+        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is False
+
+        # Test mixed case operators
+        transition_expr = "EVENT_A Or EVENT_B / (Z)"
+        transition_callable = compile_transition_expression(transition_expr, EnvProps)
+        assert transition_callable([EnvProps.EVENT_A], [0]) is True
+        assert transition_callable([EnvProps.EVENT_B], [0]) is True
+        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is True
+        assert transition_callable([], [0]) is False
+
+        # Test complex expression with mixed case
+        transition_expr = "NOT (EVENT_A And EVENT_B) / (Z)"
+        transition_callable = compile_transition_expression(transition_expr, EnvProps)
+        assert transition_callable([], [0]) is True
+        assert transition_callable([EnvProps.EVENT_A], [0]) is True
+        assert transition_callable([EnvProps.EVENT_B], [0]) is True
+        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is False
