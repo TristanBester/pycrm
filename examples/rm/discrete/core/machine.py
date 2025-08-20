@@ -28,15 +28,15 @@ class PuckWorldRewardMachine(RewardMachine):
         return {
             0: {
                 "T_1": 1,
-                "DEFAULT": 0,
+                "NOT T_1": 0,
             },
             1: {
                 "T_2": 2,
-                "DEFAULT": 1,
+                "NOT T_2": 1,
             },
             2: {
                 "T_3": -1,
-                "DEFAULT": 2,
+                "NOT T_3": 2,
             },
         }
 
@@ -45,15 +45,15 @@ class PuckWorldRewardMachine(RewardMachine):
         return {
             0: {
                 "T_1": 10,
-                "DEFAULT": self._create_nav_t_1_reward(),
+                "NOT T_1": self._create_nav_t_1_reward(),
             },
             1: {
                 "T_2": 10,
-                "DEFAULT": self._create_nav_t_2_reward(),
+                "NOT T_2": self._create_nav_t_2_reward(),
             },
             2: {
-                "T_3": 10,
-                "DEFAULT": self._create_nav_t_3_reward(),
+                "T_3": 1000,
+                "NOT T_3": self._create_nav_t_3_reward(),
             },
         }
 

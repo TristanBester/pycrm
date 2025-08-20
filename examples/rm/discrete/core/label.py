@@ -12,7 +12,6 @@ class Symbol(Enum):
     T_2 = auto()  # Target 2
     T_3 = auto()  # Target 3
     A = auto()  # Adversary
-    DEFAULT = auto()  # Default
 
 
 class PuckWorldLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
@@ -72,14 +71,6 @@ class PuckWorldLabellingFunction(LabellingFunction[np.ndarray, np.ndarray]):
         if dist < self.ADVERSARY_THRESHOLD:
             return Symbol.A
         return None
-
-    @LabellingFunction.event
-    def test_default(
-        self, obs: np.ndarray, action: np.ndarray, next_obs: np.ndarray
-    ) -> Symbol | None:
-        """Return the default symbol (always true)."""
-        del obs, action, next_obs
-        return Symbol.DEFAULT
 
     def _unpack_obs(self, obs: np.ndarray) -> tuple[np.ndarray, ...]:
         agent_pos = obs[:2]

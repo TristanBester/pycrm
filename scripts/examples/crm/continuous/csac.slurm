@@ -25,14 +25,14 @@ cd ~/warehouse
 uv sync --extra experiments
 
 cd ~/warehouse/examples/crm/continuous
-uv run csac.py --seed 0 & 
-uv run csac.py --seed 1 & 
-uv run csac.py --seed 2 & 
-uv run csac.py --seed 3 & 
-uv run csac.py --seed 4 & 
-uv run csac.py --seed 5 & 
-uv run csac.py --seed 6 & 
-uv run csac.py --seed 7 & 
-uv run csac.py --seed 8 & 
-uv run csac.py --seed 9 & 
+uv run csac.py --seed=0 & 
+uv run csac.py --seed=1 & 
+uv run csac.py --seed=2 & 
+uv run csac.py --seed=3 & 
+uv run csac.py --seed=4 & 
+uv run csac.py --seed=5 & 
+uv run csac.py --seed=6 & 
+uv run csac.py --seed=7 & 
+uv run csac.py --seed=8 & 
+uv run csac.py --seed=9 & 
 wait;

@@ -116,8 +116,8 @@ class PuckWorld(gym.Env):
         """Update adversary position based on agent position."""
         dx = self.agent_pos[0] - self.adversary_pos[0]
         dy = self.agent_pos[1] - self.adversary_pos[1]
-        self.adversary_pos[0] += np.sign(dx) * 0.005
-        self.adversary_pos[1] += np.sign(dy) * 0.005
+        self.adversary_pos[0] += np.sign(dx) * 0.0005
+        self.adversary_pos[1] += np.sign(dy) * 0.0005
 
     def _update_target_one_position(self) -> None:
         """Update target one position if agent gets close enough."""

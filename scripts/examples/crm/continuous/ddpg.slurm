@@ -25,14 +25,14 @@ cd ~/warehouse
 uv sync --extra experiments
 
 cd ~/warehouse/examples/crm/continuous
-uv run ddpg.py --seed 0 & 
-uv run ddpg.py --seed 1 & 
-uv run ddpg.py --seed 2 & 
-uv run ddpg.py --seed 3 & 
-uv run ddpg.py --seed 4 & 
-uv run ddpg.py --seed 5 & 
-uv run ddpg.py --seed 6 & 
-uv run ddpg.py --seed 7 & 
-uv run ddpg.py --seed 8 & 
-uv run ddpg.py --seed 9 & 
+uv run ddpg.py --seed=0 & 
+uv run ddpg.py --seed=1 & 
+uv run ddpg.py --seed=2 & 
+uv run ddpg.py --seed=3 & 
+uv run ddpg.py --seed=4 & 
+uv run ddpg.py --seed=5 & 
+uv run ddpg.py --seed=6 & 
+uv run ddpg.py --seed=7 & 
+uv run ddpg.py --seed=8 & 
+uv run ddpg.py --seed=9 & 
 wait;

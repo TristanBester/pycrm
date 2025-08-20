@@ -47,7 +47,7 @@ def main():
         env=cross_product,
         tensorboard_log="logs/",
         verbose=1,
-        exploration_fraction=0.5,
+        exploration_fraction=0.2,
         exploration_final_eps=0.1,
         buffer_size=1_000_000,
         batch_size=2_500,
@@ -57,7 +57,7 @@ def main():
 
     # Train agent
     agent.learn(
-        total_timesteps=1_000_000,
+        total_timesteps=250_000,
         log_interval=1,
     )
 

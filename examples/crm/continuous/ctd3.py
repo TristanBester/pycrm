@@ -38,7 +38,7 @@ def main():
         ground_env=ground_env,
         machine=crm,
         lf=lf,
-        max_steps=1000,
+        max_steps=100,
     )
 
     # Initialize agent
@@ -55,7 +55,7 @@ def main():
 
     # Train agent
     agent.learn(
-        total_timesteps=100_000,
+        total_timesteps=50_000,
         log_interval=1,
     )
 

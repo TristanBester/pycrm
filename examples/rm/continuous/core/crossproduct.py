@@ -19,7 +19,7 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
         """Initialize the cross product Markov decision process environment."""
         super().__init__(ground_env, machine, lf, max_steps)
         self.observation_space = gym.spaces.Box(
-            low=0, high=100, shape=(23,), dtype=np.float32
+            low=0, high=100, shape=(17,), dtype=np.float32
         )
         self.action_space = self.ground_env.action_space
 

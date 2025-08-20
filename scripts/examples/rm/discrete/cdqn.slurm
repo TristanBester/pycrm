@@ -1,6 +1,6 @@
 #!/bin/bash
 # specify a partition
-#SBATCH -p bigbatch 
+#SBATCH -p bigbatch
 # specify number of nodes
 #SBATCH -N 1
 # specify the wall clock time limit for the job hh:mm:ss
@@ -8,31 +8,28 @@
 # specify the job name
 #SBATCH -J cdqn
 # specify the filename to be used for writing output
-#SBATCH -o /home-mscluster/tbester/warehouse/slurm_logs/out/out_file.%N.%j.out
+#SBATCH -o /home-mscluster/tbester/warehouse/slurm_logs/out/out_file.%N.%j.%a.out
 # specify the filename for stderr
-#SBATCH -e /home-mscluster/tbester/warehouse/slurm_logs/error/error_file.%N.%j.err
+#SBATCH -e /home-mscluster/tbester/warehouse/slurm_logs/error/error_file.%N.%j.%a.err
+# array of 50 tasks, one per seed
+#SBATCH --array=0-99%10   # seeds 0..99, max 5 run concurrently
 
-# Get the hostname of the current machine
+# Prevent running on login nodes
 HOSTNAME=$(hostname)
-
-# Check if the hostname contains the substring "login"
 if [[ $HOSTNAME == *"login"* ]]; then
     echo "Error: This script cannot be run on a machine with 'login' in its hostname."
     exit 1
 fi
 
+# Move into workspace and set up environment
 cd ~/warehouse
 uv sync --extra experiments
 
 cd ~/warehouse/examples/rm/discrete
-uv run cdqn.py --seed 0 & 
-uv run cdqn.py --seed 1 & 
-uv run cdqn.py --seed 2 & 
-uv run cdqn.py --seed 3 & 
-uv run cdqn.py --seed 4 & 
-uv run cdqn.py --seed 5 & 
-uv run cdqn.py --seed 6 & 
-uv run cdqn.py --seed 7 & 
-uv run cdqn.py --seed 8 & 
-uv run cdqn.py --seed 9 & 
-wait;
+
+# Use SLURM_ARRAY_TASK_ID as the seed
+SEED=$SLURM_ARRAY_TASK_ID
+echo "Running CDQN with seed $SEED"
+
+uv run cdqn.py --seed=$SEED
+

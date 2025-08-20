@@ -21,7 +21,7 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
     @property
     def c_0(self) -> tuple[int, ...]:
         """Return the initial counter configuration of the machine."""
-        return (10,)
+        return (10, 10)
 
     @property
     def encoded_configuration_size(self) -> int:
@@ -36,19 +36,14 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         """Return the state transition function."""
         return {
             0: {
-                "T_1 / (Z)": 1,
-                "T_1 / (NZ)": 0,
-                "DEFAULT / (-)": 0,
+                "T_1 / (Z,-)": 1,
+                "T_1 / (NZ,-)": 0,
+                "NOT T_1 / (-,-)": 0,
             },
             1: {
-                "T_2 / (Z)": 2,
-                "T_2 / (NZ)": 1,
-                "DEFAULT / (-)": 1,
-            },
-            2: {
-                "T_3 / (Z)": -1,
-                "T_3 / (NZ)": 2,
-                "DEFAULT / (-)": 2,
+                "T_2 / (Z,Z)": -1,
+                "T_2 / (Z,NZ)": 1,
+                "NOT T_2 / (-,-)": 1,
             },
         }
 
@@ -56,19 +51,14 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         """Return the counter transition function."""
         return {
             0: {
-                "T_1 / (Z)": (0,),
-                "T_1 / (NZ)": (-1,),
-                "DEFAULT / (-)": (0,),
+                "T_1 / (Z,-)": (0, 0),
+                "T_1 / (NZ,-)": (-1, 0),
+                "NOT T_1 / (-,-)": (0, 0),
             },
             1: {
-                "T_2 / (Z)": (0,),
-                "T_2 / (NZ)": (-1,),
-                "DEFAULT / (-)": (0,),
-            },
-            2: {
-                "T_3 / (Z)": (0,),
-                "T_3 / (NZ)": (-1,),
-                "DEFAULT / (-)": (0,),
+                "T_2 / (Z,Z)": (0, 0),
+                "T_2 / (Z,NZ)": (0, -1),
+                "NOT T_2 / (-,-)": (0, 0),
             },
         }
 
@@ -76,36 +66,41 @@ class PuckWorldCountingRewardMachine(CountingRewardMachine):
         """Return the reward transition function."""
         return {
             0: {
-                "T_1 / (Z)": 10,
-                "T_1 / (NZ)": 10,
-                "DEFAULT / (-)": self._create_nav_t_1_reward(),
+                "T_1 / (Z,-)": 10,
+                "T_1 / (NZ,-)": 10,
+                "NOT T_1 / (-,-)": self._create_nav_t_1_reward(),
             },
             1: {
-                "T_2 / (Z)": 10,
-                "T_2 / (NZ)": 10,
-                "DEFAULT / (-)": self._create_nav_t_2_reward(),
-            },
-            2: {
-                "T_3 / (Z)": 10,
-                "T_3 / (NZ)": 10,
-                "DEFAULT / (-)": self._create_nav_t_3_reward(),
+                "T_2 / (Z,Z)": 10,
+                "T_2 / (Z,NZ)": 10,
+                "NOT T_2 / (-,-)": self._create_nav_t_2_reward(),
             },
         }
 
     def _get_possible_counter_configurations(self) -> list[tuple[int, ...]]:
         """Return the possible counter configurations."""
         return [
-            (0,),
-            (1,),
-            (2,),
-            (3,),
-            (4,),
-            (5,),
-            (6,),
-            (7,),
-            (8,),
-            (9,),
-            (10,),
+            (10, 10),
+            (9, 10),
+            (8, 10),
+            (7, 10),
+            (6, 10),
+            (5, 10),
+            (4, 10),
+            (3, 10),
+            (2, 10),
+            (1, 10),
+            (0, 10),
+            (0, 9),
+            (0, 8),
+            (0, 7),
+            (0, 6),
+            (0, 5),
+            (0, 4),
+            (0, 3),
+            (0, 2),
+            (0, 1),
+            (0, 0),
         ]
 
     def _create_nav_t_1_reward(

@@ -28,39 +28,15 @@ class PuckWorldRewardMachine(RewardMachine):
         return {
             0: {
                 "T_1": 1,
-                "DEFAULT": 0,
+                "not T_1": 0,
             },
             1: {
                 "T_2": 2,
-                "DEFAULT": 1,
+                "not T_2": 1,
             },
             2: {
-                "T_3": 3,
-                "DEFAULT": 2,
-            },
-            3: {
-                "T_1": 4,
-                "DEFAULT": 3,
-            },
-            4: {
-                "T_2": 5,
-                "DEFAULT": 4,
-            },
-            5: {
-                "T_3": 6,
-                "DEFAULT": 5,
-            },
-            6: {
-                "T_1": 7,
-                "DEFAULT": 6,
-            },
-            7: {
-                "T_2": 8,
-                "DEFAULT": 7,
-            },
-            8: {
                 "T_3": -1,
-                "DEFAULT": 8,
+                "not T_3": 2,
             },
         }
 
@@ -69,39 +45,15 @@ class PuckWorldRewardMachine(RewardMachine):
         return {
             0: {
                 "T_1": 10,
-                "DEFAULT": self._create_nav_t_1_reward(),
+                "not T_1": self._create_nav_t_1_reward(),
             },
             1: {
                 "T_2": 10,
-                "DEFAULT": self._create_nav_t_2_reward(),
+                "not T_2": self._create_nav_t_2_reward(),
             },
             2: {
-                "T_3": 10,
-                "DEFAULT": self._create_nav_t_3_reward(),
-            },
-            3: {
-                "T_1": 10,
-                "DEFAULT": self._create_nav_t_1_reward(),
-            },
-            4: {
-                "T_2": 10,
-                "DEFAULT": self._create_nav_t_2_reward(),
-            },
-            5: {
-                "T_3": 10,
-                "DEFAULT": self._create_nav_t_3_reward(),
-            },
-            6: {
-                "T_1": 10,
-                "DEFAULT": self._create_nav_t_1_reward(),
-            },
-            7: {
-                "T_2": 10,
-                "DEFAULT": self._create_nav_t_2_reward(),
-            },
-            8: {
-                "T_3": 10,
-                "DEFAULT": self._create_nav_t_3_reward(),
+                "T_3": 1000,
+                "not T_3": self._create_nav_t_3_reward(),
             },
         }
 

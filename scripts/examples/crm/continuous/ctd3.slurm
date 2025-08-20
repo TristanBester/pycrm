@@ -25,14 +25,14 @@ cd ~/warehouse
 uv sync --extra experiments
 
 cd ~/warehouse/examples/crm/continuous
-uv run ctd3.py --seed 0 & 
-uv run ctd3.py --seed 1 & 
-uv run ctd3.py --seed 2 & 
-uv run ctd3.py --seed 3 & 
-uv run ctd3.py --seed 4 & 
-uv run ctd3.py --seed 5 & 
-uv run ctd3.py --seed 6 & 
-uv run ctd3.py --seed 7 & 
-uv run ctd3.py --seed 8 & 
-uv run ctd3.py --seed 9 & 
+uv run ctd3.py --seed=0 & 
+uv run ctd3.py --seed=1 & 
+uv run ctd3.py --seed=2 & 
+uv run ctd3.py --seed=3 & 
+uv run ctd3.py --seed=4 & 
+uv run ctd3.py --seed=5 & 
+uv run ctd3.py --seed=6 & 
+uv run ctd3.py --seed=7 & 
+uv run ctd3.py --seed=8 & 
+uv run ctd3.py --seed=9 & 
 wait;

@@ -40,7 +40,7 @@ class PuckWorld(gym.Env):
 
     def step(self, action: np.ndarray) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Step the environment."""
-        action = np.clip(action, -0.15, 0.15)
+        action = np.clip(action, -0.01, 0.01)
         self._update_agent_position_velocity(action)
 
         self._update_adversary_position()
