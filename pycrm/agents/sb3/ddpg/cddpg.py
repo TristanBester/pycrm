@@ -135,7 +135,7 @@ class CounterfactualDDPG(DDPG):
 
         self.policy.set_training_mode(False)
         if self.use_sde:
-            self.actor.reset_noise(env.num_envs)
+            self.actor.reset_noise(env.num_envs)  # type: ignore
         num_collected_steps, num_collected_episodes = 0, 0
 
         callback.on_rollout_start()
@@ -149,7 +149,7 @@ class CounterfactualDDPG(DDPG):
                 and num_collected_steps % self.sde_sample_freq == 0
             ):
                 # Sample a new noise matrix
-                self.actor.reset_noise(env.num_envs)
+                self.actor.reset_noise(env.num_envs)  # type: ignore
 
             # Select action randomly or according to policy
             actions, buffer_actions = self._sample_action(

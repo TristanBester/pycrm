@@ -2,13 +2,13 @@ import argparse
 
 import wandb
 
-from pycrm.agents.sb3.sac import CounterfactualSAC
 from examples.crm.continuous.core import (
     PuckWorld,
     PuckWorldCountingRewardMachine,
     PuckWorldCrossProduct,
     PuckWorldLabellingFunction,
 )
+from pycrm.agents.sb3.sac import CounterfactualSAC
 
 
 def main():

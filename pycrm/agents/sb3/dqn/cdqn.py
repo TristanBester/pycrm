@@ -254,10 +254,10 @@ class CounterfactualDQN(DQN):
         c_infos = np.concatenate(c_infos)
 
         # Get action dimension
-        if len(self.env.action_space.shape) == 0:
+        if len(self.env.action_space.shape) == 0:  # type: ignore
             action_dim = 1
         else:
-            action_dim = self.env.action_space.shape[0]
+            action_dim = self.env.action_space.shape[0]  # type: ignore
 
         # Reshape & batch to match number of envs
         c_obs = self.reshape_and_trim(

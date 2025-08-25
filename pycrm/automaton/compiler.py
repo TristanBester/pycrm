@@ -109,7 +109,8 @@ def _construct_callable_wff_expression_str_repr(
     # Fix the case where "not" appears between two expressions (should be "and not")
     # This handles cases like "EVENT_A NOT EVENT_B" -> "EVENT_A and not EVENT_B"
     # But avoid matching "and not" or "or not" which are already correct
-    # Use a more specific pattern that only matches when "not" is between two identifiers
+    # Use a more specific pattern that only matches when "not" is between
+    # two identifiers
     wff_expr = re.sub(
         r"(\b[A-Z_][A-Z0-9_]*\b)\s+not\s+(\b[A-Z_][A-Z0-9_]*\b)",
         r"\1 and not \2",
