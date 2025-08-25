@@ -29,7 +29,7 @@ PyCRM provides a unified framework for **Reward Machines (RMs)** and **Counting 
 ### Installation
 
 ```bash
-pip install pycrm
+pip install pyrewardmachines
 ```
 
 For detailed installation instructions and troubleshooting, see the [Installation Guide](https://pycrm.xyz/installation).
