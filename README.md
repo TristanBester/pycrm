@@ -1,4 +1,4 @@
-# Counting Reward Machines
+# PyCRM
 
 [![CI](https://github.com/TristanBester/counting-reward-machines/actions/workflows/ci.yaml/badge.svg)](https://github.com/TristanBester/counting-reward-machines/actions/workflows/ci.yaml)
 [![codecov](https://codecov.io/gh/TristanBester/counting-reward-machines/graph/badge.svg?token=NBFYD2O05M)](https://codecov.io/gh/TristanBester/counting-reward-machines)
@@ -7,29 +7,24 @@
 [![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://crm.tristanbester.xyz)
 [![arXiv](https://img.shields.io/badge/arXiv-2312.11364-b31b1b.svg)](https://arxiv.org/abs/2312.11364)
 
-**A framework for formal task specification and efficient reinforcement learning with Counting Reward Machines**
+A Python framework for formal task specification and efficient reinforcement learning with **Reward Machines (RMs)** and **Counting Reward Machines (CRMs)**.
 
-[Documentation](https://crm.tristanbester.xyz) | [Paper](https://arxiv.org/abs/2312.11364) | [Demo](https://crm.tristanbester.xyz) | [Quick Start](#quick-start)
+[Documentation](https://crm.tristanbester.xyz) | [Paper](https://arxiv.org/abs/2312.11364) | [Quick Start](#quick-start)
 
-## 🌟 Overview
+## Overview
 
-Counting Reward Machines (CRMs) are formal models that offer Turing-complete reward specification in RL. This framework provides a principled way to:
+PyCRM provides a unified framework for **Reward Machines (RMs)** and **Counting Reward Machines (CRMs)**, offering a formal approach to reward specification in reinforcement learning. RMs handle regular tasks with finite-state automata, while CRMs extend this with counters for Turing-complete expressiveness, enabling efficient learning through structured reward functions and counterfactual experiences.
 
-- Specify complex, temporally-extended tasks
-- Generate counterfactual learning experiences
-- Dramatically improve reinforcement learning efficiency
-- Enable interpretable reward structures
+## Features
 
-## ✨ Features
+- **Unified RM/CRM Support**: First-class support for both Reward Machines and Counting Reward Machines
+- **Reinforcement Learning Integration**: Ready-to-use agents that leverage counterfactual experiences
+- **Cross-Product Environments**: Framework for combining ground environments with RMs or CRMs
+- **Modular Design**: Composable automata for complex task specifications
+- **Expressive Power**: From regular languages (RMs) to Turing-complete specifications (CRMs)
+- **Example Environments**: Complete worked examples for both RMs and CRMs
 
-- 🤖 **Reinforcement Learning Integration**: Ready-to-use agents that leverage counterfactual experiences
-- 🔄 **Cross-Product Environments**: Combine ground environments with CRMs to create learning tasks
-- 🏗️ **Modular Design**: Easily compose CRMs for complex task specifications
-- 📊 **Expressive Power Hierarchy**: Regular, context-free, and context-sensitive CRMs
-- 🧪 **Example Environments**: Complete worked examples to get you started
-- 📝 **Comprehensive Documentation**: Detailed guides and API references
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -37,60 +32,40 @@ Counting Reward Machines (CRMs) are formal models that offer Turing-complete rew
 pip install counting-reward-machines
 ```
 
-### Basic Example
+For detailed installation instructions and troubleshooting, see the [Installation Guide](https://crm.tristanbester.xyz/installation).
 
-```python
-from crm.automaton import CountingRewardMachine
-from crm.agents.tabular.cql import CounterfactualQLearningAgent
+### Basic Usage
 
-# Define a Counting Reward Machine (simplified)
-class SimpleCRM(CountingRewardMachine):
-    # Implementation details...
-    pass
+See the [Quick Start Guide](https://crm.tristanbester.xyz/quickstart) for complete examples of creating and using both Reward Machines and Counting Reward Machines, including:
 
-# Create a cross-product environment
-cross_product = create_cross_product_environment(
-    ground_env=your_environment,
-    lf=your_labelling_function
-    crm=SimpleCRM(),
-)
+- Setting up ground environments, labelling functions, and automata (RMs or CRMs)
+- Creating cross-product environments
+- Training agents with counterfactual experiences
 
-# Train with counterfactual experiences
-agent = CounterfactualQLearningAgent(env=cross_product)
-agent.learn(total_episodes=1000)
-```
+For a comprehensive introduction to the framework, see the [Introduction](https://crm.tristanbester.xyz/introduction).
 
-## 🔍 Chomsky Reward Hierarchy 
+## Key Components
 
-CRMs are able to model tasks at all levels of the Chomsky reward hierarchy. They can be used to specify tasks that are regular, context-free, or context-sensitive. This allows for a wide range of applications in reinforcement learning.
+The PyCRM framework consists of several key components:
 
-| Type | Description | Counter Logic | Example Task |
-|------|-------------|---------------|--------------|
-| Regular | Single counter | Simple counting | "Collect 3 items" |
-| Context-Free | Multiple independent counters | Balance counting | "Match #A with #B" |
-| Context-Sensitive | Multiple dependent counters | Complex relations | "If #A>3, then #B>#C" |
-
-Each type enables specification of increasingly complex tasks while maintaining formal semantics.
-
-## 💡 Use Cases
-
-- 🎮 **Task-Oriented RL**: Specify complex objectives with natural language-like structures
-- 🤖 **Robotics**: Define temporally extended tasks with rich symbolic events
-- 🔍 **Formal Verification**: Guarantee task completion through CRM properties
-- 🧠 **Curriculum Learning**: Progressively build task complexity by extending CRMs
-
-## 📚 Key Components
-
-The CRM framework consists of several key components:
-
-- **Ground Environment**: The base environment (usually a Gymnasium env)
+- **Ground Environment**: The base environment (typically a Gymnasium environment)
 - **Labelling Function**: Maps environment observations to symbolic events
-- **Counting Reward Machine**: Formal specification of the task
+- **Automaton**: Formal specification of the task (either a Reward Machine or Counting Reward Machine)
 - **Cross-Product Environment**: Combines all components into a learning environment
-- **RL Agents**: Algorithms that leverage counterfactual experiences for increased sample efficiency
+- **RL Agents**: Algorithms that leverage counterfactual experiences for improved sample efficiency
 
+For detailed explanations of these components, see the [Core Concepts](https://crm.tristanbester.xyz/core-concepts) section in the documentation.
 
-## 📋 Citation
+## Applications
+
+- **Task-Oriented RL**: Specify complex objectives with structured reward functions
+- **Robotics**: Define temporally extended tasks with symbolic events
+- **Formal Verification**: Guarantee task completion through CRM properties
+- **Curriculum Learning**: Progressively build task complexity
+
+For complete worked examples demonstrating these applications, see the [Worked Examples](https://crm.tristanbester.xyz/worked-examples) section in the documentation.
+
+## Citation
 
 If you use Counting Reward Machines in your research, please cite:
 
@@ -103,32 +78,30 @@ If you use Counting Reward Machines in your research, please cite:
 }
 ```
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Here's how to get started:
+Contributions are welcome. To get started:
 
 ```bash
 # Clone repository
 git clone https://github.com/TristanBester/counting-reward-machines.git
 cd counting-reward-machines
 
-# Set up virtual environment using uv
+# Set up virtual environment
 uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install development dependencies with uv
+# Install development dependencies
 uv pip install -e ".[dev]"
 
 # Run tests
 uv run pytest
 
-# Run tox for testing across environments
+# Run comprehensive testing across environments
 uv pip install tox
 uv run tox
 ```
 
-Tox is used to ensure compatibility across multiple Python versions and environments. It runs the test suite, linting, and type checking all at once.
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
