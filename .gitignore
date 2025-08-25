@@ -41,3 +41,4 @@ checkpoints/
 # Experiments
 experiments/
 results/
+slurm/utils
