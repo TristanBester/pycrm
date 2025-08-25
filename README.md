@@ -4,12 +4,12 @@
 [![codecov](https://codecov.io/gh/TristanBester/counting-reward-machines/graph/badge.svg?token=NBFYD2O05M)](https://codecov.io/gh/TristanBester/counting-reward-machines)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://crm.tristanbester.xyz)
+[![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://pycrm.xyz)
 [![arXiv](https://img.shields.io/badge/arXiv-2312.11364-b31b1b.svg)](https://arxiv.org/abs/2312.11364)
 
 A Python framework for formal task specification and efficient reinforcement learning with **Reward Machines (RMs)** and **Counting Reward Machines (CRMs)**.
 
-[Documentation](https://crm.tristanbester.xyz) | [Paper](https://arxiv.org/abs/2312.11364) | [Quick Start](#quick-start)
+[Documentation](https://pycrm.xyz) | [Paper](https://arxiv.org/abs/2312.11364) | [Quick Start](#quick-start)
 
 ## Overview
 
@@ -29,20 +29,20 @@ PyCRM provides a unified framework for **Reward Machines (RMs)** and **Counting 
 ### Installation
 
 ```bash
-pip install counting-reward-machines
+pip install pycrm
 ```
 
-For detailed installation instructions and troubleshooting, see the [Installation Guide](https://crm.tristanbester.xyz/installation).
+For detailed installation instructions and troubleshooting, see the [Installation Guide](https://pycrm.xyz/installation).
 
 ### Basic Usage
 
-See the [Quick Start Guide](https://crm.tristanbester.xyz/quickstart) for complete examples of creating and using both Reward Machines and Counting Reward Machines, including:
+See the [Quick Start Guide](https://pycrm.xyz/quickstart) for complete examples of creating and using both Reward Machines and Counting Reward Machines, including:
 
 - Setting up ground environments, labelling functions, and automata (RMs or CRMs)
 - Creating cross-product environments
 - Training agents with counterfactual experiences
 
-For a comprehensive introduction to the framework, see the [Introduction](https://crm.tristanbester.xyz/introduction).
+For a comprehensive introduction to the framework, see the [Introduction](https://pycrm.xyz/introduction).
 
 ## Key Components
 
@@ -54,7 +54,7 @@ The PyCRM framework consists of several key components:
 - **Cross-Product Environment**: Combines all components into a learning environment
 - **RL Agents**: Algorithms that leverage counterfactual experiences for improved sample efficiency
 
-For detailed explanations of these components, see the [Core Concepts](https://crm.tristanbester.xyz/core-concepts) section in the documentation.
+For detailed explanations of these components, see the [Core Concepts](https://pycrm.xyz/core-concepts) section in the documentation.
 
 ## Applications
 
@@ -63,7 +63,7 @@ For detailed explanations of these components, see the [Core Concepts](https://c
 - **Formal Verification**: Guarantee task completion through CRM properties
 - **Curriculum Learning**: Progressively build task complexity
 
-For complete worked examples demonstrating these applications, see the [Worked Examples](https://crm.tristanbester.xyz/worked-examples) section in the documentation.
+For complete worked examples demonstrating these applications, see the [Worked Examples](https://pycrm.xyz/worked-examples) section in the documentation.
 
 ## Citation
 
@@ -84,8 +84,8 @@ Contributions are welcome. To get started:
 
 ```bash
 # Clone repository
-git clone https://github.com/TristanBester/counting-reward-machines.git
-cd counting-reward-machines
+git clone https://github.com/TristanBester/pycrm.git
+cd pycrm
 
 # Set up virtual environment
 uv venv
