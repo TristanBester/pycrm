@@ -4,7 +4,7 @@ import gymnasium as gym
 import numpy as np
 import pytest
 
-from pycrm.automaton import CountingRewardMachine
+from pycrm.automaton import CountingRewardMachine, RewardMachine, RmToCrmAdapter
 from pycrm.crossproduct import CrossProduct
 from pycrm.label import LabellingFunction
 
@@ -124,6 +124,41 @@ class CRM(CountingRewardMachine):
         return self._get_possible_counter_configurations()
 
 
+class RM(RewardMachine):
+    """Reward machine."""
+
+    @property
+    def u_0(self) -> int:
+        """Return the initial state of the machine."""
+        return 0
+
+    def _get_state_transition_function(self) -> dict:
+        """Return the state transition function."""
+        return {
+            0: {
+                "EVENT_A": 1,
+                "EVENT_B": 0,
+            },
+            1: {
+                "EVENT_A": 2,
+                "EVENT_B": 0,
+            },
+        }
+
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+        return {
+            0: {
+                "EVENT_A": 1,
+                "EVENT_B": 0,
+            },
+            1: {
+                "EVENT_A": 0,
+                "EVENT_B": 1,
+            },
+        }
+
+
 class CrossProductMDP(CrossProduct):
     """Cross product MDP."""
 
@@ -146,7 +181,34 @@ def cross_product_mdp() -> CrossProductMDP:
     crm = CRM(env_prop_enum=Events)
     return CrossProductMDP(
         ground_env=ground_env,
-        crm=crm,
+        machine=crm,
+        lf=labelling_function,
+        max_steps=10,
+    )
+
+
+@pytest.fixture
+def rm() -> RM:
+    """Return a reward machine."""
+    return RM(env_prop_enum=Events)
+
+
+@pytest.fixture
+def rm_to_crm_adapter(rm: RM) -> RmToCrmAdapter:
+    """Return a reward machine to counting reward machine adapter."""
+    return RmToCrmAdapter(rm)
+
+
+@pytest.fixture
+def cross_product_mdp_with_adapter(
+    rm_to_crm_adapter: RmToCrmAdapter,
+) -> CrossProductMDP:
+    """Return a cross product MDP using the RM to CRM adapter."""
+    ground_env = GroundEnv()
+    labelling_function = LabelFunction()
+    return CrossProductMDP(
+        ground_env=ground_env,
+        machine=rm_to_crm_adapter,
         lf=labelling_function,
         max_steps=10,
     )

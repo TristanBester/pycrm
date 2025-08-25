@@ -130,7 +130,7 @@ class TestWffCallableConstruction:
         assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is True
 
     def test_wff_callable_construction_case_insensitive_not(self) -> None:
-        """Tests construction and evaluation of WFF callable with case-insensitive NOT."""
+        """Test WFF callable construction with case-insensitive NOT."""
         wff_expr = "EVENT_A NOT EVENT_B"
         wff_callable = _construct_wff_callable(wff_expr, EnvProps)
         assert wff_callable([]) is False
@@ -139,7 +139,7 @@ class TestWffCallableConstruction:
         assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is False
 
     def test_wff_callable_construction_case_insensitive_or(self) -> None:
-        """Tests construction and evaluation of WFF callable with case-insensitive OR."""
+        """Test construction and evaluation of WFF callable with case-insensitive OR."""
         wff_expr = "EVENT_A OR EVENT_B"
         wff_callable = _construct_wff_callable(wff_expr, EnvProps)
         assert wff_callable([]) is False
@@ -148,7 +148,7 @@ class TestWffCallableConstruction:
         assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is True
 
     def test_wff_callable_construction_case_insensitive_and(self) -> None:
-        """Tests construction and evaluation of WFF callable with case-insensitive AND."""
+        """Test WFF callable construction with case-insensitive AND."""
         wff_expr = "EVENT_A AND EVENT_B"
         wff_callable = _construct_wff_callable(wff_expr, EnvProps)
         assert wff_callable([]) is False
@@ -157,7 +157,7 @@ class TestWffCallableConstruction:
         assert wff_callable([EnvProps.EVENT_A, EnvProps.EVENT_B]) is True
 
     def test_wff_callable_construction_mixed_case_operators(self) -> None:
-        """Tests construction and evaluation of WFF callable with mixed case operators."""
+        """Test WFF callable construction with mixed case operators."""
         wff_expr = "NOT (EVENT_A Or EVENT_B)"
         wff_callable = _construct_wff_callable(wff_expr, EnvProps)
         # This should be equivalent to: not (EVENT_A or EVENT_B)

@@ -83,6 +83,11 @@ class RewardMachineWithoutC0(CountingRewardMachine):
         return 0
 
     @property
+    def c_0(self) -> tuple[int, ...]:
+        """Return the initial counter configuration."""
+        return (0,)
+
+    @property
     def encoded_configuration_size(self) -> int:
         """Return the size of the encoded configuration."""
         return 1

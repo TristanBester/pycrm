@@ -1,6 +1,6 @@
 import pytest
 
-from pycrm.automaton import CountingRewardMachine
+from pycrm.automaton import CountingRewardMachine, RewardMachine, RmToCrmAdapter
 from tests.conftest import EnvProps
 
 
@@ -111,3 +111,56 @@ def crm() -> CRM:
 def ccrm() -> CCRM:
     """Fixture for a constant counting reward machine (CCRM) for testing purposes."""
     return CCRM()
+
+
+class RM(RewardMachine):
+    """Concrete implementation of a reward machine."""
+
+    def __init__(self) -> None:
+        """Initialise the reward machine."""
+        super().__init__(env_prop_enum=EnvProps)
+
+    @property
+    def u_0(self) -> int:
+        """Return the initial state of the machine."""
+        return 0
+
+    def _get_state_transition_function(self) -> dict:
+        """Return the state transition function."""
+        return {
+            0: {
+                "not EVENT_A and not EVENT_B": 0,
+                "EVENT_A": 0,
+                "EVENT_B": 1,
+            },
+            1: {
+                "not EVENT_B": 1,
+                "EVENT_B": -1,
+            },
+        }
+
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+        return {
+            0: {
+                "not EVENT_A and not EVENT_B": 0,
+                "EVENT_A": 0,
+                "EVENT_B": 0,
+            },
+            1: {
+                "not EVENT_B": 0,
+                "EVENT_B": 1,
+            },
+        }
+
+
+@pytest.fixture
+def rm() -> RM:
+    """Fixture for a reward machine (RM) for testing purposes."""
+    return RM()
+
+
+@pytest.fixture
+def rm_to_crm_adapter(rm: RM) -> RmToCrmAdapter:
+    """Fixture for a reward machine to counting reward machine adapter."""
+    return RmToCrmAdapter(rm)

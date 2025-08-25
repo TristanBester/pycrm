@@ -77,8 +77,9 @@ class TestTransitionExpressionCompilation:
     def test_invalid_wff_transition_expression(self) -> None:
         """Test compilation fails for invalid well-formed formula transition expression.
 
-        Tests that compiling an expression with incorrect counter conditions ("EVENT_A and
-        not EVENT_B (Z, Z, Z)") raises a ValueError with appropriate message.
+        Tests that compiling an expression with incorrect counter conditions
+        ("EVENT_A and not EVENT_B (Z, Z, Z)") raises a ValueError with appropriate
+        message.
 
         Raises:
             ValueError: When transition expression is missing counter conditions.
@@ -103,10 +104,7 @@ class TestTransitionExpressionCompilation:
         assert "Invalid transition expression." in str(exc_info.value)
 
     def test_case_insensitive_logical_operators(self) -> None:
-        """Test compilation of transition expressions with case-insensitive logical operators.
-
-        Tests that logical operators (NOT, OR, AND) work regardless of case.
-        """
+        """Test compilation of transition expressions with case-insensitive ops."""
         # Test uppercase operators
         transition_expr = "EVENT_A NOT EVENT_B / (Z)"
         transition_callable = compile_transition_expression(transition_expr, EnvProps)
