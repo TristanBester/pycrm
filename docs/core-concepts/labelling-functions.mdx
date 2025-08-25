@@ -3,17 +3,15 @@ title: 'Labelling Functions'
 description: 'Converting low-level observations to high-level symbolic events'
 ---
 
-import { Callout } from 'nextra/components'
-
 # Labelling Functions
 
-<Callout type="info">
-  Labelling functions bridge the gap between low-level environment observations and high-level symbolic events that Counting Reward Machines understand.
-</Callout>
+<Info>
+  Labelling functions bridge the gap between low-level environment observations and high-level symbolic events that RM/CRMs understand.
+</Info>
 
 ## Overview
 
-In the Counting Reward Machine (CRM) framework, labelling functions play a critical role in abstracting raw environment observations into meaningful symbolic events. These events form the vocabulary that the CRM uses to define rewards and transitions.
+In the RM/CRM framework, labelling functions play a critical role in abstracting raw environment observations into meaningful symbolic events. These events form the vocabulary that the RM/CRM uses to define rewards and transitions.
 
 ## Core Concept
 
@@ -27,7 +25,7 @@ A labelling function maps an environment transition (observation, action, next o
 
 ### Base Class
 
-The CRM framework provides a base `LabellingFunction` class that handles the core functionality:
+The RM/CRM framework provides a base `LabellingFunction` class that handles the core functionality:
 
 ```python
 from abc import ABC
@@ -105,7 +103,7 @@ Let's examine a complete example from the Letter World environment:
 ```python
 from enum import Enum, auto
 import numpy as np
-from crm.label import LabellingFunction
+from pycrm.label import LabellingFunction
 
 class Symbol(Enum):
     """Symbols in the Letter World environment."""
@@ -189,7 +187,7 @@ When creating labelling functions:
 
 ## Summary
 
-Labelling functions are a powerful abstraction mechanism in the CRM framework. They:
+Labelling functions are a powerful abstraction mechanism in the RM/CRM framework. They:
 
 - Convert low-level observations to high-level events
 - Allow for modular task specification

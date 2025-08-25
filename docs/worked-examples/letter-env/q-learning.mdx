@@ -5,7 +5,7 @@ description: 'Training an agent with Q-Learning in the Letter World environment'
 
 # Q-Learning in Letter World
 
-This guide demonstrates how to train an agent using Q-learning with Counting Reward Machines in the Letter World environment.
+This guide demonstrates how to train an agent using Q-learning with RM/CRMs in the Letter World environment.
 
 ## Environment Overview
 
@@ -17,12 +17,6 @@ The Letter World environment consists of a 3×7 grid where:
 - The goal is to first visit 'A' (incrementing a counter), then visit 'C' to receive a positive reward
 
 ## Setting Up the Environment
-
-<Warning>
-	The examples are not distributed in the PyPI package currently. Please see the [Installation Guide](/installation)
-	for information on how to setup a development build.
-</Warning>
-
 First, let's create the environment components:
 
 ```python
@@ -259,7 +253,7 @@ The learning curve shows that:
 
 ## Conclusion
 
-This example demonstrates how Q-learning can be used with Counting Reward Machines to train an agent to follow specific sequential tasks. The Letter World environment illustrates how CRMs can effectively model tasks that require remembering past events.
+This example demonstrates how Q-learning can be used with RM/CRMs to train an agent to follow specific sequential tasks. The Letter World environment illustrates how CRMs can effectively model tasks that require remembering past events.
 
 For more complex environments, you might need to adjust hyperparameters or use more sophisticated reinforcement learning algorithms, but the same CRM framework can be applied.
 

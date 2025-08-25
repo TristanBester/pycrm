@@ -1,15 +1,13 @@
 ---
-title: 'Reward Machines & Automata'
+title: 'RMs & CRMs'
 description: 'Creating structured task specifications for reinforcement learning'
 ---
 
-import { Callout } from 'nextra/components'
+# Reward Machines & Counting Reward Machines
 
-# Reward Machines & Automata
-
-<Callout type="info">
-  Reward Machines provide a structured way to specify complex tasks in reinforcement learning using formal automata that map sequences of symbolic events to rewards.
-</Callout>
+<Info>
+  Reward Machines provide a structured way to specify complex tasks in reinforcement learning using formal automata that map sequences of symbolic events to rewards. Counting Reward Machines extend Reward Machines with counters that can track occurrences of events.
+</Info>
 
 ## Introduction to Reward Machines
 
@@ -23,7 +21,7 @@ Reward Machines (RMs) address this limitation by providing a formal framework to
 
 ## Types of Reward Machines
 
-The CRM framework supports two main types of Reward Machines:
+The RM/CRM framework supports two main types of Reward Machines:
 
 ### Vanilla Reward Machines
 
@@ -44,7 +42,7 @@ This extension significantly increases the expressive power of RMs to include an
 
 ## Components of a Reward Machine
 
-All Reward Machines in the CRM framework share these core components:
+All Reward Machines in the RM/CRM framework share these core components:
 
 ### 1. States and Initial State
 
@@ -63,6 +61,10 @@ def u_0(self) -> int:
 ### 2. Transition Functions
 
 Three key functions define the behavior of a Reward Machine:
+
+<Info>
+    We discuss the transition functions for a Counting Reward Machine in this section. Reward Machines do not make use of a counter transition function and do not include counter conditions in their transition functions.
+</Info>
 
 #### State Transition Function (`delta_u`)
 
@@ -134,10 +136,10 @@ def c_0(self) -> tuple[int, ...]:
 Vanilla Reward Machines are ideal for tasks that involve sequences of events without counting. Here's a complete example:
 
 ```python
-from crm.automaton import CountingRewardMachine
-from my_environment.events import Event  # Your event enum
+from pycrm.automaton import RewardMachine
+from examples.letter.core.label import Symbol  # Example event enum
 
-class SequenceRM(CountingRewardMachine):
+class SequenceRM(RewardMachine):
     """Reward machine for a simple sequence: A -> B -> C."""
     
     def __init__(self):
@@ -149,62 +151,25 @@ class SequenceRM(CountingRewardMachine):
         return 0
     
     @property
-    def c_0(self) -> tuple[int, ...]:
-        """Initial counter (unused)."""
-        return (0,)
-    
-    @property
     def encoded_configuration_size(self) -> int:
         return 1
     
     def _get_state_transition_function(self) -> dict:
         return {
-            0: {"A / (-)": 1, "/ (-)": 0},
-            1: {"B / (-)": 2, "/ (-)": 1},
-            2: {"C / (-)": -1, "/ (-)": 2}, # -1 denotes terminal state
-        }
-    
-    def _get_counter_transition_function(self) -> dict:
-        # Counters don't change in a Vanilla RM
-        return {
-            0: {"A / (-)": (0,), "/ (-)": (0,)},
-            1: {"B / (-)": (0,), "/ (-)": (0,)},
-            2: {"C / (-)": (0,), "/ (-)": (0,)},
+            0: {"A": 1, "NOT A": 0},
+            1: {"B": 2, "NOT B": 1},
+            2: {"C": -1, "NOT C": 2}, # -1 denotes terminal state
         }
     
     def _get_reward_transition_function(self) -> dict:
         return {
-            0: {"A / (-)": 0.1, "/ (-)": -0.01},
-            1: {"B / (-)": 0.2, "/ (-)": -0.01},
-            2: {"C / (-)": 1.0, "/ (-)": -0.01},
+            0: {"A": 0.1, "NOT A": -0.01},
+            1: {"B": 0.2, "NOT B": -0.01},
+            2: {"C": 1.0, "NOT C": -0.01},
         }
-    
-    def _get_possible_counter_configurations(self) -> list[tuple[int]]:
-        return [(0,)]  # Only one possible configuration
-        
-    def sample_counter_configurations(self) -> list[tuple[int]]:
-        return self._get_possible_counter_configurations()
 ```
 
 This RM rewards the agent for observing events A, then B, then C in sequence.
-
-### Simplified Syntax for Vanilla RMs
-
-For Vanilla Reward Machines, the transition expressions can be simplified to just the event expressions without the counter component:
-
-```python
-def _get_state_transition_function(self) -> dict:
-    return {
-        0: {
-            "A": 1,  # Simply use the event name
-            "": 0,   # Empty string for default transition
-        },
-        1: {
-            "B": 2,
-            "": 1,
-        },
-    }
-```
 
 ## Creating a Counting Reward Machine
 
@@ -280,11 +245,8 @@ class BalancedCRM(CountingRewardMachine):
             },
         }
     
-    def _get_possible_counter_configurations(self) -> list[tuple[int]]:
+    def sample_counter_configurations(self) -> list[tuple[int, ...]]:
         return [(i,) for i in range(6)]  # Counter can be 0-5
-    
-    def sample_counter_configurations(self) -> list[tuple[int]]:
-        return self._get_possible_counter_configurations()
 ```
 
 This CRM defines a task that:
@@ -295,7 +257,12 @@ This CRM defines a task that:
 
 ## Transition Expression Syntax
 
-Reward Machines use a specific syntax for transition expressions:
+Counting Reward Machines use a specific syntax for transition expressions:
+
+<Info>
+    Reward Machines do not make use of counter conditions in their transition functions. All other syntax is the same.
+</Info>
+
 
 ```
 "EVENT_EXPRESSION / COUNTER_CONDITION"
@@ -329,7 +296,7 @@ For Counting Reward Machines, counter conditions specify requirements for counte
 
 ### Custom Reward Functions
 
-Instead of constant rewards, RMs can use callable functions that compute rewards based on the specific details of the transition:
+Instead of constant rewards, RMs/CRMs can use callable functions that compute rewards based on the specific details of the transition:
 
 ```python
 def distance_based_reward(obs, action, next_obs):
@@ -339,6 +306,7 @@ def distance_based_reward(obs, action, next_obs):
     distance = np.linalg.norm(agent_position - goal_position)
     return 1.0 / (1.0 + distance)  # Higher reward when closer
 
+# ... in the RewardMachine class
 def _get_reward_transition_function(self) -> dict:
     return {
         0: {
@@ -347,34 +315,6 @@ def _get_reward_transition_function(self) -> dict:
         }
     }
 ```
-
-#### Full Reward Functions
-
-The reward transition function (`delta_r`) can return either:
-
-1. **Scalar values**: Simple numerical rewards (converted internally to constant functions)
-2. **Callable functions**: Full reward functions that receive the transition details
-
-When using callable reward functions, they receive the raw observations and actions from the environment:
-
-```python
-def time_based_penalty(obs, action, next_obs):
-    """Penalty that increases over time."""
-    time_step = next_obs[0]  # Assuming first element tracks time
-    return -0.01 * time_step  # Greater penalty as time increases
-
-def combined_reward(obs, action, next_obs):
-    """Combine multiple reward components."""
-    progress_reward = calculate_progress(obs, next_obs)
-    energy_penalty = -0.1 * calculate_energy(action)
-    return progress_reward + energy_penalty
-```
-
-This approach enables sophisticated reward shaping strategies that depend on:
-- Continuous state variables
-- Action costs or complexities
-- Time-based factors
-- Multiple weighted reward components
 
 ### Multiple Counters
 
@@ -385,6 +325,7 @@ For more complex tasks, you can use multiple counters:
 def c_0(self) -> tuple[int, ...]:
     return (0, 0)  # Two counters, both starting at 0
 
+# ... in the CountingRewardMachine class
 def _get_counter_transition_function(self) -> dict:
     return {
         0: {
@@ -399,6 +340,7 @@ def _get_counter_transition_function(self) -> dict:
 Counter conditions can then reference specific counters:
 
 ```python
+# ... in the CountingRewardMachine class
 def _get_state_transition_function(self) -> dict:
     return {
         0: {
@@ -417,9 +359,9 @@ The transition expressions support rich Boolean logic on events:
 def _get_state_transition_function(self) -> dict:
     return {
         0: {
-            "A and B / (-)": 1,      # Both A and B must occur
-            "A and not C / (-)": 2,  # A must occur, C must not
-            "not (A or B) / (-)": 3, # Neither A nor B can occur
+            "A AND B / (-)": 1,      # Both A and B must occur
+            "A AND NOT C / (-)": 2,  # A must occur, C must not
+            "NOT (A OR B) / (-)": 3, # Neither A nor B can occur
             "/ (-)": 0,
         }
     }
@@ -436,14 +378,12 @@ When creating Reward Machines:
 1. **Start Simple**: Begin with Vanilla RMs before adding counters
 2. **Use Meaningful States**: Design states to represent logical phases of the task
 3. **Consistent Structure**: Ensure all three transition functions have the same keys
-4. **Default Transitions**: Always include `"/ (-)"` transitions for all states
-5. **Terminal States**: Use `-1` to indicate task completion or failure
-6. **Counter Limits**: Set bounds on counter values to prevent unbounded counting
-7. **Test Transitions**: Verify that all possible event combinations are handled
+4. **Terminal States**: Use `-1` to indicate task completion or failure
+5. **Test Transitions**: Verify that all possible event combinations are handled
 
 ## Summary
 
-Counting Reward Machines provide a powerful and flexible framework for specifying complex tasks in reinforcement learning:
+RM/CRMs provide a powerful and flexible framework for specifying complex tasks in reinforcement learning:
 
 - **Vanilla Reward Machines** define tasks based on sequences of events
 - **Counting Reward Machines** add counters to enable more complex task specifications 
@@ -451,4 +391,4 @@ Counting Reward Machines provide a powerful and flexible framework for specifyin
 - Boolean logic allows for complex event conditions
 - Custom reward functions enable sophisticated reward shaping
 
-By using Counting Reward Machines, you can create agents that learn to solve tasks requiring memory, counting, and complex sequential behavior in a structured, interpretable way.
+By using RM/CRMs, you can create agents that learn to solve tasks requiring memory, counting, and complex sequential behavior in a structured, interpretable way.

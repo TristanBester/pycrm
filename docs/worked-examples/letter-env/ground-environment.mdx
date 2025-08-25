@@ -13,7 +13,8 @@ import { Callout } from 'nextra/components'
 
 ## Overview
 
-The ground environment in our framework refers to the base environment that defines the world dynamics, independent of any reward structure. For Letter World, this is a grid-based environment implemented as a standard OpenAI Gymnasium environment.
+The ground environment in our framework refers to the base environment that defines the world dynamics, independent of any reward structure. For Letter World, this is a grid-based environment implemented as a standard OpenAI Gymnasium environment. 
+See our [paper](https://arxiv.org/abs/2508.06200) for more details.
 
 ## Environment Description
 
@@ -22,9 +23,9 @@ Letter World consists of:
 - A 3×7 grid where the agent can move in four directions
 - Special positions labeled with letters 'A', 'B', and 'C'
 - Stochastic behavior: when visiting position 'A', it may randomly change to 'B' (with 50% probability)
-- A simple observation space containing the agent's position and a flag indicating if a symbol has been seen
+- A simple observation space containing the agent's position and a flag indicating if A has changed to B.
 
-Here's a visualization of the environment:
+Here's a visualisation of the environment:
 
 ```
 +-------------+
@@ -81,7 +82,7 @@ These actions are defined as constants in the LetterWorld class for better code 
 ### Observation Space
 
 The observation is a 3-dimensional vector:
-- First element: Binary flag (0/1) indicating if the symbol has been seen
+- First element: Binary flag (0/1) indicating if A has changed to B
 - Second element: Row position of the agent
 - Third element: Column position of the agent
 
@@ -162,41 +163,41 @@ When you call `render()`, the environment prints a colored grid representation t
 
 ### Initial State
 ```
-+-------------+
-|. . . . . . .|
-|A . x . . C .|
-|. . . . . . .|
-+-------------+
++---------------+
+|. . . . . . . .|
+|. A . x . . C .|
+|. . . . . . . .|
++---------------+
 ```
 
 ### After Moving to Position A
 ```
-+-------------+
-|. . . . . . .|
-|x . . . . C .|
-|. . . . . . .|
-+-------------+
++---------------+
+|. . . . . . . .|
+|. x . . . . C .|
+|. . . . . . . .|
++---------------+
 ```
 
 ### After Symbol Change (A to B)
 ```
-+-------------+
-|. . . . . . .|
-|B . . . . C .|
-|. . . . . . .|
-+-------------+
++---------------+
+|. . . . . . . .|
+|. B . . . . C .|
+|. . . x . . . .|
++---------------+
 ```
 
-<Callout type="warning">
-  Note that the environment itself doesn't provide rewards - the reward structure will be defined by the Counting Reward Machine we'll connect to this environment.
-</Callout>
+<Warning>
+  Note that the environment itself doesn't provide rewards - the reward structure will be defined by the RM/CRM we'll connect to this environment.
+</Warning>
 
 ## Key Points
 
 - The base environment is reward-free - it only defines the dynamics of the world
 - Navigation is deterministic, but the state transition at position A is stochastic
 - The environment follows the standard Gym interface for compatibility with RL algorithms
-- The agent's task will be defined by a Counting Reward Machine, which will assign rewards based on the sequence of visited letters
+- The agent's task will be defined by an RM/CRM, which will assign rewards based on the sequence of visited letters
 
 ## Next Steps
 

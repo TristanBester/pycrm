@@ -1,275 +1,187 @@
 ---
-title: '3 - Counting Reward Machine'
+title: '3 - Reward Machine'
 description: 'Defining rewards based on symbolic event sequences'
 ---
 
 import { Callout } from 'nextra/components'
 
-# Letter World: The Counting Reward Machine
+# Letter World: The Reward Machine
 
 <Callout type="info">
-  The Counting Reward Machine (CRM) defines the reward structure of a task based on sequences of symbolic events and counter values, enabling complex behavior specification.
+  A Reward Machine (RM) defines a task’s reward structure using **states** and **transitions between events**.  
+  Unlike traditional reward functions that depend only on the current state, RMs let us specify **temporal reward logic** in a clear, interpretable way.
 </Callout>
 
 ## Overview
 
-The Counting Reward Machine is the core component that defines what constitutes success in a task. Unlike traditional reward functions that depend only on the current state, CRMs can provide rewards based on the history of events, making them powerful for specifying complex behaviors.
+The Reward Machine is the core automaton that defines what constitutes success in a task.  
+Instead of embedding complex logic directly in a reward function, the RM tracks **high-level events** (e.g. visiting specific letters) and provides rewards when certain sequences occur.
 
-## The CRM Concept
+## The RM Concept
 
-A Counting Reward Machine consists of:
+An RM consists of:
 
-- **States**: Different phases of the task
-- **Counters**: Variables that track occurrences of specific events
-- **Transitions**: Rules for moving between states based on events and counter values
-- **Rewards**: Values assigned during transitions
+- **States**: Different phases of the task  
+- **Transitions**: Rules for moving between states based on events  
+- **Rewards**: Values assigned to transitions  
 
-For the Letter World environment, we define a CRM that rewards the agent for visiting letters in a specific sequence, with counters tracking how many times certain letters have been seen.
+For the Letter World environment, we define an RM that rewards the agent for visiting letters in a specific order: first `A`, then `B`, then `C`.
 
-## Implementation Details
+## Implementation
 
-The Letter World CRM is implemented as a subclass of the `CountingRewardMachine` base class:
-
-<Warning>
-	The examples are not distributed in the PyPI package currently. Please see the [Installation Guide](/installation)
-	for information on how to setup a development build.
-</Warning>
+The Letter World RM is implemented as a subclass of the `RewardMachine` base class:
 
 ```python
-from crm.automaton import CountingRewardMachine
+from pycrm.automaton import RewardMachine
+from examples.letter.core.label import Symbol
+
+
+class LetterWorldRewardMachine(RewardMachine):
+    """Reward machine for the Letter World environment."""
+
+    @property
+    def u_0(self) -> int:
+        """Return the initial state."""
+        return 0
+
+    def _get_state_transition_function(self) -> dict:
+        return {
+            0: {"A": 1},
+            1: {"B": 2},
+            2: {"C": -1},  # terminal
+        }
+
+    def _get_reward_transition_function(self) -> dict:
+        return {
+            0: {"A": 0.1},
+            1: {"B": 0.1},
+            2: {"C": 1.0},  # success reward
+        }
+```
+
+### Method Explanations
+
+- **`u_0`**: Returns the initial state (0) where the agent begins the task
+- **`_get_state_transition_function`**: Defines state transitions based on observed events:
+  - From state 0, observing "A" moves to state 1
+  - From state 1, observing "B" moves to state 2
+  - From state 2, observing "C" moves to terminal state -1
+- **`_get_reward_transition_function`**: Defines rewards for each transition:
+  - Small rewards (0.1) for intermediate steps (A→1, B→2)
+  - Large reward (1.0) for completing the sequence (C→terminal)
+
+
+### How it Works
+
+1. The agent starts in state 0.
+2. Seeing `A` moves to state 1, with a small reward.
+3. Seeing `B` moves to state 2, with a small reward.
+4. Seeing `C` completes the sequence, reaching the terminal state with a larger reward.
+
+This RM defines a **sequential task**: `A → B → C`.
+
+---
+
+# What if we use a Counting Reward Machine?
+
+<Callout type="tip">
+  A **Counting Reward Machine (CRM)** extends an RM by adding **counters** as memory.  
+  This allows tasks that require counting or balancing, which RMs alone cannot represent.
+</Callout>
+
+### Key Differences from the RM
+
+* **Counters**: CRMs introduce integer variables that track how many times events occur.
+* **Transition Conditions**: CRM transitions depend not only on events, but also on counter values (e.g. “if counter = 0, go to success state”).
+* **Expressiveness**: While RMs capture tasks definable by regular languages, CRMs are *Turing-complete* and can express much richer tasks.
+
+### Example: Balanced Parentheses Task
+
+In Letter World, a CRM could enforce:
+
+* The agent must visit `A` *n* times,
+* Then `B`,
+* Then `C` *n* times,
+* Only when the number of `A`s and `C`s match does the agent receive a reward.
+
+This requires a **counter** to track the difference between `A`s and `C`s — something a plain RM cannot do.
+
+```python
+from pycrm.automaton import CountingRewardMachine
 from examples.letter.core.label import Symbol
 
 
 class LetterWorldCountingRewardMachine(CountingRewardMachine):
-    """Counting reward machine for the Letter World environment."""
+    """CRM for the balanced A-B-C task in Letter World."""
 
     def __init__(self) -> None:
-        """Initialise the counting reward machine."""
         super().__init__(env_prop_enum=Symbol)
+
+    @property
+    def u_0(self) -> int:
+        return 0
+
+    @property
+    def c_0(self) -> tuple[int, ...]:
+        return (0,)
+
+    @property
+    def encoded_configuration_size(self) -> int:
+        return 2
+
+    def _get_state_transition_function(self) -> dict:
+        return {
+            0: {"A / (-)": 0, "B / (-)": 1},
+            1: {"C / (NZ)": 1, "C / (Z)": -1},
+        }
+
+    def _get_counter_transition_function(self) -> dict:
+        return {
+            0: {"A / (-)": (1,), "B / (-)": (0,)},
+            1: {"C / (NZ)": (-1,), "C / (Z)": (0,)},
+        }
+
+    def _get_reward_transition_function(self) -> dict:
+        return {
+            0: {"A / (-)": -0.1, "B / (-)": -0.1},
+            1: {"C / (NZ)": -0.1, "C / (Z)": 1.0},
+        }
 ```
 
-### Initial Configuration
+### Method Explanations
 
-The CRM defines its initial state and counter values:
+- **`u_0`**: Returns the initial state (0) where the agent begins the task
+- **`c_0`**: Returns the initial counter values as a tuple (starts with counter = 0)
+- **`encoded_configuration_size`**: Returns the size (2) for encoding state-counter configurations
+- **`_get_state_transition_function`**: Defines state transitions with counter conditions:
+  - From state 0: "A" keeps in state 0, "B" moves to state 1
+  - From state 1: "C" stays in state 1 if counter ≠ 0 (NZ), moves to terminal if counter = 0 (Z)
+- **`_get_counter_transition_function`**: Defines how counters change with events:
+  - From state 0: "A" increments counter (+1), "B" resets counter to 0
+  - From state 1: "C" decrements counter (-1) if ≠ 0, keeps at 0 if = 0
+- **`_get_reward_transition_function`**: Defines rewards with counter conditions:
+  - Small penalties (-0.1) for most transitions
+  - Large reward (1.0) only when "C" is observed in state 1 with counter = 0 (balanced task completion)
 
-```python
-@property
-def u_0(self) -> int:
-    """Return the initial state of the machine."""
-    return 0
+Here, the CRM enforces **balanced counts** of `A` and `C`.
+Only when the counter reaches 0 (all `A`s matched by `C`s) does the agent receive the reward.
 
-@property
-def c_0(self) -> tuple[int, ...]:
-    """Return the initial counter configuration of the machine."""
-    return (0,)
+---
 
-@property
-def encoded_configuration_size(self) -> int:
-    """Return the size of the encoded counter configuration."""
-    return 2
-```
+# Summary
 
-Here:
-- `u_0`: The initial state is 0
-- `c_0`: The initial counter configuration is (0,), meaning we start with a single counter set to 0
-- `encoded_configuration_size`: Specifies how many bits are needed to encode the counter values
+* **Reward Machines (RMs)**: Great for sequential or regular tasks (e.g. `A → B → C`).
+* **Counting Reward Machines (CRMs)**: Extend RMs with counters, enabling tasks with memory, counting, or balance (e.g. “same number of `A`s and `C`s”).
+* **PyCRM** supports both: start with RMs for simple tasks, use CRMs when you need additional expressive power.
 
-### State Transition Function
 
-The state transition function defines how the CRM moves between states based on events and counter conditions:
 
-```python
-def _get_state_transition_function(self) -> dict:
-    """Return the state transition function."""
-    return {
-        0: {
-            "A / (-)": 0,
-            "B / (-)": 1,
-            "C / (-)": 0,
-            "/ (-)": 0,
-        },
-        1: {
-            "A / (-)": 1,
-            "B / (-)": 1,
-            "C / (NZ)": 1,
-            "C / (Z)": -1,
-            "/ (-)": 1,
-        },
-    }
-```
 
-The notation used in this function:
-- `A / (-)`: When event A occurs, with any counter value
-- `C / (NZ)`: When event C occurs and the counter is Non-Zero
-- `C / (Z)`: When event C occurs and the counter is Zero
-- `/ (-)`: Default transition when no event occurs
 
-The state transitions show that:
-1. From state 0, seeing B moves the CRM to state 1
-2. In state 1, seeing C with a zero counter (C / (Z)) leads to a terminal state (-1)
 
-### Counter Transition Function
 
-The counter transition function defines how counter values change during transitions:
 
-```python
-def _get_counter_transition_function(self) -> dict:
-    """Return the counter transition function."""
-    return {
-        0: {
-            "A / (-)": (1,),
-            "B / (-)": (0,),
-            "C / (-)": (0,),
-            "/ (-)": (0,),
-        },
-        1: {
-            "A / (-)": (0,),
-            "B / (-)": (0,),
-            "C / (NZ)": (-1,),
-            "C / (Z)": (0,),
-            "/ (-)": (0,),
-        },
-    }
-```
-
-This function shows:
-1. In state 0, seeing A increments the counter by 1
-2. In state 1, seeing C with a non-zero counter decrements the counter by 1
-
-### Reward Transition Function
-
-The reward transition function defines what reward is given during each transition:
-
-```python
-def _get_reward_transition_function(self) -> dict:
-    """Return the reward transition function."""
-    return {
-        0: {
-            "A / (-)": -0.1,
-            "B / (-)": -0.1,
-            "C / (-)": -0.1,
-            "/ (-)": -0.1,
-        },
-        1: {
-            "A / (-)": -0.1,
-            "B / (-)": -0.1,
-            "C / (NZ)": -0.1,
-            "C / (Z)": 1,
-            "/ (-)": -0.1,
-        },
-    }
-```
-
-The rewards show:
-1. Small negative rewards (-0.1) for most transitions (encouraging efficiency)
-2. A positive reward (1.0) when C is seen with a zero counter in state 1
-3. A larger negative reward (-1.0) for doing nothing in state 1
-
-### Understanding the Reward Structure
-
-The reward structure in this CRM is carefully designed to guide the agent toward the desired behavior:
-
-- **Small negative step costs (-0.1)**: Most actions have a small negative reward, creating a time pressure that encourages the agent to complete the task efficiently rather than wandering aimlessly.
-
-- **Goal reward (+1.0)**: A significant positive reward is given only when the agent successfully completes the task—visiting C in state 1 with a counter value of 0. This is the only way to receive positive reward.
-
-The reward design creates several important learning signals:
-
-1. **Delayed gratification**: The agent must endure short-term "costs" (negative rewards) to achieve a larger future reward.
-
-2. **Temporal credit assignment**: The agent must learn which sequence of actions leads to the positive reward, even though the reward comes only at the end.
-
-3. **Balance requirement**: The reward structure enforces the need to visit exactly as many C's as A's, as any imbalance will prevent reaching the terminal state with a positive reward.
-
-This reward structure makes the CRM task challenging for reinforcement learning algorithms, as they must learn to plan far into the future and maintain a count of past events to maximize total reward.
-
-### Counter Configuration
-
-The CRM also defines the range of possible counter values:
-
-```python
-def _get_possible_counter_configurations(self) -> list[tuple[int]]:
-    """Return the possible counter configurations."""
-    return [(i,) for i in range(6)]
-
-def sample_counter_configurations(self) -> list[tuple[int]]:
-    """Return a sample counter configuration."""
-    return self._get_possible_counter_configurations()
-```
-
-This limits the counter to values from 0 to 5, preventing unbounded counting.
-
-## The Task Defined by the CRM
-
-<Callout type="warning">
-  Understanding the task defined by this CRM requires analyzing how states, events, and counters interact.
-</Callout>
-
-Based on the implementation, the Letter World CRM defines a task where:
-
-1. The agent starts in state 0 with counter set to 0
-2. Seeing letter A in state 0 increments the counter
-3. Seeing letter B transitions to state 1
-4. In state 1, seeing letter C with a counter value of 0 gives a reward of 1 and terminates
-5. In state 1, seeing letter C with a non-zero counter decrements the counter
-
-This creates a task where the agent must:
-1. Visit letter A some number of times to increment the counter
-2. Visit letter B to transition to state 1
-3. Visit letter C exactly the same number of times as A was visited
-4. When the counter reaches 0 by visiting C, the agent receives a reward and the task is complete
-
-The CRM essentially defines a "balanced parentheses" task: each A must be balanced by a corresponding C, with B separating the two phases.
-
-## Visualization of the CRM
-
-Here's a simplified representation of the Letter World CRM:
-
-<Frame>
-  <img src="/images/crm.png" style={{ borderRadius: '0.5rem' }} />
-</Frame>
-
-Alternatively, here's a simpler text-based representation:
-
-```
-State 0:
-  - On A: Stay in state 0, increment counter (+1)
-  - On B: Move to state 1
-  - On C: Stay in state 0
-
-State 1:
-  - On A: Stay in state 1
-  - On B: Stay in state 1
-  - On C (counter = 0): Move to End state, give reward
-  - On C (counter > 0): Stay in state 1, decrement counter (-1)
-```
-
-## Using the CRM
-
-The CRM is used by integrating it with the ground environment and labelling function:
-
-```python
-# Initialize components
-ground_env = LetterWorld()
-lf = LetterWorldLabellingFunction()
-crm = LetterWorldCountingRewardMachine()
-
-# Create the cross-product environment
-env = LetterWorldCrossProduct(
-    ground_env=ground_env,
-    crm=crm,
-    lf=lf,
-    max_steps=500,
-)
-
-# The cross-product handles the interaction between
-# the ground environment and the CRM
-obs, _ = env.reset()
-action = env.action_space.sample()
-next_obs, reward, terminated, truncated, info = env.step(action)
-```
-
-## Key Points
+{/* ## Key Points
 
 - The CRM defines rewards based on sequences of events and counter values
 - It enables specification of complex tasks that depend on history
@@ -282,4 +194,4 @@ next_obs, reward, terminated, truncated, info = env.step(action)
 
 - See how everything comes together in the [Cross-Product Environment](/worked-examples/letter-env/cross-product)
 - Learn about [Q-Learning with CRMs](/worked-examples/letter-env/q-learning)
-- Explore [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning) for more efficient learning
+- Explore [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning) for more efficient learning */}

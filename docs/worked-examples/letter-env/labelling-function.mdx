@@ -13,14 +13,14 @@ import { Callout } from 'nextra/components'
 
 ## Overview
 
-In the Counting Reward Machine framework, the labelling function is responsible for translating low-level environment states into meaningful symbolic events. This abstraction allows us to define rewards in terms of high-level concepts rather than raw state values.
+In the RM/CRM framework, the labelling function is responsible for translating low-level environment states into meaningful symbolic events. This abstraction allows us to define rewards in terms of high-level concepts rather than raw state values.
 
 ## The Labelling Function Concept
 
 The labelling function serves as a critical component that:
 
 - Abstracts away low-level environment details
-- Produces symbolic events that the CRM can understand
+- Produces symbolic events that the RM/CRM can understand
 - Enables task specification using high-level symbols
 - Creates a clear separation between environment dynamics and reward logic
 
@@ -28,14 +28,14 @@ For the Letter World environment, the labelling function detects when the agent 
 
 ## Implementation Details
 
-In our implementation, the labelling function is defined as a class that inherits from the base `LabellingFunction` class provided by the CRM framework.
+In PyCRM, the labelling function is defined as a class that inherits from the base `LabellingFunction` class.
 
 ```python
 from enum import Enum, auto
 
 import numpy as np
 
-from crm.label import LabellingFunction
+from pycrm.label import LabellingFunction
 
 
 class Symbol(Enum):
@@ -61,7 +61,7 @@ The `Symbol` enum defines the set of possible symbolic events that can be detect
 - `Symbol.B`: Represents seeing the letter B
 - `Symbol.C`: Represents seeing the letter C
 
-These symbols form the "vocabulary" that the Counting Reward Machine will use to define rewards.
+These symbols form the "vocabulary" that the RM/CRM will use to define rewards.
 
 ### Event Detection Methods
 
@@ -80,7 +80,7 @@ def test_symbol_a(
     return None
 ```
 
-This method checks if the agent is at the A/B position (`[1, 1]`) and the symbol has not been seen yet (`next_obs[0] == 0`). If true, it returns the symbol A event.
+This method checks if the agent is at the A/B position (`[1, 1]`) and the symbol has not been seen yet (`next_obs[0] == 0`). If true, it returns the `Symbol.A` event.
 
 #### Detecting Symbol B
 
@@ -95,7 +95,7 @@ def test_symbol_b(
     return None
 ```
 
-This method checks if the agent is at the A/B position (`[1, 1]`) and the symbol has been seen (`next_obs[0] == 1`). If true, it returns the symbol B event.
+This method checks if the agent is at the A/B position (`[1, 1]`) and the symbol has been seen (`next_obs[0] == 1`). If true, it returns the `Symbol.B` event.
 
 #### Detecting Symbol C
 
@@ -110,7 +110,7 @@ def test_symbol_c(
     return None
 ```
 
-This method checks if the agent is at the C position (`[1, 5]`) and the symbol has been seen (`next_obs[0] == 1`). If true, it returns the symbol C event.
+This method checks if the agent is at the C position (`[1, 5]`) and the symbol has been seen (`next_obs[0] == 1`). If true, it returns the `Symbol.C` event.
 
 ## Using the Labelling Function
 
@@ -143,10 +143,10 @@ print(f"Detected events: {info.get('events', [])}")
 ## The Role of the Labelling Function
 
 <Callout type="warning">
-  The labelling function is critical for the CRM framework as it creates the abstraction layer between the environment and the reward machine.
+  The labelling function is critical for the RM/CRM framework as it creates the abstraction layer between the environment and the reward machine.
 </Callout>
 
-Within the CRM framework, the labelling function serves several important roles:
+Within the RM/CRM framework, the labelling function serves several important roles:
 
 ### 1. Abstraction
 
@@ -160,12 +160,12 @@ It detects important events that should trigger state transitions in the reward 
 
 - The labelling function translates low-level observations to high-level symbols
 - For Letter World, it detects when the agent sees letters A, B, or C
-- Each event detector method returns a symbolic event or None
+- Each event detector method returns a symbolic event or `None`
 - The function handles the stochastic nature of the environment (A changing to B)
-- The events form the "alphabet" used by the Counting Reward Machine
+- The events form the "alphabet" used by the RM/CRM
 
 ## Next Steps
 
-- Explore how the [Counting Reward Machine](/worked-examples/letter-env/crm) defines rewards based on these symbolic events
+- Explore how the [RM/CRM](/worked-examples/letter-env/crm) defines rewards based on these symbolic events
 - See how everything comes together in the [Cross-Product Environment](/worked-examples/letter-env/cross-product)
-- Learn about [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning) for efficient learning with CRMs
+- Learn about [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning) for efficient learning with RM/CRMs

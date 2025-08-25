@@ -5,7 +5,7 @@ description: 'Get started with Counting Reward Machines in minutes'
 
 # Letter World Cross-Product Example
 
-This example demonstrates how the cross-product MDP behaves like a standard Gymnasium environment while adding the power of Counting Reward Machines.
+This example demonstrates how the cross-product MDP behaves like a standard Gymnasium environment while adding the power of RM/CRMs.
 
 ## The Letter World Environment
 
@@ -17,11 +17,11 @@ The Letter World is a simple grid environment where an agent navigates to find s
 Here's what the environment looks like:
 
 ```
-+-------------+
-|. . . . . . .|
-|A . x . . C .|
-|. . . . . . .|
-+-------------+
++---------------+
+|. . . . . . . .|
+|. A . x . . C .|
+|. . . . . . . .|
++---------------+
 ```
 
 Where:
@@ -39,12 +39,6 @@ To create our cross-product environment, we need several components:
 4. **Cross-Product**: Combines all the above (`LetterWorldCrossProduct`)
 
 ## Setting Up the Environment
-
-<Warning>
-	The examples are not distributed in the PyPI package currently. Please see the [Installation Guide](/installation)
-	for information on how to setup a development build.
-</Warning>
-
 First, let's import the necessary components and create our environment:
 
 ```python
@@ -98,7 +92,11 @@ Reward: -0.1
 
 The observation is structured as:
 - First part: Ground observation (symbol_seen, agent_row, agent_col)
-- Last part: Machine state and counter values
+- Last part: Machine configuration (in this example, this is the state and counter values)
+
+<Info>
+    The machine configuration is defined by the `_get_obs` method of the CrossProduct interface. As a result, users can define the cross-product state representation as they wish. 
+</Info>
 
 ## Running an Episode
 
@@ -235,57 +233,23 @@ Step 4 with action 2:
 The cross-product environment extends a standard Gym environment with:
 
 1. **Symbol Tracking**: It tracks which symbols have been seen
-2. **Counter Values**: It maintains counters as defined by the reward machine
+2. **Counter Values**: It maintains counters as defined by the CRM if one is being used
 3. **State Memory**: The reward can depend on the history of previously seen symbols
 4. **Reward Shaping**: Complex reward signals based on achieving specific goals
 
-For example, in our Letter World:
-- Visiting letter 'A' increments a counter
-- Visiting letter 'B' resets the counter but changes the machine state
-- Visiting letter 'C' after 'B' with a zero counter gives a large positive reward
-
-## The Counting Reward Machine
-
-Let's look at how the counting reward machine is structured:
-
-```python
-def _get_state_transition_function(self) -> dict:
-    """Return the state transition function."""
-    return {
-        0: {
-            "A / (-)": 0,
-            "B / (-)": 1,
-            "C / (-)": 0,
-            "/ (-)": 0,
-        },
-        1: {
-            "A / (-)": 1,
-            "B / (-)": 1,
-            "C / (NZ)": 1,
-            "C / (Z)": -1,
-            "/ (-)": 1,
-        },
-    }
-```
-
-This defines how the machine state changes based on observed symbols and counter conditions. The notation:
-- "A / (-)" means "observe symbol A with any counter value"
-- "C / (Z)" means "observe symbol C with zero counter value"
-- "C / (NZ)" means "observe symbol C with non-zero counter value"
-
 ## Conclusion
 
-The cross-product environment combines the simplicity of standard Gym environments with the power of Counting Reward Machines. This allows you to:
+The cross-product environment combines the simplicity of standard Gym environments with the power of RM/CRMs. This allows you to:
 
-1. Use it with any RL algorithm designed for Gym environments
+1. Use it with any RL algorithm designed for Gymnasium environments
 2. Define complex reward structures based on symbol history
 3. Track progress toward multi-step goals
 4. Shape rewards to guide exploration and learning
 5. Benefit from the sample efficiency of counterfactual experiences
 
-This example demonstrates that using Counting Reward Machines doesn't require changing your existing RL algorithms - it just gives you more expressive power in defining rewards!
+This example demonstrates that using RM/CRMs doesn't require changing your existing RL algorithms, it just gives you more expressive power in defining rewards!
 
 ## Next Steps
 
-- Learn about [Q-Learning with CRMs](/worked-examples/letter-env/q-learning)
+- Learn about [Q-Learning with RM/CRMs](/worked-examples/letter-env/q-learning)
 - Explore [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning) for more efficient learning

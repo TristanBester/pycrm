@@ -3,23 +3,21 @@ title: 'Cross-Product Environments'
 description: 'Combining ground environments with reward machines to create learning tasks'
 ---
 
-import { Callout } from 'nextra/components'
-
 # Cross-Product Environments
 
-<Callout type="info">
-  Cross-product environments combine a ground environment with a Counting Reward Machine to create a new environment where rewards are determined by the machine's response to symbolic events.
-</Callout>
+<Info>
+  Cross-product environments combine a ground environment with a Reward Machine or Counting Reward Machine to create a new environment where rewards are determined by the machine's response to symbolic events.
+</Info>
 
 ## Introduction to Cross-Products
 
-In the Counting Reward Machine (CRM) framework, a cross-product environment combines three key components:
+In the RM/CRM framework, a cross-product environment combines three key components:
 
 1. **Ground Environment**: The base environment that defines the world dynamics
 2. **Labelling Function**: Translates environment observations to symbolic events
-3. **Counting Reward Machine**: Specifies rewards based on sequences of events
+3. **Reward Machine**: Specifies rewards based on sequences of events
 
-The cross-product creates a new environment that extends the ground environment with additional state information from the CRM. This approach:
+The cross-product creates a new environment that extends the ground environment with additional state information from the RM/CRM. This approach:
 
 - Preserves the original environment dynamics
 - Adds reward structure based on high-level task specifications
@@ -32,18 +30,18 @@ The cross-product environment works by:
 
 1. Taking actions in the ground environment
 2. Converting observations to symbolic events via the labelling function
-3. Updating the CRM state based on events
-4. Determining rewards according to the CRM's transition function
-5. Augmenting the observation with CRM state information (to satisfy Markov assumption)
+3. Updating the RM/CRM state based on events
+4. Determining rewards according to the RM/CRM's transition function
+5. Augmenting the observation with RM/CRM state information (to satisfy Markov assumption)
 
-This process effectively "wraps" the ground environment with the task structure defined by the CRM.
+This process effectively "wraps" the ground environment with the task structure defined by the RM/CRM.
 
 ## Creating a Cross-Product Environment
 
 To create a custom cross-product environment, you need to subclass the `CrossProduct` base class:
 
 ```python
-from crm.crossproduct import CrossProduct
+from pycrm.crossproduct import CrossProduct
 import gymnasium as gym
 import numpy as np
 
@@ -104,9 +102,9 @@ Here's a complete example from the Letter World environment:
 import gymnasium as gym
 import numpy as np
 
-from crm.automaton import CountingRewardMachine
-from crm.crossproduct import CrossProduct
-from crm.label import LabellingFunction
+from pycrm.automaton import CountingRewardMachine
+from pycrm.crossproduct import CrossProduct
+from pycrm.label import LabellingFunction
 
 
 class LetterWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
@@ -138,7 +136,7 @@ class LetterWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
 ```
 
 This cross-product:
-- Extends the Letter World environment with CRM state information
+- Extends the Letter World environment with RM/CRM state information
 - Augments the observation with the current machine state (`u`) and counter value (`c[0]`)
 - Preserves the original action space
 
@@ -168,7 +166,7 @@ next_obs, reward, terminated, truncated, info = env.step(action)
 
 ### Interpreting Observations
 
-The observation from a cross-product environment contains both ground environment information and CRM state:
+The observation from a cross-product environment contains both ground environment information and RM/CRM state:
 
 ```python
 # Example observation breakdown
@@ -176,7 +174,7 @@ The observation from a cross-product environment contains both ground environmen
 # For Letter World: [symbol_seen, row, col, machine_state, counter]
 ```
 
-You can extract the CRM state and counter values from the observation to understand the current task progress.
+You can extract the RM/CRM state and counter values from the observation to understand the current task progress.
 
 ## Counterfactual Experience Generation
 
@@ -196,10 +194,10 @@ One powerful feature of cross-product environments is their ability to generate 
 
 This method:
 1. Takes a ground environment transition (obs, action, next_obs)
-2. Generates experiences for all possible CRM states and counter configurations (up to an upper bound)
+2. Generates experiences for all possible RM/CRM states and counter configurations (up to an upper bound)
 3. Returns batches of experience tuples that can be used for more efficient learning
 
-Counterfactual experience generation significantly accelerates learning by allowing the agent to learn from transitions it hasn't actually experienced, but that would produce known rewards according to the CRM's structure.
+Counterfactual experience generation significantly accelerates learning by allowing the agent to learn from transitions it hasn't actually experienced, but that would produce known rewards according to the RM/CRM's structure.
 
 ## Behind the Scenes: How Cross-Products Work
 
@@ -207,7 +205,7 @@ The cross-product implements the following key methods:
 
 ### reset()
 
-Initializes both the ground environment and CRM:
+Initializes both the ground environment and RM/CRM:
 
 ```python
 def reset(self, *, seed=None, options=None):
@@ -272,11 +270,11 @@ When creating cross-product environments:
 
 ## Summary
 
-Cross-product environments are the glue that binds together ground environments, labelling functions, and CRMs. They:
+Cross-product environments are the glue that binds together ground environments, labelling functions, and RM/CRMs. They:
 
 - Create a seamless interface between environment dynamics and task specifications
 - Preserve the Gym environment API for compatibility with standard RL algorithms
-- Augment observations with CRM state information
+- Augment observations with RM/CRM state information
 - Provide counterfactual experience generation for accelerated learning
 
-By properly implementing a cross-product environment, you can transform any Gym-compatible environment into a structured task-learning environment guided by a CRM's specifications.
+By properly implementing a cross-product environment, you can transform any Gym-compatible environment into a structured task-learning environment guided by a RM/CRM's specifications.

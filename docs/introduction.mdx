@@ -1,29 +1,43 @@
 ---
 title: 'Introduction'
-description: 'Learn about Counting Reward Machines and their applications'
+description: 'Learn about Reward Machines (RMs), Counting Reward Machines (CRMs), and their applications in reinforcement learning'
 ---
 
-# Counting Reward Machines
-Counting Reward Machines (CRMs) are a powerful formalism for specifying reward functions in reinforcement learning tasks. They extend reward machines by replacing finite-state machines with counter automata, producing a more expressive (Turing-complete) framework for reward specification in RL. This increased expressiveness allows CRMs to define any task that can be represented as a well-defined algorithm, while also yielding more compact representations than standard reward machines.
+# Reward Machines and Counting Reward Machines
 
-## What are CRMs?
+Many real-world reinforcement learning (RL) tasks require agents to reason over **history**, not just the current state. Examples include completing sequences of goals, satisfying temporal conditions, or achieving objectives multiple times. Standard RL approaches often address these scenarios with complex, ad hoc reward functions that are difficult to debug, reproduce, or interpret.
 
-CRMs combine:
-- **Finite State Machines**: To track progress through sequences
-- **Counting Mechanisms (Counter Variables)**: To act as an extended automaton memory 
-- **Reward Functions**: To provide learning signal to RL agents 
+**Reward Machines (RMs)** and their Turing-complete extension, **Counting Reward Machines (CRMs)**, provide a principled solution. Both offer structured, automaton-based representations of reward functions that separate task logic from environment dynamics. This makes them powerful tools for specifying **non-Markovian reward functions** in RL.
 
-This makes them ideal for tasks where rewards depend on:
-- Completing sequences of actions in order
-- Achieving goals multiple times
-- Meeting complex temporal specifications
+## What are RMs and CRMs?
 
-## Key Features
+- **Reward Machines (RMs)**:  
+  Represent tasks as finite-state automata that track progress and assign rewards based on event sequences. RMs naturally express loops, conditionals, and temporal dependencies while remaining intuitive and interpretable.
 
-- **Pure Python Implementation**: Built using standard Python libraries
-- **Flexible Integration**: Easy to integrate with existing RL environments
-- **Example Environments**: Includes example environments to get started
-- **Cross-Product Construction**: Automated construction of cross-product MDPs
+- **Counting Reward Machines (CRMs)**:  
+  Extend RMs by introducing integer counters as additional memory. This generalisation is *Turing-complete*, capable of specifying any computable reward structure. CRMs are essential for tasks that require counting or more complex forms of memory.
+
+Together, RMs and CRMs cover a wide spectrum of tasks, from simple sequential goals to rich, temporally extended problems.
+
+## Why use them?
+
+- **Structured Rewards**: Move beyond ad hoc reward shaping to formal, interpretable specifications.  
+- **Expressiveness**: Model anything from regular languages (RMs) to fully algorithmic tasks (CRMs).  
+- **Sample Efficiency**: Support for counterfactual experience generation enables agents to learn multiple sub-tasks in parallel.  
+- **Reproducibility**: Clear separation between reward specification and RL implementation improves clarity and reliability.  
+
+## PyCRM: A Unified Framework
+
+The pycrm framework brings RMs and CRMs into a practical, Python-based toolkit for RL research. Key features include:
+
+- **High-Level Abstractions**: Clean separation between task specification and learning algorithms.
+- **Automatic Gymnasium Wrapping**: Compile labelling functions and machines into Gymnasium-compatible environments.
+- **Counterfactual Learning**: Drop-in SB3 agents (DQN, DDPG, TD3, SAC) with counterfactual replay for improved efficiency.
+- **Support for Both RMs and CRMs**: Choose the right level of expressiveness for your task.
+- **Extensive Examples**: Worked examples in discrete, continuous, tabular, and deep RL domains.  
+
+By supporting both RMs and CRMs, pycrm lowers the barrier to entry for non-Markovian RL, making it easy to design structured tasks, leverage sample-efficient algorithms, and explore new research directions without the heavy engineering overhead.
+
 
 ## Getting Started
 
