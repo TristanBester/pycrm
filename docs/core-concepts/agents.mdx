@@ -213,10 +213,10 @@ We actively monitors issues and will prioritise implementing requested features 
 Here's a complete example showing how to use the Counterfactual Q-Learning agent with a discrete Puck World environment:
 
 ```python
-from examples.letter.core.ground import LetterWorld
-from examples.letter.core.label import LetterWorldLabellingFunction
-from examples.letter.core.machine import LetterWorldCountingRewardMachine
-from examples.letter.core.crossproduct import LetterWorldCrossProduct
+from examples.introduction.core.ground import LetterWorld
+from examples.introduction.core.label import LetterWorldLabellingFunction
+from examples.introduction.core.machine import LetterWorldCountingRewardMachine
+from examples.introduction.core.crossproduct import LetterWorldCrossProduct
 from pycrm.agents.tabular.cql import CounterfactualQLearningAgent
 
 # Create environment components
@@ -260,10 +260,10 @@ print(f"Evaluation reward: {total_reward}")
 For continuous environments, you can use any of the counterfactual deep RL agents:
 
 ```python
-from examples.letter.core.ground import LetterWorld
-from examples.letter.core.label import LetterWorldLabellingFunction
-from examples.letter.core.machine import LetterWorldCountingRewardMachine
-from examples.letter.core.crossproduct import LetterWorldCrossProduct
+from examples.introduction.core.ground import LetterWorld
+from examples.introduction.core.label import LetterWorldLabellingFunction
+from examples.introduction.core.machine import LetterWorldCountingRewardMachine
+from examples.introduction.core.crossproduct import LetterWorldCrossProduct
 from pycrm.agents.sb3.sac import CounterfactualSAC
 
 # Create environment components

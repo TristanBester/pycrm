@@ -61,6 +61,7 @@
     {
       "group": "Example",
       "pages": [
+        "worked-examples/letter-env/setup",
         "worked-examples/letter-env/ground-environment",
         "worked-examples/letter-env/labelling-function",
         "worked-examples/letter-env/crm",

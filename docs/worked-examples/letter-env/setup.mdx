@@ -1,0 +1,220 @@
+---
+title: 'Setup & Overview'
+description: 'How to set up and run the PyCRM examples'
+---
+
+# Setting Up and Running Examples
+
+This guide explains how to set up and run the PyCRM examples. Since the examples are not packaged with the source code, you'll need to clone the repository and set up the development environment.
+
+## Prerequisites
+
+- Python 3.10-3.12
+- Git
+- [uv](https://github.com/astral-sh/uv) package manager (recommended)
+
+## Step 1: Clone the Repository
+
+First, clone the PyCRM repository:
+
+```bash
+git clone https://github.com/TristanBester/pycrm.git
+cd pycrm
+```
+
+## Step 2: Set Up the Development Environment
+
+PyCRM supports both `uv` (recommended for faster installation) and `pip` for dependency management. Choose the option that works best for your setup:
+
+### Option A: Using uv (Recommended)
+
+```bash
+# Create and activate virtual environment
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies with development extras
+uv pip install -e ".[dev]"
+```
+
+Alternatively, you can use `uv sync` for faster installation:
+
+```bash
+uv sync --extra dev
+```
+
+### Option B: Using pip
+
+```bash
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies with development extras
+pip install -e ".[dev]"
+```
+
+**Note**: If you don't have `uv` installed, you can install it first:
+```bash
+pip install uv
+```
+
+## Step 3: Navigate to Examples Directory
+
+Change to the examples directory:
+
+```bash
+cd examples
+```
+
+## Step 4: Understanding the Example Structure
+
+The examples are organized into several categories:
+
+### Introduction Examples (`introduction/`)
+Basic examples demonstrating core concepts:
+- `q_learning.py` - Q-learning in a letter world environment
+- `cq_learning.py` - Counterfactual Q-learning
+- `environment_example.py` - Basic environment setup
+- `core/` - Core components (ground environment, labelling function, reward machine)
+
+### CRM Examples (`crm/`)
+Examples using Counting Reward Machines:
+- **Continuous**: SAC, TD3, DDPG, and their CRM variants (CSAC, CTD3, CDDPG)
+- **Discrete**: DQN and CDQN
+- **Tabular**: Basic tabular implementations
+
+### RM Examples (`rm/`)
+Examples using standard Reward Machines:
+- **Continuous**: SAC, TD3, DDPG
+- **Discrete**: DQN
+- **Tabular**: Basic tabular implementations
+
+## Step 5: Running Examples
+
+### Basic Examples
+
+Run the introduction examples directly:
+
+```bash
+cd introduction
+
+# Run Q-learning example
+python q_learning.py
+
+# Run counterfactual Q-learning
+python cq_learning.py
+
+# Run environment example
+python environment_example.py
+```
+
+### Advanced Examples
+
+For the CRM and RM examples, run from their respective directories:
+
+```bash
+# CRM continuous examples
+cd crm/continuous
+python sac.py --seed 42
+
+# CRM discrete examples
+cd crm/discrete
+python dqn.py --seed 42
+
+# RM continuous examples
+cd rm/continuous
+python sac.py --seed 42
+
+# RM discrete examples
+cd rm/discrete
+python dqn.py --seed 42
+```
+
+Most examples accept command-line arguments:
+
+```bash
+# Run with specific seed for reproducibility
+python sac.py --seed 123
+
+# Run multiple experiments (if supported)
+python sac.py --seeds 1 2 3 4 5
+```
+
+## Step 6: Experiment Tracking
+
+Many examples integrate with Weights & Biases (wandb) for experiment tracking:
+
+```bash
+# Log in to wandb (first time only)
+wandb login
+
+# Run example with wandb tracking
+python sac.py --seed 42
+```
+
+You can view your experiments at [wandb.ai](https://wandb.ai).
+
+## Step 7: Using SLURM (HPC Systems)
+
+For high-performance computing environments, PyCRM provides SLURM scripts located in the `scripts/` directory. These scripts are organized by example type and algorithm:
+
+### SLURM Script Organization
+
+The SLURM scripts are located in `scripts/examples/` and organized as follows:
+- `scripts/examples/crm/` - Scripts for Counting Reward Machine examples
+- `scripts/examples/rm/` - Scripts for standard Reward Machine examples
+
+Each category contains:
+- `continuous/` - Scripts for continuous control algorithms (SAC, TD3, DDPG, etc.)
+- `discrete/` - Scripts for discrete control algorithms (DQN, etc.)
+
+### Running SLURM Scripts
+
+```bash
+# Navigate to the appropriate scripts directory
+cd scripts/examples/crm/continuous
+
+# Run all algorithms in the category
+./start.sh
+
+# Or run individual algorithms
+sbatch sac.slurm
+sbatch td3.slurm
+sbatch ddpg.slurm
+
+# For discrete algorithms
+cd scripts/examples/crm/discrete
+sbatch dqn.slurm
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Import Errors**: Ensure you're running from the correct directory:
+   ```bash
+   cd examples/crm/continuous  # Not just cd examples
+   ```
+
+2. **Dependency Issues**: Make sure all dependencies are installed:
+   ```bash
+   uv pip install -e ".[dev]"
+   ```
+
+3. **Python Version**: Ensure you're using Python 3.10-3.12:
+   ```bash
+   python --version
+   ```
+
+4. **Virtual Environment**: Activate the virtual environment:
+   ```bash
+   source .venv/bin/activate
+   ```
+
+## Next Steps
+
+After running the examples:
+- Check the [Worked Examples](/worked-examples/letter-env/ground-environment) for detailed tutorials
+- Explore the [Core Concepts](/core-concepts/labelling-functions) documentation
+- Try modifying the examples to experiment with different parameters
