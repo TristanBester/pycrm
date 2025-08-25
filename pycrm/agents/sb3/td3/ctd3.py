@@ -139,9 +139,9 @@ class CounterfactualTD3(TD3):
         assert isinstance(env, VecEnv), "You must pass a VecEnv"
         assert train_freq.frequency > 0, "Should at least collect one step or episode."
         if env.num_envs > 1:
-            assert (
-                train_freq.unit == TrainFrequencyUnit.STEP
-            ), "You must use only one env when doing episodic training."
+            assert train_freq.unit == TrainFrequencyUnit.STEP, (
+                "You must use only one env when doing episodic training."
+            )
 
         self.policy.set_training_mode(False)
         if self.use_sde:
@@ -227,9 +227,9 @@ class CounterfactualTD3(TD3):
         assert isinstance(self.env, VecEnv), "You must pass a VecEnv"
 
         if self.subproc_dispatch_supported:
-            assert isinstance(
-                self.env, DispatchSubprocVecEnv
-            ), "You must pass a DispatchSubprocVecEnv"
+            assert isinstance(self.env, DispatchSubprocVecEnv), (
+                "You must pass a DispatchSubprocVecEnv"
+            )
 
             # Get ground observations
             ground_obs = self.env.dispatched_env_method("to_ground_obs", self._last_obs)

@@ -183,7 +183,7 @@ class TestAdapterMissingTransitions:
 
         # This should work because the adapter adds the " / (Z)" suffix
         # and the underlying RM transition logic should handle it
-        u_next, c_next, reward_fn = adapter.transition(0, (0,), {EnvProps.EVENT_A})
+        _, c_next, reward_fn = adapter.transition(0, (0,), {EnvProps.EVENT_A})
 
         # Should transition based on the RM logic
         assert c_next == (0,)  # Counter should always be 0 for RM adapter

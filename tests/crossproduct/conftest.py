@@ -21,6 +21,7 @@ class GroundEnv(gym.Env):
 
     def __init__(self):
         """Initialize the ground environment."""
+        super().__init__()
         self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(1,))
         self.action_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(1,))
 

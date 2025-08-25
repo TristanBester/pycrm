@@ -24,6 +24,7 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         max_steps: int,
     ) -> None:
         """Initialize the cross product Markov decision process environment."""
+        super().__init__()
         self.ground_env = ground_env
         self.lf = lf
         self.max_steps = max_steps

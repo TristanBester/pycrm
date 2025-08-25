@@ -39,8 +39,8 @@ def _extract_wff(expression: str) -> str:
     if not len(expression):
         raise ValueError(
             "Invalid transition expression. "
-            "Required format is 'WFF / COUNTER_STATES', "
-            "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+            + "Required format is 'WFF / COUNTER_STATES', "
+            + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
         )
 
     if "/" not in expression:
@@ -49,8 +49,8 @@ def _extract_wff(expression: str) -> str:
         if pattern.search(expression):
             raise ValueError(
                 "Invalid transition expression. "
-                "Required format is 'WFF / COUNTER_STATES', "
-                "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+                + "Required format is 'WFF / COUNTER_STATES', "
+                + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
             )
         else:
             # Reward machine expression, use counting reward machine emulation
@@ -62,8 +62,8 @@ def _extract_counter_states(expression: str) -> str:
     if not len(expression):
         raise ValueError(
             "Invalid transition expression. "
-            "Required format is 'WFF / COUNTER_STATES', "
-            "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+            + "Required format is 'WFF / COUNTER_STATES', "
+            + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
         )
 
     if "/" not in expression:
@@ -72,8 +72,8 @@ def _extract_counter_states(expression: str) -> str:
         if pattern.search(expression):
             raise ValueError(
                 "Invalid transition expression. "
-                "Required format is 'WFF / COUNTER_STATES', "
-                "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+                + "Required format is 'WFF / COUNTER_STATES', "
+                + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
             )
         else:
             # Reward machine expression, use counting reward machine emulation
@@ -83,8 +83,8 @@ def _extract_counter_states(expression: str) -> str:
     if counter_states == "" or "(" not in counter_states or ")" not in counter_states:
         raise ValueError(
             "Invalid transition expression. "
-            "Required format is 'WFF / COUNTER_STATES', "
-            "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
+            + "Required format is 'WFF / COUNTER_STATES', "
+            + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
         )
     return counter_states
 

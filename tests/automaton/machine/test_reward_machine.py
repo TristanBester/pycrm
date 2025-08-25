@@ -232,7 +232,8 @@ class TestRewardMachineErrorHandling:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class.*with abstract method u_0",
+            match=r"Can't instantiate abstract class.*"
+            r"(?:with|without an implementation for) abstract method",
         ):
             IncompleteRewardMachine(env_prop_enum=EnvProps)
 

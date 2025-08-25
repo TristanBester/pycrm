@@ -1,29 +1,42 @@
 """Tests for tabular agents."""
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
+import gymnasium as gym
 import numpy as np
 import pytest
 
 from pycrm.agents.tabular import CounterfactualQLearningAgent, QLearningAgent
 
 
-class MockEnv:
+class MockEnv(gym.Env):
     """Mock environment for testing."""
 
     def __init__(self, n_states=4, n_actions=2):
         """Initialize mock environment."""
+        super().__init__()
         self.n_states = n_states
         self.n_actions = n_actions
-        self.action_space = Mock()
-        self.action_space.n = n_actions
-        self.observation_space = Mock()
-        self.observation_space.shape = (1,)
-        self.unwrapped = self  # Add unwrapped attribute for gymnasium compatibility
+        self.action_space = gym.spaces.Discrete(n_actions)
+        self.observation_space = gym.spaces.Box(
+            low=0, high=n_states - 1, shape=(1,), dtype=np.int32
+        )
         self.current_state = 0
+        self._unwrapped = self  # Store the unwrapped attribute for testing
 
-    def reset(self):
+    @property
+    def unwrapped(self):
+        """Override unwrapped property to allow setting for testing."""
+        return self._unwrapped
+
+    @unwrapped.setter
+    def unwrapped(self, value):
+        """Allow setting unwrapped for testing purposes."""
+        self._unwrapped = value
+
+    def reset(self, *, seed: int | None = None, options: dict | None = None):
         """Reset environment."""
+        super().reset(seed=seed, options=options)
         self.current_state = 0
         return np.array([self.current_state]), {}
 
@@ -66,7 +79,9 @@ class TestQLearningAgent:
         obs = np.array([0])
         action = agent.get_action(obs)
         assert isinstance(action, int)
-        assert 0 <= action < env.action_space.n
+        action_space = env.action_space
+        assert isinstance(action_space, gym.spaces.Discrete)
+        assert 0 <= action < action_space.n
 
         # Test with non-zero Q-values
         agent.q_table[tuple(obs)] = np.array([0.5, 1.0])  # Action 1 has higher value
@@ -176,7 +191,9 @@ class TestCounterfactualQLearningAgent:
         obs = np.array([0])
         action = agent.get_action(obs)
         assert isinstance(action, int)
-        assert 0 <= action < env.action_space.n
+        action_space = env.action_space
+        assert isinstance(action_space, gym.spaces.Discrete)
+        assert 0 <= action < action_space.n
 
         # The Q-table should have been populated when get_action was called
         assert len(agent.q_table) > 0

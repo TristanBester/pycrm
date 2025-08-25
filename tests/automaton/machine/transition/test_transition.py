@@ -157,7 +157,7 @@ class TestAdapterTransition:
         adapter = rm_to_crm_adapter
 
         # Test transition with EVENT_A
-        u_next, _c_next, _reward_fn = adapter.transition(0, (0,), {EnvProps.EVENT_A})
+        _, _c_next, _reward_fn = adapter.transition(0, (0,), {EnvProps.EVENT_A})
 
         # Should transition based on the underlying RM logic
         assert callable(_reward_fn)

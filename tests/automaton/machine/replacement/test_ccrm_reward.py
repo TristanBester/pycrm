@@ -55,7 +55,7 @@ class TestAdapterRewardFunctionHandling:
         adapter = rm_to_crm_adapter
 
         # Test a transition to get a reward function
-        u_next, c_next, reward_fn = adapter.transition(0, (0,), set())
+        _, _, reward_fn = adapter.transition(0, (0,), set())
 
         # Execute the reward function
         reward = reward_fn(None, None, None)
@@ -66,7 +66,7 @@ class TestAdapterRewardFunctionHandling:
         adapter = rm_to_crm_adapter
 
         # Transition to terminal state
-        u_next, c_next, reward_fn = adapter.transition(1, (0,), {EnvProps.EVENT_B})
+        u_next, _, reward_fn = adapter.transition(1, (0,), {EnvProps.EVENT_B})
 
         # Should be terminal state
         assert u_next == adapter.F[0]

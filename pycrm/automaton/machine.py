@@ -16,6 +16,7 @@ class CountingRewardMachine(ABC):
         Args:
             env_prop_enum (EnumMeta): Enum class containing environment properties.
         """
+        super().__init__()
         self.env_prop_enum = env_prop_enum
 
         self._delta_u = self._get_state_transition_function()
@@ -114,7 +115,7 @@ class CountingRewardMachine(ABC):
 
         raise ValueError(
             f"Transition not defined for machine configuration ({u}, {c}) "
-            f"and environment propositions {props}"
+            + f"and environment propositions {props}"
         )
 
     def _replace_terminal_state(self) -> None:
@@ -214,6 +215,7 @@ class RewardMachine(ABC):
         Args:
             env_prop_enum (EnumMeta): Enum class containing environment properties.
         """
+        super().__init__()
         self.env_prop_enum = env_prop_enum
 
     @property

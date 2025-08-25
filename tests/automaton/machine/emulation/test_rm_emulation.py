@@ -37,7 +37,8 @@ class TestC0Implementation:
         """Test that counting reward machines without c_0 raise an error."""
         with pytest.raises(
             TypeError,
-            match=r"Can't instantiate abstract class.*with abstract method c_0",
+            match=r"Can't instantiate abstract class.*"
+            r"(?:with|without an implementation for) abstract method",
         ):
             # Import here to avoid fixture instantiation
             from tests.automaton.machine.emulation.conftest import (
