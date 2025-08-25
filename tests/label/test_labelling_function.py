@@ -1,6 +1,6 @@
 import numpy as np
 
-from crm.label import LabellingFunction
+from pycrm.label import LabellingFunction
 from tests.conftest import EnvProps
 
 

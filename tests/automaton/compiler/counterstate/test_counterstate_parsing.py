@@ -1,6 +1,6 @@
 import pytest
 
-from crm.automaton.compiler import _extract_counter_states
+from pycrm.automaton.compiler import _extract_counter_states
 
 
 def valid_expressions() -> list[dict[str, str]]:

@@ -1,80 +1,65 @@
 [project]
-description = "The official Python library for Counting Reward Machines."
-name = "counting-reward-machines"
-readme = "README.md"
-authors = [{ name = "Tristan Bester", email = "tristanbester@email.com" }]
-requires-python = ">=3.10,<3.13"
-version = "0.0.4"
+authors = [{name = "Tristan Bester", email = "tristanbester@email.com"}]
 dependencies = [
-    "gymnasium==0.29.1",
-    "notebook>=7.4.5",
-    "numpy==1.26.4",
-    "stable-baselines3>=2.3.2",
-    "tbparse>=0.0.9",
-    "tensorboard>=2.19.0",
-    "torch==2.6.0",
-    "tqdm>=4.67.1",
-    "wandb>=0.19.10",
+  "gymnasium==0.29.1",
+  "notebook>=7.4.5",
+  "numpy==1.26.4",
+  "stable-baselines3>=2.3.2",
+  "tbparse>=0.0.9",
+  "tensorboard>=2.19.0",
+  "torch==2.6.0",
+  "tqdm>=4.67.1",
+  "wandb>=0.19.10",
 ]
-
-[project.optional-dependencies]
-experiments = [
-    "hydra-core>=1.3.2",
-    "cloudpickle==3.0.0",
-    "tqdm>=4.67.1",
-    "huggingface-sb3>=3.0",
-    "hydra-core>=1.3.2",
-    "moviepy>=2.1.1",
-    "panda-gym>=3.0.7",
-    "tbparse>=0.0.9",
-    "tensorboard>=2.18.0",
-    "wandb>=0.19.0",
-]
+description = "Python package for RL with Reward Machines and Counting Reward Machines."
+name = "pycrm"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+version = "0.1.0"
 
 [build-system]
 build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["crm"]
+packages = ["pycrm"]
 
 [tool.uv]
 dev-dependencies = [
-    "pyright>=1.1.389",
-    "pytest>=8.3.3",
-    "pytest-cov>=6.0.0",
-    "ruff>=0.8.1",
+  "pyright>=1.1.389",
+  "pytest>=8.3.3",
+  "pytest-cov>=6.0.0",
+  "ruff>=0.8.1",
 ]
 
 [tool.pyright]
-exclude = [".venv", "experiments"]
+exclude = [".venv"]
 pythonVersion = "3.12"
-venvPath = "."
-venv = ".venv"
 reportPrivateImportUsage = "none"
-
+venv = ".venv"
+venvPath = "."
 
 [tool.ruff]
 line-length = 88
 
 [tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "N",  # PEP8 naming conventions
-    "D",  # pydocstyle
-]
 ignore = [
-    "C901",  # too complex
-    "W191",  # indentation contains tabs
-    "D401",  # imperative mood
-    "D100",  # missing docstring in public module
-    "D104",  # missing docstring in public package
-    "B010",  # conflicting with pyright
+  "C901", # too complex
+  "W191", # indentation contains tabs
+  "D401", # imperative mood
+  "D100", # missing docstring in public module
+  "D104", # missing docstring in public package
+  "B010", # conflicting with pyright
+]
+select = [
+  "E", # pycodestyle errors
+  "W", # pycodestyle warnings
+  "F", # pyflakes
+  "I", # isort
+  "B", # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "N", # PEP8 naming conventions
+  "D", # pydocstyle
 ]
 
 [tool.ruff.lint.pydocstyle]

@@ -3,7 +3,7 @@ from enum import Enum
 import numpy as np
 import pytest
 
-from crm.label import LabellingFunction
+from pycrm.label import LabellingFunction
 from tests.conftest import EnvProps
 
 

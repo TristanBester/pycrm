@@ -1,7 +1,7 @@
 from typing import Any, Optional, Union
 
 import numpy as np
-import torch
+import torch as th
 from stable_baselines3.common.buffers import ReplayBuffer
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.noise import ActionNoise
@@ -13,46 +13,49 @@ from stable_baselines3.common.type_aliases import (
     TrainFreq,
     TrainFrequencyUnit,
 )
-from stable_baselines3.common.utils import should_collect_more_steps
+from stable_baselines3.common.utils import (
+    should_collect_more_steps,
+)
 from stable_baselines3.common.vec_env import VecEnv
-from stable_baselines3.dqn import DQN
-from stable_baselines3.dqn.policies import DQNPolicy
+from stable_baselines3.td3 import TD3
+from stable_baselines3.td3.policies import (
+    TD3Policy,
+)
 
-from crm.agents.sb3.wrapper import DispatchSubprocVecEnv
+from pycrm.agents.sb3.wrapper import DispatchSubprocVecEnv
 
 
-class CounterfactualDQN(DQN):
-    """Counterfactual DQN implementation."""
+class CounterfactualTD3(TD3):
+    """Counterfactual TD3 implementation."""
 
     def __init__(
         self,
-        policy: Union[str, type[DQNPolicy]],
+        policy: Union[str, type[TD3Policy]],
         env: Union[GymEnv, str],
-        learning_rate: Union[float, Schedule] = 1e-4,
+        learning_rate: Union[float, Schedule] = 1e-3,
         buffer_size: int = 1_000_000,  # 1e6
         learning_starts: int = 100,
-        batch_size: int = 32,
-        tau: float = 1.0,
+        batch_size: int = 256,
+        tau: float = 0.005,
         gamma: float = 0.99,
-        train_freq: Union[int, tuple[int, str]] = 4,
+        train_freq: Union[int, tuple[int, str]] = 1,
         gradient_steps: int = 1,
+        action_noise: Optional[ActionNoise] = None,
         replay_buffer_class: Optional[type[ReplayBuffer]] = None,
         replay_buffer_kwargs: Optional[dict[str, Any]] = None,
         optimize_memory_usage: bool = False,
-        target_update_interval: int = 10000,
-        exploration_fraction: float = 0.1,
-        exploration_initial_eps: float = 1.0,
-        exploration_final_eps: float = 0.05,
-        max_grad_norm: float = 10,
+        policy_delay: int = 2,
+        target_policy_noise: float = 0.2,
+        target_noise_clip: float = 0.5,
         stats_window_size: int = 100,
         tensorboard_log: Optional[str] = None,
         policy_kwargs: Optional[dict[str, Any]] = None,
         verbose: int = 0,
         seed: Optional[int] = None,
-        device: Union[torch.device, str] = "auto",
+        device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
     ) -> None:
-        """Initialize the DQN algorithm."""
+        """Initialise the TD3 algorithm."""
         super().__init__(
             policy=policy,
             env=env,
@@ -64,14 +67,13 @@ class CounterfactualDQN(DQN):
             gamma=gamma,
             train_freq=train_freq,
             gradient_steps=gradient_steps,
+            action_noise=action_noise,
             replay_buffer_class=replay_buffer_class,
             replay_buffer_kwargs=replay_buffer_kwargs,
             optimize_memory_usage=optimize_memory_usage,
-            target_update_interval=target_update_interval,
-            exploration_fraction=exploration_fraction,
-            exploration_initial_eps=exploration_initial_eps,
-            exploration_final_eps=exploration_final_eps,
-            max_grad_norm=max_grad_norm,
+            policy_delay=policy_delay,
+            target_policy_noise=target_policy_noise,
+            target_noise_clip=target_noise_clip,
             stats_window_size=stats_window_size,
             tensorboard_log=tensorboard_log,
             policy_kwargs=policy_kwargs,
@@ -88,11 +90,11 @@ class CounterfactualDQN(DQN):
         total_timesteps: int,
         callback: MaybeCallback = None,
         log_interval: int = 4,
-        tb_log_name: str = "C-DQN",
+        tb_log_name: str = "C-TD3",
         reset_num_timesteps: bool = True,
         progress_bar: bool = False,
-    ) -> "CounterfactualDQN":
-        """Override to change algorithm Tensorboard log name."""
+    ) -> "CounterfactualTD3":
+        """Train the agent."""
         return super().learn(
             total_timesteps=total_timesteps,
             callback=callback,
@@ -137,11 +139,13 @@ class CounterfactualDQN(DQN):
         assert isinstance(env, VecEnv), "You must pass a VecEnv"
         assert train_freq.frequency > 0, "Should at least collect one step or episode."
         if env.num_envs > 1:
-            assert (
-                train_freq.unit == TrainFrequencyUnit.STEP
-            ), "You must use only one env when doing episodic training."
+            assert train_freq.unit == TrainFrequencyUnit.STEP, (
+                "You must use only one env when doing episodic training."
+            )
 
         self.policy.set_training_mode(False)
+        if self.use_sde:
+            self.actor.reset_noise(env.num_envs)
         num_collected_steps, num_collected_episodes = 0, 0
 
         callback.on_rollout_start()
@@ -149,6 +153,14 @@ class CounterfactualDQN(DQN):
         while should_collect_more_steps(
             train_freq, num_collected_steps, num_collected_episodes
         ):
+            if (
+                self.use_sde
+                and self.sde_sample_freq > 0
+                and num_collected_steps % self.sde_sample_freq == 0
+            ):
+                # Sample a new noise matrix
+                self.actor.reset_noise(env.num_envs)
+
             # Select action randomly or according to policy
             actions, buffer_actions = self._sample_action(
                 learning_starts, action_noise, env.num_envs
@@ -215,9 +227,9 @@ class CounterfactualDQN(DQN):
         assert isinstance(self.env, VecEnv), "You must pass a VecEnv"
 
         if self.subproc_dispatch_supported:
-            assert isinstance(
-                self.env, DispatchSubprocVecEnv
-            ), "You must pass a DispatchSubprocVecEnv"
+            assert isinstance(self.env, DispatchSubprocVecEnv), (
+                "You must pass a DispatchSubprocVecEnv"
+            )
 
             # Get ground observations
             ground_obs = self.env.dispatched_env_method("to_ground_obs", self._last_obs)
@@ -253,12 +265,6 @@ class CounterfactualDQN(DQN):
         c_dones = np.concatenate(c_dones)
         c_infos = np.concatenate(c_infos)
 
-        # Get action dimension
-        if len(self.env.action_space.shape) == 0:
-            action_dim = 1
-        else:
-            action_dim = self.env.action_space.shape[0]
-
         # Reshape & batch to match number of envs
         c_obs = self.reshape_and_trim(
             c_obs,
@@ -266,7 +272,7 @@ class CounterfactualDQN(DQN):
         )
         c_actions = self.reshape_and_trim(
             c_actions,
-            final_dim=action_dim,  # type: ignore
+            final_dim=self.env.action_space.shape[0],  # type: ignore
         )
         c_obs_next = self.reshape_and_trim(
             c_obs_next,

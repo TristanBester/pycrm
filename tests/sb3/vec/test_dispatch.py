@@ -1,7 +1,7 @@
 import gymnasium as gym
 import pytest
 
-from crm.agents.sb3.wrapper import DispatchSubprocVecEnv
+from pycrm.agents.sb3.wrapper import DispatchSubprocVecEnv
 
 
 def mock_env_callable() -> gym.Env:

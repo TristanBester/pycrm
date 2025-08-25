@@ -20,7 +20,7 @@ from stable_baselines3.sac.policies import (
     SACPolicy,
 )
 
-from crm.agents.sb3.wrapper import DispatchSubprocVecEnv
+from pycrm.agents.sb3.wrapper import DispatchSubprocVecEnv
 
 
 class CounterfactualSAC(SAC):

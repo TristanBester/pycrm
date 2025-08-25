@@ -1,6 +1,6 @@
 import inspect
 
-from crm.automaton import CountingRewardMachine
+from pycrm.automaton import CountingRewardMachine
 
 
 class TestCCRMRewardFunctionReplacement:

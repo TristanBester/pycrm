@@ -1,8 +1,8 @@
 import numpy as np
 from tqdm import tqdm
 
-from crm.agents.tabular.ql import QLearningAgent
-from crm.crossproduct import CrossProduct
+from pycrm.agents.tabular.ql import QLearningAgent
+from pycrm.crossproduct import CrossProduct
 
 
 class CounterfactualQLearningAgent(QLearningAgent):

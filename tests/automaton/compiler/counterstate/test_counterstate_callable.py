@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from crm.automaton.compiler import (
+from pycrm.automaton.compiler import (
     _construct_callable_counter_state_str_repr,
     _construct_counter_state_callable,
 )

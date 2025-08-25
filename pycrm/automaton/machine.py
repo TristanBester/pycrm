@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 import numpy as np
 
-from crm.automaton.compiler import compile_transition_expression
+from pycrm.automaton.compiler import compile_transition_expression
 
 
 class CountingRewardMachine(ABC):
@@ -178,7 +178,6 @@ class CountingRewardMachine(ABC):
                 try:
                     d_c[transition_formula] = self._delta_c[u][expr]
                 except KeyError:
-                    breakpoint()
                     raise ValueError(
                         f"Missing counter configuration for transition {u}: {expr}"
                     ) from None

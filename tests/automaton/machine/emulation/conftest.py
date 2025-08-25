@@ -1,6 +1,6 @@
 import pytest
 
-from crm.automaton import CountingRewardMachine
+from pycrm.automaton import CountingRewardMachine
 from tests.conftest import EnvProps
 
 

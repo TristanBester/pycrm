@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from crm.automaton.machine import CountingRewardMachine
+from pycrm.automaton.machine import CountingRewardMachine
 
 
 class TestEncoding:

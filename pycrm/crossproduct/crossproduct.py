@@ -4,8 +4,8 @@ from typing import Generic, TypeVar
 import gymnasium as gym
 import numpy as np
 
-from crm.automaton import CountingRewardMachine, RewardMachine, RmToCrmAdapter
-from crm.label import LabellingFunction
+from pycrm.automaton import CountingRewardMachine, RewardMachine, RmToCrmAdapter
+from pycrm.label import LabellingFunction
 
 GroundObsType = TypeVar("GroundObsType")
 ObsType = TypeVar("ObsType")

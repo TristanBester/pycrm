@@ -20,7 +20,7 @@ from stable_baselines3.common.vec_env import VecEnv
 from stable_baselines3.ddpg import DDPG
 from stable_baselines3.td3.policies import TD3Policy
 
-from crm.agents.sb3.wrapper import DispatchSubprocVecEnv
+from pycrm.agents.sb3.wrapper import DispatchSubprocVecEnv
 
 
 class CounterfactualDDPG(DDPG):

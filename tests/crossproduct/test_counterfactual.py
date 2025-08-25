@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from crm.crossproduct.crossproduct import CrossProduct
+from pycrm.crossproduct.crossproduct import CrossProduct
 
 
 @pytest.fixture

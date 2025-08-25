@@ -1,6 +1,6 @@
 import pytest
 
-from crm.automaton.compiler import (
+from pycrm.automaton.compiler import (
     _construct_callable_wff_expression_str_repr,
     _construct_wff_callable,
 )

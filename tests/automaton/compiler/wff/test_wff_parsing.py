@@ -1,6 +1,6 @@
 import pytest
 
-from crm.automaton.compiler import _extract_wff
+from pycrm.automaton.compiler import _extract_wff
 
 
 def valid_expressions() -> list[dict[str, str]]:

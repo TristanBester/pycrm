@@ -1,6 +1,6 @@
 import pytest
 
-from crm.automaton.compiler import compile_transition_expression
+from pycrm.automaton.compiler import compile_transition_expression
 from tests.conftest import EnvProps
 
 

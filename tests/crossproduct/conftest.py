@@ -4,9 +4,9 @@ import gymnasium as gym
 import numpy as np
 import pytest
 
-from crm.automaton import CountingRewardMachine
-from crm.crossproduct import CrossProduct
-from crm.label import LabellingFunction
+from pycrm.automaton import CountingRewardMachine
+from pycrm.crossproduct import CrossProduct
+from pycrm.label import LabellingFunction
 
 
 class Events(Enum):
