@@ -2,8 +2,8 @@ from typing import Callable
 
 import numpy as np
 
-from crm.automaton import CountingRewardMachine
 from examples.crm.discrete.core.label import Symbol
+from pycrm.automaton import CountingRewardMachine
 
 
 class PuckWorldCountingRewardMachine(CountingRewardMachine):

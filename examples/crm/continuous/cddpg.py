@@ -2,13 +2,13 @@ import argparse
 
 import wandb
 
-from crm.agents.sb3.ddpg import CounterfactualDDPG
 from examples.crm.continuous.core import (
     PuckWorld,
     PuckWorldCountingRewardMachine,
     PuckWorldCrossProduct,
     PuckWorldLabellingFunction,
 )
+from pycrm.agents.sb3.ddpg import CounterfactualDDPG
 
 
 def main():

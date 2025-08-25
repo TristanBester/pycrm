@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 import numpy as np
 
-from crm.label import LabellingFunction
+from pycrm.label import LabellingFunction
 
 
 class Symbol(Enum):

@@ -1,25 +1,25 @@
 import gymnasium as gym
 import numpy as np
 
-from pycrm.automaton import CountingRewardMachine, RewardMachine
+from pycrm.automaton import CountingRewardMachine
 from pycrm.crossproduct import CrossProduct
 from pycrm.label import LabellingFunction
 
 
-class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, None]):
-    """Cross product of the Puck World environment."""
+class OfficeWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, int, None]):
+    """Cross product of the Office World environment."""
 
     def __init__(
         self,
         ground_env: gym.Env,
-        machine: CountingRewardMachine | RewardMachine,
-        lf: LabellingFunction[np.ndarray, np.ndarray],
+        crm: CountingRewardMachine,
+        lf: LabellingFunction[np.ndarray, int],
         max_steps: int,
     ) -> None:
         """Initialize the cross product Markov decision process environment."""
-        super().__init__(ground_env, machine, lf, max_steps)
+        super().__init__(ground_env, crm, lf, max_steps)
         self.observation_space = gym.spaces.Box(
-            low=0, high=100, shape=(17,), dtype=np.float32
+            low=0, high=100, shape=(3,), dtype=np.int32
         )
         self.action_space = self.ground_env.action_space
 
@@ -29,17 +29,14 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
         """Get the cross product observation.
 
         Args:
-            ground_obs: The ground observation.z
+            ground_obs: The ground observation.
             u: The number of symbols seen.
             c: The counter configuration.
 
         Returns:
-            Cross product observation - [ground obs, machine state, counter state].
+            Cross product observation - [agent_position, machine state, counter state].
         """
-        u_enc = np.zeros(len(self.crm.U) + 1, dtype=np.float32)
-        u_enc[u] = 1
-        crm_cfg = u_enc
-        return np.concatenate((ground_obs, crm_cfg, c), axis=0)
+        return np.array([ground_obs[0], ground_obs[1], ground_obs[2], u, c[0], c[1]])
 
     def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
         """Convert the cross product observation to a ground observation.
@@ -48,6 +45,6 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
             obs: The cross product observation.
 
         Returns:
-            Ground observation.
+            Ground observation - [agent row, agent col, mail empty].
         """
-        return obs[:12]
+        return obs[:3]

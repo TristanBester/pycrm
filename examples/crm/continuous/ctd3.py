@@ -2,7 +2,7 @@ import argparse
 
 import wandb
 
-from crm.agents.sb3.td3 import CounterfactualTD3
+from pycrm.agents.sb3.td3 import CounterfactualTD3
 from examples.crm.continuous.core import (
     PuckWorld,
     PuckWorldCountingRewardMachine,

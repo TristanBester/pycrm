@@ -1,9 +1,9 @@
 import gymnasium as gym
 import numpy as np
 
-from crm.automaton import CountingRewardMachine, RewardMachine
-from crm.crossproduct import CrossProduct
-from crm.label import LabellingFunction
+from pycrm.automaton import CountingRewardMachine, RewardMachine
+from pycrm.crossproduct import CrossProduct
+from pycrm.label import LabellingFunction
 
 
 class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, None]):

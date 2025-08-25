@@ -2,8 +2,8 @@ from typing import Callable
 
 import numpy as np
 
-from crm.automaton import RewardMachine
 from examples.rm.continuous.core.label import Symbol
+from pycrm.automaton import RewardMachine
 
 
 class PuckWorldRewardMachine(RewardMachine):
