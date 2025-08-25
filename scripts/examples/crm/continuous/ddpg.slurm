@@ -11,6 +11,8 @@
 #SBATCH -o /home-mscluster/tbester/warehouse/slurm_logs/out/out_file.%N.%j.out
 # specify the filename for stderr
 #SBATCH -e /home-mscluster/tbester/warehouse/slurm_logs/error/error_file.%N.%j.err
+# array of 100 tasks, one per seed
+#SBATCH --array=0-99%10   # seeds 0..99, max 10 run concurrently
 
 # Get the hostname of the current machine
 HOSTNAME=$(hostname)
@@ -25,14 +27,6 @@ cd ~/warehouse
 uv sync --extra experiments
 
 cd ~/warehouse/examples/crm/continuous
-uv run ddpg.py --seed=0 & 
-uv run ddpg.py --seed=1 & 
-uv run ddpg.py --seed=2 & 
-uv run ddpg.py --seed=3 & 
-uv run ddpg.py --seed=4 & 
-uv run ddpg.py --seed=5 & 
-uv run ddpg.py --seed=6 & 
-uv run ddpg.py --seed=7 & 
-uv run ddpg.py --seed=8 & 
-uv run ddpg.py --seed=9 & 
-wait;
+SEED=$SLURM_ARRAY_TASK_ID
+echo "Running DDPG with seed $SEED"
+uv run ddpg.py --seed=$SEED
