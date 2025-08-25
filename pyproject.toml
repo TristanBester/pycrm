@@ -2,14 +2,10 @@
 authors = [{name = "Tristan Bester", email = "tristanbester@email.com"}]
 dependencies = [
   "gymnasium==0.29.1",
-  "notebook>=7.4.5",
   "numpy==1.26.4",
   "stable-baselines3>=2.3.2",
-  "tbparse>=0.0.9",
-  "tensorboard>=2.19.0",
   "torch==2.6.0",
   "tqdm>=4.67.1",
-  "wandb>=0.19.10",
 ]
 description = "Python package for RL with Reward Machines and Counting Reward Machines."
 name = "pycrm"
@@ -17,12 +13,11 @@ readme = "README.md"
 requires-python = ">=3.10,<3.13"
 version = "0.1.0"
 
-[build-system]
-build-backend = "hatchling.build"
-requires = ["hatchling"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["pycrm"]
+[dependency-groups]
+examples = [
+  "wandb>=0.19.10",
+  "tensorboard>=2.19.0",
+]
 
 [tool.uv]
 dev-dependencies = [
@@ -32,10 +27,46 @@ dev-dependencies = [
   "ruff>=0.8.1",
 ]
 
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pycrm"]
+
 [tool.pyright]
-exclude = [".venv"]
+exclude = [".venv", "examples/", "htmlcov/"]
 pythonVersion = "3.12"
+reportAbstractUsage = "none"
+reportAssertAlwaysTrue = "warning"
+reportCallInDefaultInitializer = "warning"
+reportConstantRedefinition = "error"
+reportDuplicateImport = "warning"
+reportImplicitStringConcatenation = "warning"
+reportImportCycles = "error"
+reportIncompatibleMethodOverride = "error"
+reportIncompatibleVariableOverride = "error"
+reportIncompleteStub = "warning"
+reportInconsistentConstructor = "error"
+reportInvalidStubStatement = "warning"
+reportMissingImports = "warning"
+reportMissingSuperCall = "warning"
+reportMissingTypeStubs = "warning"
+reportOverlappingOverload = "error"
 reportPrivateImportUsage = "none"
+reportSelfClsParameterName = "warning"
+reportUnboundVariable = "error"
+reportUndefinedVariable = "error"
+reportUninitializedInstanceVariable = "warning"
+reportUnnecessaryCast = "warning"
+reportUnnecessaryComparison = "warning"
+reportUnnecessaryIsInstance = "warning"
+reportUnsupportedDunderAll = "warning"
+reportUnusedClass = "warning"
+reportUnusedCoroutine = "error"
+reportUnusedFunction = "warning"
+reportUnusedImport = "warning"
+reportUnusedVariable = "warning"
 venv = ".venv"
 venvPath = "."
 

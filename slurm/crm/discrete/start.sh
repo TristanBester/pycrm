@@ -4,7 +4,7 @@ mkdir -p ~/warehouse/slurm_logs/out
 
 # Setup environment 
 cd ~/warehouse
-uv sync
+uv sync --group examples
 
 # Start training
 cd ~/warehouse/slurm/examples/crm/discrete

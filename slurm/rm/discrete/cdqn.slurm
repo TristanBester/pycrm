@@ -23,7 +23,7 @@ fi
 
 # Move into workspace and set up environment
 cd ~/warehouse
-uv sync
+uv sync --group examples
 
 cd ~/warehouse/examples/rm/discrete
 

@@ -24,7 +24,7 @@ if [[ $HOSTNAME == *"login"* ]]; then
 fi
 
 cd ~/warehouse
-uv sync
+uv sync --group examples
 
 cd ~/warehouse/examples/crm/discrete
 

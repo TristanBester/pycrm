@@ -10,8 +10,9 @@ wheels/
 .venv
 
 # Coverate
-.coverage
+.coverage*
 coverage.xml
+htmlcov/
 
 # Tox 
 .tox

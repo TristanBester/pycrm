@@ -24,7 +24,7 @@ if [[ $HOSTNAME == *"login"* ]]; then
 fi
 
 cd ~/warehouse
-uv sync
+uv sync --group examples
 
 cd ~/warehouse/examples/crm/continuous
 SEED=$SLURM_ARRAY_TASK_ID
