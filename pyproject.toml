@@ -1,17 +1,17 @@
 [project]
 authors = [{name = "Tristan Bester", email = "tristanbester@email.com"}]
 dependencies = [
-  "gymnasium==0.29.1",
-  "numpy==1.26.4",
+  "gymnasium>=0.29.1",
+  "numpy>=2.0.0",
   "stable-baselines3>=2.3.2",
-  "torch==2.6.0",
+  "torch>=2.0.0",
   "tqdm>=4.67.1",
 ]
 description = "Python package for RL with Reward Machines and Counting Reward Machines."
 name = "pyrewardmachines"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
-version = "1.0.0"
+version = "1.0.2"
 
 [dependency-groups]
 examples = [
