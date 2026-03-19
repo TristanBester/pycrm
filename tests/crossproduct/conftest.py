@@ -174,6 +174,26 @@ class CrossProductMDP(CrossProduct):
         return obs[:2]
 
 
+class DefaultCrossProduct(CrossProduct):
+    """Cross product MDP using default _get_obs and to_ground_obs."""
+
+    pass
+
+
+@pytest.fixture
+def default_cross_product() -> DefaultCrossProduct:
+    """Return a cross product MDP using default observation methods."""
+    ground_env = GroundEnv()
+    labelling_function = LabelFunction()
+    crm = CRM(env_prop_enum=Events)
+    return DefaultCrossProduct(
+        ground_env=ground_env,
+        machine=crm,
+        lf=labelling_function,
+        max_steps=10,
+    )
+
+
 @pytest.fixture
 def cross_product_mdp() -> CrossProductMDP:
     """Return a cross product MDP."""

@@ -95,7 +95,7 @@ The observation is structured as:
 - Last part: Machine configuration (in this example, this is the state and counter values)
 
 <Info>
-    The machine configuration is defined by the `_get_obs` method of the CrossProduct interface. As a result, users can define the cross-product state representation as they wish. 
+    The `CrossProduct` class provides a default `_get_obs` that concatenates the ground observation with a one-hot encoded machine state and raw counter values. This Letter World example overrides it with a custom tabular encoding. You can override `_get_obs` to define the cross-product state representation as you wish.
 </Info>
 
 ## Running an Episode

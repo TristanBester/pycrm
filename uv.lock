@@ -972,7 +972,7 @@ wheels = [
 
 [[package]]
 name = "pyrewardmachines"
-version = "1.0.1"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "gymnasium" },
@@ -997,9 +997,9 @@ examples = [
 [package.metadata]
 requires-dist = [
     { name = "gymnasium", specifier = ">=0.29.1" },
-    { name = "numpy", specifier = ">=2" },
+    { name = "numpy", specifier = ">=2.0.0" },
     { name = "stable-baselines3", specifier = ">=2.3.2" },
-    { name = "torch", specifier = "==2.6.0" },
+    { name = "torch", specifier = ">=2.0.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
 

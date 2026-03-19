@@ -62,41 +62,41 @@ class MyCrossProduct(CrossProduct[GroundObsType, ObsType, ActType, RenderFrame])
         self.action_space = self.ground_env.action_space
 ```
 
-### Required Method Implementations
+### Observation Methods
 
-You must implement two abstract methods:
+The `CrossProduct` class provides default implementations of `_get_obs` and `to_ground_obs` that work well for continuous and deep RL settings.
 
-#### 1. `_get_obs`
+#### `_get_obs`
 
-This method combines ground environment observations with CRM state information to satisfy the Markov assumption:
+This method combines ground environment observations with CRM state information to satisfy the Markov assumption. The default implementation concatenates the ground observation with a one-hot encoding of the machine state `u` and the raw counter values `c`:
+
+```
+[ground_obs, one_hot(u), c_0, c_1, ...]
+```
+
+#### `to_ground_obs`
+
+This method extracts the ground observation from a cross-product observation. The default implementation strips the one-hot encoded machine state and counter values from the end of the observation.
+
+#### Overriding the Defaults
+
+You can override these methods for custom observation encodings. For example, in tabular settings you may prefer to use the raw integer machine state instead of a one-hot encoding:
 
 ```python
 def _get_obs(
-    self, ground_obs: GroundObsType, u: int, c: tuple[int, ...]
-) -> ObsType:
-    """Create observation from ground observation and machine state."""
-    # Combine ground observation with machine state
-    return np.concatenate([
-        ground_obs,
-        np.array([u]),  # Machine state
-        np.array(c)     # Counter values
-    ])
-```
+    self, ground_obs: np.ndarray, u: int, c: tuple[int, ...]
+) -> np.ndarray:
+    """Custom observation with raw integer machine state."""
+    return np.array([ground_obs[0], ground_obs[1], u, c[0]])
 
-#### 2. `to_ground_obs`
-
-This method extracts the ground observation from a cross-product observation:
-
-```python
-def to_ground_obs(self, obs: ObsType) -> GroundObsType:
+def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
     """Extract ground observation from cross-product observation."""
-    # Extract just the ground observation part
-    return obs[:ground_obs_dim]
+    return obs[:2]
 ```
 
 ## Example: Letter World Cross-Product
 
-Here's a complete example from the Letter World environment:
+Here's an example from the Letter World environment that overrides the default observation methods to use a tabular encoding (raw integer `u` rather than one-hot):
 
 ```python
 import gymnasium as gym
@@ -262,7 +262,7 @@ These type parameters help ensure type safety when working with different enviro
 
 When creating cross-product environments:
 
-1. **Clear State Augmentation**: Design `_get_obs` to add machine state information in a logical way
+1. **State Augmentation**: The default `_get_obs` (one-hot `u` + raw counters) works well for most cases. Override it only when you need a custom encoding (e.g. tabular settings)
 2. **Consistent Types**: Ensure observation and action spaces are compatible with RL algorithms
 3. **Reasonable Max Steps**: Set an appropriate `max_steps` value for your task
 4. **Use Counterfactual Learning**: Take advantage of counterfactual experience generation for faster learning

@@ -35,31 +35,3 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
 
         return obs, reward, terminated, truncated, info
 
-    def _get_obs(
-        self, ground_obs: np.ndarray, u: int, c: tuple[int, ...]
-    ) -> np.ndarray:
-        """Get the cross product observation.
-
-        Args:
-            ground_obs: The ground observation.z
-            u: The number of symbols seen.
-            c: The counter configuration.
-
-        Returns:
-            Cross product observation - [ground obs, machine state, counter state].
-        """
-        u_enc = np.zeros(len(self.crm.U) + 1, dtype=np.float32)
-        u_enc[u] = 1
-        crm_cfg = u_enc
-        return np.concatenate((ground_obs, crm_cfg, c), axis=0)
-
-    def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
-        """Convert the cross product observation to a ground observation.
-
-        Args:
-            obs: The cross product observation.
-
-        Returns:
-            Ground observation.
-        """
-        return obs[:12]

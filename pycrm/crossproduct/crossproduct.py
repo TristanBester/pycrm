@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Generic, TypeVar
 
 import gymnasium as gym
@@ -34,15 +34,26 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         else:
             self.crm = machine
 
-    @abstractmethod
     def _get_obs(
         self, ground_obs: GroundObsType, u: int, c: tuple[int, ...]
-    ) -> ObsType:
-        """Get the cross product observation."""
+    ) -> np.ndarray:
+        """Get the cross product observation.
 
-    @abstractmethod
-    def to_ground_obs(self, obs: ObsType) -> GroundObsType:
-        """Convert the cross product observation to a ground observation."""
+        Default implementation: concatenates the ground observation with a
+        one-hot encoding of the machine state and the raw counter values.
+        """
+        u_enc = self.crm.encode_machine_state(u).astype(np.float32)
+        c_enc = np.array(c, dtype=np.float32)
+        return np.concatenate((ground_obs, u_enc, c_enc), axis=0)
+
+    def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
+        """Convert the cross product observation to a ground observation.
+
+        Default implementation: removes the one-hot encoded machine state
+        and raw counter values appended by the default ``_get_obs``.
+        """
+        crm_size = len(self.crm.U) + len(self.crm.F) + len(self.crm.c_0)
+        return obs[:-crm_size]
 
     def reset(
         self, *, seed: int | None = None, options: dict | None = None
