@@ -184,7 +184,7 @@ class CounterfactualTD3(TD3):
             # Retrieve reward and episode length if using Monitor wrapper
             self._update_info_buffer(infos, dones)
             self._store_counterfactual_transitions(
-                replay_buffer, buffer_actions, new_obs
+                replay_buffer, buffer_actions, new_obs, dones, infos
             )
             self._update_current_progress_remaining(
                 self.num_timesteps, self._total_timesteps
@@ -223,8 +223,17 @@ class CounterfactualTD3(TD3):
         replay_buffer: ReplayBuffer,
         buffer_actions,
         obs_next,
+        dones,
+        infos,
     ) -> None:
         assert isinstance(self.env, VecEnv), "You must pass a VecEnv"
+
+        # SB3's VecEnv auto-resets on done, so obs_next is the post-reset
+        # observation. Extract the true terminal observations from infos.
+        obs_next_terminal = obs_next.copy()
+        for i, done in enumerate(dones):
+            if done and infos[i].get("terminal_observation") is not None:
+                obs_next_terminal[i] = infos[i]["terminal_observation"]
 
         if self.subproc_dispatch_supported:
             assert isinstance(self.env, DispatchSubprocVecEnv), (
@@ -233,7 +242,7 @@ class CounterfactualTD3(TD3):
 
             # Get ground observations
             ground_obs = self.env.dispatched_env_method("to_ground_obs", self._last_obs)
-            ground_obs_next = self.env.dispatched_env_method("to_ground_obs", obs_next)
+            ground_obs_next = self.env.dispatched_env_method("to_ground_obs", obs_next_terminal)
 
             # Generate counterfactual experience
             result = self.env.dispatched_env_method(
@@ -245,7 +254,7 @@ class CounterfactualTD3(TD3):
         else:
             # Get ground observations
             ground_obs = self.env.env_method("to_ground_obs", self._last_obs[0])  # type: ignore
-            ground_obs_next = self.env.env_method("to_ground_obs", obs_next[0])  # type: ignore
+            ground_obs_next = self.env.env_method("to_ground_obs", obs_next_terminal[0])  # type: ignore
 
             # Generate counterfactual experience
             result = self.env.env_method(
