@@ -1,14 +1,17 @@
 import argparse
+from pathlib import Path
 
-import wandb
 from stable_baselines3.dqn import DQN
 
+import wandb
 from examples.rm.discrete.core import (
     PuckWorld,
     PuckWorldCrossProduct,
     PuckWorldLabellingFunction,
     PuckWorldRewardMachine,
 )
+
+SCRIPT_DIR = Path(__file__).resolve().parent
 
 
 def main():
@@ -28,6 +31,7 @@ def main():
         project="PyCRM-Examples-RM-Discrete",
         name="DQN",
         sync_tensorboard=True,
+        dir=str(SCRIPT_DIR),
     )
 
     # Initialize environment components
@@ -45,7 +49,7 @@ def main():
     agent = DQN(
         policy="MlpPolicy",
         env=cross_product,
-        tensorboard_log="logs/",
+        tensorboard_log=str(SCRIPT_DIR / "logs"),
         verbose=1,
         exploration_fraction=0.1,
         exploration_final_eps=0.1,
