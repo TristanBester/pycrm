@@ -1,0 +1,87 @@
+Reward Machines and Counting Reward Machines are the task-specification layer in PyCRM. They receive symbolic events, update task memory, and emit rewards.
+
+## Automata As Reward Logic
+
+In ordinary RL code, reward logic often sits inside the environment step function. PyCRM moves that logic into a machine:
+
+```text
+event set + machine configuration -> next configuration + reward
+```
+
+This makes the reward function inspectable. You can read transitions, test transitions, and compare different task specifications over the same ground environment.
+
+## RM Vs CRM
+
+Use a Reward Machine when finite states are enough:
+
+- sequential goals
+- success/failure phases
+- regular loops
+- finite task monitors
+
+Use a Counting Reward Machine when the task needs integer memory:
+
+- count how many times an event happened
+- compare counts across phases
+- delay reward until a count condition is true
+- encode richer algorithmic objectives
+
+<Info>
+Vanilla Reward Machines are a special case of Counting Reward Machines. The CRM adds counters and counter conditions, but the overall PyCRM pipeline remains the same.
+</Info>
+
+## Transition Functions
+
+Machines are defined by transition functions. A CRM commonly provides state, counter, and reward transitions.
+
+```python
+def _get_state_transition_function(self) -> dict:
+    return {
+        0: {
+            "A / (-)": 1,
+            "/ (-)": 0,
+        },
+        1: {
+            "C / (c0 > 0)": -1,
+            "/ (-)": 1,
+        },
+    }
+```
+
+The state transition says where the automaton moves. The counter transition says how memory changes. The reward transition says what scalar reward the learner receives.
+
+```python
+def _get_counter_transition_function(self) -> dict:
+    return {
+        0: {
+            "A / (-)": (1,),
+            "/ (-)": (0,),
+        },
+        1: {
+            "C / (c0 > 0)": (-1,),
+            "/ (-)": (0,),
+        },
+    }
+
+
+def _get_reward_transition_function(self) -> dict:
+    return {
+        0: {"A / (-)": 0.1, "/ (-)": -0.01},
+        1: {"C / (c0 > 0)": 1.0, "/ (-)": -0.01},
+    }
+```
+
+## Counter Conditions
+
+Counter conditions are guards on transitions. They let the machine distinguish the same event under different memory configurations.
+
+```text
+C / (c0 > 0)     # event C is valid only while the counter is positive
+/ (-)            # default transition when no guarded event matches
+```
+
+The terminal state is usually represented by `-1` in the examples. Once the machine reaches terminal state, the cross-product can terminate the task.
+
+<Note>
+Keep default transitions explicit. They make the "nothing relevant happened" case visible, which is much easier to debug than an accidental missing transition.
+</Note>

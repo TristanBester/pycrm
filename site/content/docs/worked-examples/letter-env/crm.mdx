@@ -1,0 +1,81 @@
+The machine defines what the event sequence means. For Letter World, the simple RM objective is sequential: see A, then B, then C.
+
+## Sequential RM
+
+The state machine can be read as phases:
+
+| state | meaning |
+| --- | --- |
+| `0` | waiting for A |
+| `1` | waiting for B |
+| `2` | waiting for C |
+| `-1` | terminal success |
+
+The labels come from the labelling function. The machine decides which labels move the task forward.
+
+## Transition Tables
+
+A compact RM implementation defines state and reward transitions:
+
+```python
+from pycrm.automaton import RewardMachine
+from examples.introduction.core.label import Symbol
+
+
+class LetterWorldRewardMachine(RewardMachine):
+    def __init__(self) -> None:
+        super().__init__(env_prop_enum=Symbol)
+
+    @property
+    def u_0(self) -> int:
+        return 0
+
+    def _get_state_transition_function(self) -> dict:
+        return {
+            0: {"A": 1, "": 0},
+            1: {"B": 2, "": 1},
+            2: {"C": -1, "": 2},
+        }
+
+    def _get_reward_transition_function(self) -> dict:
+        return {
+            0: {"A": 0.1, "": -0.01},
+            1: {"B": 0.1, "": -0.01},
+            2: {"C": 1.0, "": -0.01},
+        }
+```
+
+This machine rewards task progress and gives the terminal reward when C is observed in the right phase.
+
+<Info>
+The syntax in concrete CRM examples can include event and counter-condition guards such as `C / (c0 > 0)`. The core idea is the same: event set plus machine memory selects a transition.
+</Info>
+
+## Why Counting Matters
+
+The RM above can express a fixed sequence. It cannot naturally express "do A n times, then do C n times" without baking a finite maximum into the state graph.
+
+A Counting Reward Machine adds counters:
+
+- increment a counter when A occurs
+- require B before entering the closing phase
+- decrement the counter when C occurs
+- reward only when the counter reaches the target condition
+
+## Balanced Task Sketch
+
+A CRM sketch for a balanced A/B/C task might use one counter:
+
+```python
+from pycrm.automaton import CountingRewardMachine
+
+
+class LetterWorldCountingRewardMachine(CountingRewardMachine):
+    def _get_counter_transition_function(self) -> dict:
+        return {
+            0: {"A / (-)": (1,), "/ (-)": (0,)},
+            1: {"C / (c0 > 0)": (-1,), "/ (-)": (0,)},
+        }
+```
+
+The counter gives the machine memory that is not tied to a finite unrolled state list. That is the point of CRMs: keep algorithmic reward structure explicit.

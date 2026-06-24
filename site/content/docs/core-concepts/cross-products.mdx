@@ -1,0 +1,70 @@
+The cross-product environment is where environment dynamics and automaton memory become a single learning problem.
+
+## The Product State
+
+A ground environment state is not enough for a non-Markovian reward. The agent also needs to know where it is in the reward machine and, for CRMs, what the counters contain.
+
+The product state combines:
+
+- the ground observation
+- the machine state `u`
+- the counter tuple `c`
+
+That augmented observation is what the learner uses.
+
+## Step Flow
+
+One cross-product step performs the same sequence every time:
+
+1. Step the ground environment with the selected action.
+2. Pass `(obs, action, next_obs)` to the labelling function.
+3. Update the RM/CRM with the detected event set.
+4. Read the reward from the machine transition.
+5. Return the augmented product observation.
+
+```python
+from pycrm.automaton import CountingRewardMachine
+from pycrm.crossproduct import CrossProduct
+from pycrm.label import LabellingFunction
+
+
+class MyCrossProduct(CrossProduct[GroundObs, ProductObs, Action, RenderFrame]):
+    def __init__(
+        self,
+        ground_env,
+        crm: CountingRewardMachine,
+        lf: LabellingFunction[GroundObs, Action],
+        max_steps: int,
+    ) -> None:
+        super().__init__(ground_env, crm, lf, max_steps)
+        self.action_space = self.ground_env.action_space
+```
+
+## Observation Shapes
+
+The default cross-product observation concatenates the ground observation, a one-hot representation of the machine state, and raw counter values.
+
+```text
+[ground_obs, one_hot(u), c0, c1, ...]
+```
+
+For tabular examples, you may prefer a denser integer encoding:
+
+```python
+def _get_obs(self, ground_obs, u: int, c: tuple[int, ...]):
+    return np.array([ground_obs[0], ground_obs[1], ground_obs[2], u, c[0]])
+
+
+def to_ground_obs(self, obs):
+    return obs[:3]
+```
+
+<Info>
+Choose the observation shape for the learner. Tabular agents benefit from compact discrete tuples. Deep RL agents usually prefer fixed-size numeric arrays.
+</Info>
+
+## Counterfactual Hook
+
+Counterfactual learning depends on the cross-product because the wrapper can ask: "What would this same ground transition have meant under another machine configuration?"
+
+That is the structural advantage. The agent takes one real step, but the RM/CRM can generate many valid learning updates for alternative automaton states.

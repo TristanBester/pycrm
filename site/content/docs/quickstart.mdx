@@ -1,0 +1,93 @@
+This quickstart builds the smallest useful PyCRM loop: a ground environment, a labelling function, a reward machine, and a cross-product wrapper that behaves like a Gymnasium environment.
+
+## The Four Pieces
+
+Every PyCRM task has the same shape:
+
+1. **Ground environment**: the original world dynamics.
+2. **Labelling function**: converts transitions into symbolic events.
+3. **Reward machine**: tracks task progress and emits rewards.
+4. **Cross-product environment**: combines ground state and machine state.
+
+<Info>
+To model tasks with unbounded or count-dependent memory, swap the Reward Machine for a Counting Reward Machine. The surrounding workflow stays the same.
+</Info>
+
+## Minimal Example
+
+The introduction example uses Letter World, a tiny grid where the agent moves between labeled cells.
+
+```python
+from examples.introduction.core.crossproduct import LetterWorldCrossProduct
+from examples.introduction.core.ground import LetterWorld
+from examples.introduction.core.label import LetterWorldLabellingFunction
+from examples.introduction.core.machine import LetterWorldRewardMachine
+
+ground_env = LetterWorld()
+lf = LetterWorldLabellingFunction()
+rm = LetterWorldRewardMachine()
+
+env = LetterWorldCrossProduct(
+    ground_env=ground_env,
+    machine=rm,
+    lf=lf,
+    max_steps=100,
+)
+
+obs, info = env.reset(seed=0)
+action = env.action_space.sample()
+next_obs, reward, terminated, truncated, info = env.step(action)
+```
+
+The wrapper is still a normal Gymnasium-style environment. The difference is that the reward and the augmented observation now reflect the automaton state.
+
+## What The Wrapper Adds
+
+The ground environment knows where the agent is. The machine knows what has happened so far. The cross-product makes both visible to the learner:
+
+```text
+ground observation + machine state + counters -> product observation
+```
+
+That augmented state is what restores the Markov property for tasks with history-dependent rewards.
+
+## Train A Tabular Agent
+
+A basic Q-learning loop can train directly on the cross-product observations:
+
+```python
+from collections import defaultdict
+
+import numpy as np
+
+q_table = defaultdict(lambda: np.zeros(env.action_space.n))
+
+for episode in range(100):
+    obs, _ = env.reset()
+    done = False
+
+    while not done:
+        key = tuple(obs)
+        if np.random.rand() < 0.1:
+            action = env.action_space.sample()
+        else:
+            action = int(np.argmax(q_table[key]))
+
+        next_obs, reward, terminated, truncated, _ = env.step(action)
+        done = terminated or truncated
+
+        target = reward
+        if not done:
+            target += 0.99 * np.max(q_table[tuple(next_obs)])
+
+        q_table[key][action] += 0.1 * (target - q_table[key][action])
+        obs = next_obs
+```
+
+Counterfactual agents use the same environment surface, but they also ask the cross-product for additional machine-consistent experiences from a real transition.
+
+## Next Steps
+
+- Learn the event layer in [Labelling Functions](/core-concepts/labelling-functions).
+- Learn task logic in [RMs & CRMs](/core-concepts/automata).
+- Walk the complete [Letter World Tutorial](/worked-examples/letter-env/setup).

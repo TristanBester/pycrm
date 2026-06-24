@@ -1,0 +1,77 @@
+The cross-product wrapper is the object the learner actually trains on. It presents a Gymnasium API while adding reward-machine memory to the observation.
+
+## Assemble The Wrapper
+
+Create the ground environment, labeler, and CRM, then pass all three into the cross-product:
+
+```python
+from examples.introduction.core.crossproduct import LetterWorldCrossProduct
+from examples.introduction.core.ground import LetterWorld
+from examples.introduction.core.label import LetterWorldLabellingFunction
+from examples.introduction.core.machine import LetterWorldCountingRewardMachine
+
+ground_env = LetterWorld()
+lf = LetterWorldLabellingFunction()
+crm = LetterWorldCountingRewardMachine()
+
+cross_product = LetterWorldCrossProduct(
+    ground_env=ground_env,
+    crm=crm,
+    lf=lf,
+    max_steps=100,
+)
+```
+
+At this point the reward machine is no longer a detached specification. It is part of the environment state.
+
+## Step Like Gymnasium
+
+Use the wrapper like any other Gymnasium environment:
+
+```python
+obs, info = cross_product.reset(seed=42)
+action = cross_product.action_space.sample()
+next_obs, reward, terminated, truncated, info = cross_product.step(action)
+```
+
+The difference is what happens inside `step`: the wrapper steps the ground environment, labels the transition, updates the machine, and returns the machine-derived reward.
+
+## Read The Observation
+
+Letter World uses a compact tabular observation:
+
+```text
+[symbol_seen, agent_row, agent_col, machine_state, counter_0]
+```
+
+An example transition might look like:
+
+```text
+Initial observation: [0 1 3 0 0]
+Action: 3
+Observation: [0 2 3 0 0]
+Reward: -0.1
+```
+
+<Info>
+The base `CrossProduct` can concatenate a one-hot machine state and raw counters automatically. Letter World overrides that behavior because a compact tabular encoding is easier for Q-learning.
+</Info>
+
+## Run An Episode
+
+```python
+obs, info = cross_product.reset(seed=0)
+total_reward = 0
+
+for _ in range(10):
+    action = cross_product.action_space.sample()
+    obs, reward, terminated, truncated, info = cross_product.step(action)
+    total_reward += reward
+
+    if terminated or truncated:
+        break
+
+print(total_reward)
+```
+
+Once the wrapper works, you can swap random actions for a learner.

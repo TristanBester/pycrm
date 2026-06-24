@@ -1,0 +1,83 @@
+The labelling function reads a transition and emits the symbolic events that the reward machine understands.
+
+## Symbol Vocabulary
+
+Letter World has three events:
+
+```python
+from enum import Enum, auto
+
+
+class Symbol(Enum):
+    A = auto()
+    B = auto()
+    C = auto()
+```
+
+Those events are the entire interface between the ground environment and the machine.
+
+## Event Methods
+
+The labeler checks the next observation after an action:
+
+```python
+import numpy as np
+
+from pycrm.label import LabellingFunction
+
+
+class LetterWorldLabellingFunction(LabellingFunction[np.ndarray, int]):
+    A_B_POSITION = np.array([1, 1])
+    C_POSITION = np.array([1, 5])
+
+    @LabellingFunction.event
+    def test_symbol_a(self, obs, action, next_obs) -> Symbol | None:
+        if next_obs[0] == 0 and np.array_equal(next_obs[1:], self.A_B_POSITION):
+            return Symbol.A
+        return None
+
+    @LabellingFunction.event
+    def test_symbol_b(self, obs, action, next_obs) -> Symbol | None:
+        if next_obs[0] == 1 and np.array_equal(next_obs[1:], self.A_B_POSITION):
+            return Symbol.B
+        return None
+
+    @LabellingFunction.event
+    def test_symbol_c(self, obs, action, next_obs) -> Symbol | None:
+        if next_obs[0] == 1 and np.array_equal(next_obs[1:], self.C_POSITION):
+            return Symbol.C
+        return None
+```
+
+Each method either returns one symbol or `None`. PyCRM collects all detected symbols into the event set for the transition.
+
+## Using The Labeler
+
+The cross-product calls the labeler internally, but you can test it directly:
+
+```python
+lf = LetterWorldLabellingFunction()
+
+obs = np.array([0, 1, 2])
+next_obs = np.array([0, 1, 1])
+
+events = lf(obs, action=1, next_obs=next_obs)
+assert Symbol.A in events
+```
+
+This direct test is worth writing for every non-trivial environment. If labels are wrong, the machine will look wrong even when its transition table is correct.
+
+## Failure Modes
+
+The most common mistakes are:
+
+- checking `obs` when the event should be based on `next_obs`
+- forgetting stochastic flags in the observation
+- emitting symbols that the machine enum does not include
+- using labeler state to track task progress
+
+<Callout type="warning">
+The labeler should be a detector, not a hidden reward machine. Store task progress in the automaton state and counters.
+</Callout>
+
+Next, the reward machine consumes these events.

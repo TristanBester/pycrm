@@ -1,0 +1,75 @@
+Q-learning is the baseline: it learns from the cross-product environment exactly as if it were any other tabular Gymnasium task.
+
+## Baseline Loop
+
+Create the environment components, then maintain a table from product observations to action values:
+
+```python
+from collections import defaultdict
+
+import numpy as np
+from tqdm import tqdm
+
+from examples.introduction.core.crossproduct import LetterWorldCrossProduct
+from examples.introduction.core.ground import LetterWorld
+from examples.introduction.core.label import LetterWorldLabellingFunction
+from examples.introduction.core.machine import LetterWorldCountingRewardMachine
+
+ground_env = LetterWorld()
+lf = LetterWorldLabellingFunction()
+crm = LetterWorldCountingRewardMachine()
+cross_product = LetterWorldCrossProduct(ground_env, crm, lf, max_steps=500)
+
+q_table = defaultdict(lambda: np.zeros(cross_product.action_space.n))
+all_returns = []
+
+for episode in tqdm(range(5000)):
+    obs, _ = cross_product.reset()
+    done = False
+    episode_return = 0
+
+    while not done:
+        key = tuple(obs)
+        if np.random.random() < 0.1 or np.all(q_table[key] == 0):
+            action = np.random.randint(cross_product.action_space.n)
+        else:
+            action = int(np.argmax(q_table[key]))
+
+        next_obs, reward, terminated, truncated, _ = cross_product.step(action)
+        done = terminated or truncated
+        episode_return += reward
+
+        target = reward
+        if not done:
+            target += 0.99 * np.max(q_table[tuple(next_obs)])
+
+        q_table[key][action] += 0.1 * (target - q_table[key][action])
+        obs = next_obs
+
+    all_returns.append(episode_return)
+```
+
+## Training Curve
+
+The baseline should improve, but it learns only from the machine state it actually occupies.
+
+<Frame caption="Smoothed returns from ordinary Q-learning on Letter World.">
+  <img src="/images/q-learning.png" alt="Q-learning return curve for Letter World" />
+</Frame>
+
+## Inspect The Policy
+
+After training, inspect actions by product state rather than ground state alone. Two observations with the same agent position can require different actions if the machine state is different.
+
+```python
+for state, values in list(q_table.items())[:5]:
+    print(state, int(np.argmax(values)), values)
+```
+
+This is the core reason the cross-product exists: the learner should condition on task progress, not just position.
+
+## Limits Of The Baseline
+
+Ordinary Q-learning throws away structure. A transition that teaches the agent about one machine state could often teach it about several other machine states too.
+
+Counterfactual Q-learning keeps the same Bellman update but applies it to additional machine-consistent alternatives.

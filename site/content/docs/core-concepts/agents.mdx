@@ -1,0 +1,64 @@
+PyCRM includes agents that can use the cross-product environment directly and agents that also exploit counterfactual experience.
+
+## Agent Families
+
+The package covers two broad settings:
+
+- **tabular agents** for discrete state and action spaces
+- **deep RL agents** that extend Stable Baselines style algorithms
+
+The common requirement is the same: the environment should expose the product observation produced by the cross-product wrapper.
+
+## Tabular Agents
+
+Standard Q-learning is useful as a baseline. Counterfactual Q-learning uses the same Bellman update but applies it to additional machine-consistent experiences generated from a real transition.
+
+```python
+from pycrm.agents.tabular.cql import CounterfactualQLearningAgent
+
+agent = CounterfactualQLearningAgent(
+    env=cross_product_env,
+    epsilon=0.1,
+    learning_rate=0.01,
+    discount_factor=0.99,
+)
+
+returns = agent.learn(total_episodes=1000)
+```
+
+This is the cleanest place to see the algorithmic benefit of reward-machine structure: one ground transition can update many automaton configurations.
+
+## Deep RL Agents
+
+For larger spaces, PyCRM provides counterfactual variants of common deep RL algorithms.
+
+```python
+from pycrm.agents.sb3.dqn import CounterfactualDQN
+
+agent = CounterfactualDQN(
+    policy="MlpPolicy",
+    env=cross_product_env,
+    learning_rate=1e-4,
+    buffer_size=1_000_000,
+    batch_size=32,
+)
+
+agent.learn(total_timesteps=1_000_000)
+```
+
+The same pattern applies to the counterfactual SAC, TD3, and DDPG integrations.
+
+## When To Use Counterfactuals
+
+Counterfactual learning helps most when the reward machine has reusable structure:
+
+- the same ground transition has meaning in several machine states
+- successful behavior requires reaching sparse symbolic events
+- the task has phases that share action-value information
+- exploration is expensive and every real transition should teach more
+
+<Warning>
+Counterfactual updates are only as trustworthy as the labelling function and machine transitions. Test those pieces before attributing learning behavior to the agent.
+</Warning>
+
+If the task is simple and dense, a standard agent may be enough. If the task is sparse, sequential, or counter-dependent, the counterfactual agents are usually the reason to use PyCRM.

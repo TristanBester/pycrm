@@ -1,0 +1,65 @@
+Counterfactual Q-learning uses the reward-machine structure to learn more from each real environment transition.
+
+## The Counterfactual Idea
+
+Suppose the agent takes a ground transition that emits event `C`. In the actual episode, the machine may be in one state. But the same event has defined consequences in other machine states too.
+
+The cross-product can generate those "what if the machine had been there?" transitions:
+
+```text
+real ground transition -> many valid product transitions
+```
+
+That lets the learner update more Q-values without taking more environment steps.
+
+## Standard Vs Counterfactual
+
+The standard update touches one state-action pair:
+
+```python
+q_table[tuple(obs)][action] += learning_rate * td_error
+```
+
+The counterfactual version loops over additional experiences produced by the cross-product:
+
+```python
+experiences = cross_product.counterfactual_experience(
+    obs=obs,
+    action=action,
+    next_obs=next_obs,
+)
+
+for cf_obs, cf_action, cf_reward, cf_next_obs, cf_done in experiences:
+    key = tuple(cf_obs)
+    target = cf_reward
+    if not cf_done:
+        target += discount_factor * np.max(q_table[tuple(cf_next_obs)])
+    q_table[key][cf_action] += learning_rate * (target - q_table[key][cf_action])
+```
+
+The exact helper names can differ by implementation, but the data flow is the important part: one real transition becomes a batch of machine-aware training signals.
+
+<Callout type="warning">
+Counterfactual updates assume the labeler and machine are correct. If either component is wrong, the agent will learn wrong imagined transitions faster.
+</Callout>
+
+## Learning Curve
+
+Counterfactual Q-learning usually reaches the useful policy faster in Letter World because each symbolic event can update several automaton contexts.
+
+<Frame caption="Smoothed returns from counterfactual Q-learning on Letter World.">
+  <img src="/images/cq-learning.png" alt="Counterfactual Q-learning return curve for Letter World" />
+</Frame>
+
+## When It Helps
+
+Counterfactual updates are most useful when:
+
+- symbolic events are sparse
+- several machine states share the same ground transition structure
+- the reward machine has reusable phases
+- environment interaction is more expensive than table updates
+
+They are less important when the task is dense, short, or almost Markovian in the ground state already.
+
+The final lesson is architectural: PyCRM makes the reward structure explicit so learners can exploit it instead of discovering the same logic from scratch.

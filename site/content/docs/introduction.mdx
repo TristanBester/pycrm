@@ -1,0 +1,73 @@
+PyCRM is a framework for reinforcement learning tasks where the reward depends on **history**, not just the current observation. Instead of burying that history in a hand-shaped scalar reward, PyCRM makes the task logic an explicit automaton.
+
+<CardGroup cols={2}>
+  <Card title="Installation" href="/installation">
+    Install PyCRM from PyPI or from source and verify your environment.
+  </Card>
+  <Card title="Quick Start" href="/quickstart">
+    Build a Letter World task from environment, labels, machine, and cross-product.
+  </Card>
+  <Card title="Letter World Tutorial" href="/worked-examples/letter-env/setup">
+    Walk the full example: environment, reward machine, wrapper, and counterfactual learning.
+  </Card>
+  <Card title="Core Concepts" href="/core-concepts/labelling-functions">
+    Understand labels, automata, cross-products, and the RL agent integrations.
+  </Card>
+</CardGroup>
+
+## What PyCRM Solves
+
+Many RL tasks are easy to describe and awkward to reward:
+
+- visit goals in a particular order
+- repeat part of a task before unlocking the next phase
+- assign rewards only after a symbolic condition becomes true
+- debug why a policy is exploiting a shaped reward instead of completing the task
+
+Reward Machines and Counting Reward Machines give those tasks a durable representation. The environment still owns physics and observations. The machine owns progress, memory, and reward logic.
+
+<Info>
+PyCRM keeps the task specification separate from the ground environment. That split is the central design move: you can inspect, test, and replace the reward logic without rewriting the world.
+</Info>
+
+## Reward Machines
+
+A Reward Machine is a finite-state automaton whose transitions are driven by symbolic events. The machine tracks which phase of the task the agent is in and assigns rewards as the event sequence unfolds.
+
+Use an RM when the task can be expressed with finite memory:
+
+- "see A, then B, then C"
+- "avoid failure until success"
+- "repeat a regular patrol loop"
+- "pay a reward when a finite sequence is completed"
+
+RMs are interpretable because every transition has a local reason: an event was observed, the machine moved to a new state, and the transition emitted a reward.
+
+## Counting Reward Machines
+
+A Counting Reward Machine extends the RM with integer counters. The counters are part of the automaton memory, so transitions can depend on both symbolic events and counter conditions.
+
+Use a CRM when finite states alone are too small:
+
+- "visit A n times, then visit C n times"
+- "balance pickups and drop-offs"
+- "reward only when a count-dependent condition closes"
+- "represent algorithmic reward structures"
+
+CRMs are more expressive than regular Reward Machines while keeping the same workflow: label events, update automaton memory, emit reward, and expose the combined state to the learner.
+
+## Research Map
+
+PyCRM grew out of research on sample-efficient reinforcement learning through reward-function structure. The project is connected to:
+
+- [Counting Reward Automata: Sample Efficient Reinforcement Learning Through the Exploitation of Reward Function Structure](https://arxiv.org/abs/2312.11364)
+- [Pushdown Reward Machines for Reinforcement Learning](https://arxiv.org/abs/2508.06894)
+- [Thesis work at Wits University](https://wiredspace.wits.ac.za/server/api/core/bitstreams/b30b3b50-b780-4236-bc9a-cf6938e04a3a/content)
+
+The docs start with the practical path. Install PyCRM, run the Letter World example, then read the core concepts behind labels, machines, cross-products, and counterfactual agents.
+
+## Next Steps
+
+1. Install the package in [Installation](/installation).
+2. Build the first wrapper in [Quick Start](/quickstart).
+3. Work through the [Letter World tutorial](/worked-examples/letter-env/setup).

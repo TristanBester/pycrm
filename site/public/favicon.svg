@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pycrmGrad" x1="6" y1="4" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F84FCC"/>
+      <stop offset="0.5" stop-color="#9362F4"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#pycrmGrad)"/>
+  <!-- machine state node -->
+  <circle cx="22" cy="32" r="11" fill="#0F0A14"/>
+  <circle cx="22" cy="32" r="5.5" fill="url(#pycrmGrad)"/>
+  <!-- ascending counter -->
+  <rect x="37" y="30" width="6" height="14" rx="3" fill="#0F0A14"/>
+  <rect x="46" y="22" width="6" height="22" rx="3" fill="#0F0A14"/>
+</svg>

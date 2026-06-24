@@ -1,0 +1,75 @@
+PyCRM is distributed as the `pyrewardmachines` Python package. For research work, install from PyPI when you want the released package and install from source when you want to run the examples or edit the framework.
+
+## Requirements
+
+- Python 3.10, 3.11, or 3.12
+- `pip` or `uv`
+- A virtual environment for local experiments
+
+<Note>
+The repository examples are not packaged as importable runtime assets. Clone the repository when you want to run the Letter World scripts or the deeper RM/CRM examples.
+</Note>
+
+## Install From PyPI
+
+Install the released package:
+
+```bash
+pip install pyrewardmachines
+```
+
+If you use `uv`, install into the active environment:
+
+```bash
+uv pip install pyrewardmachines
+```
+
+## Development Install
+
+Clone the repository and install it in editable mode:
+
+```bash
+git clone https://github.com/TristanBester/pycrm.git
+cd pycrm
+
+uv venv
+source .venv/bin/activate
+uv pip install -e .
+```
+
+On Windows, activate the environment with:
+
+```powershell
+.venv\Scripts\activate
+```
+
+The examples use extra packages for plotting, logging, and experiment runs. Install the repository dependency group when you need those:
+
+```bash
+uv sync --group examples
+```
+
+## Verify The Install
+
+Check that Python can import the package:
+
+```bash
+python - <<'PY'
+from pycrm.automaton import RewardMachine, CountingRewardMachine
+from pycrm.crossproduct import CrossProduct
+
+print("PyCRM import OK")
+PY
+```
+
+You can also inspect the installed package:
+
+```bash
+pip show pyrewardmachines
+```
+
+## Next Steps
+
+- Continue with the [Quick Start](/quickstart).
+- Read the [Labelling Functions](/core-concepts/labelling-functions) guide.
+- Run the [Letter World setup](/worked-examples/letter-env/setup).

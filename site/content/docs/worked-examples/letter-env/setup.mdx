@@ -1,0 +1,68 @@
+The Letter World tutorial is the complete PyCRM path in miniature. It starts with a tiny Gymnasium environment, adds symbolic labels, defines the machine, wraps the cross-product, and then compares ordinary and counterfactual Q-learning.
+
+## Clone The Repository
+
+The examples live in the repository, so clone the source tree before running them:
+
+```bash
+git clone https://github.com/TristanBester/pycrm.git
+cd pycrm
+```
+
+## Install The Example Stack
+
+Use `uv` for the fastest setup:
+
+```bash
+uv venv
+source .venv/bin/activate
+uv sync --group examples
+```
+
+You can also install editable with `pip`:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+pip install wandb tensorboard tqdm
+```
+
+## Example Map
+
+The examples are grouped by reward-machine family and agent family:
+
+| directory | purpose |
+| --- | --- |
+| `examples/introduction` | small Letter World scripts used by these docs |
+| `examples/crm/tabular` | tabular CRM experiments |
+| `examples/crm/discrete` | DQN and counterfactual DQN examples |
+| `examples/crm/continuous` | SAC, TD3, DDPG, and counterfactual variants |
+| `examples/rm` | parallel examples for vanilla Reward Machines |
+
+The `core/` folder in each example group contains the reusable environment, labeler, machine, and cross-product definitions.
+
+## Run The Introduction Scripts
+
+Start with the introduction directory:
+
+```bash
+cd examples/introduction
+
+python environment_example.py
+python q_learning.py
+python cq_learning.py
+```
+
+<Info>
+The rest of the tutorial reads those scripts as source material. Keep the repository open while you work through the pages; the docs explain why each piece exists.
+</Info>
+
+## Tutorial Route
+
+1. [Ground Environment](/worked-examples/letter-env/ground-environment)
+2. [Labelling Function](/worked-examples/letter-env/labelling-function)
+3. [Reward Machine](/worked-examples/letter-env/crm)
+4. [Cross-Product](/worked-examples/letter-env/cross-product)
+5. [Q-Learning](/worked-examples/letter-env/q-learning)
+6. [Counterfactual Q-Learning](/worked-examples/letter-env/counterfactual-q-learning)

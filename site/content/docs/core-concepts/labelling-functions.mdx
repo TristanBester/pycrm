@@ -1,0 +1,92 @@
+Labelling functions are the translation layer between continuous, low-level environment state and the symbolic vocabulary used by reward machines.
+
+## Why Labels Exist
+
+Automata do not read pixels, coordinates, or simulator internals directly. They read **events**. A labelling function decides which events occurred during one environment transition:
+
+```text
+(obs, action, next_obs) -> {Symbol.A, Symbol.C}
+```
+
+This gives you three useful properties:
+
+- task logic is written in symbols instead of raw state checks
+- the same environment can support multiple reward machines
+- label behavior can be tested independently from learning
+
+## Event Detectors
+
+PyCRM provides a base `LabellingFunction` with an `event` decorator. Each decorated method is an event detector.
+
+```python
+from enum import Enum, auto
+
+from pycrm.label import LabellingFunction
+
+
+class Symbol(Enum):
+    A = auto()
+    B = auto()
+    C = auto()
+
+
+class MyLabellingFunction(LabellingFunction[Observation, Action]):
+    @LabellingFunction.event
+    def detect_a(self, obs, action, next_obs) -> Symbol | None:
+        if condition_is_true(next_obs):
+            return Symbol.A
+        return None
+```
+
+When the labelling function is called, PyCRM runs every event detector and collects the non-`None` symbols into a set.
+
+## Letter World Labels
+
+Letter World uses the observation vector to decide whether the agent has reached the A/B or C positions:
+
+```python
+from enum import Enum, auto
+
+import numpy as np
+
+from pycrm.label import LabellingFunction
+
+
+class Symbol(Enum):
+    A = auto()
+    B = auto()
+    C = auto()
+
+
+class LetterWorldLabellingFunction(LabellingFunction[np.ndarray, int]):
+    A_B_POSITION = np.array([1, 1])
+    C_POSITION = np.array([1, 5])
+
+    @LabellingFunction.event
+    def test_symbol_a(self, obs, action, next_obs) -> Symbol | None:
+        if next_obs[0] == 0 and np.array_equal(next_obs[1:], self.A_B_POSITION):
+            return Symbol.A
+        return None
+
+    @LabellingFunction.event
+    def test_symbol_b(self, obs, action, next_obs) -> Symbol | None:
+        if next_obs[0] == 1 and np.array_equal(next_obs[1:], self.A_B_POSITION):
+            return Symbol.B
+        return None
+
+    @LabellingFunction.event
+    def test_symbol_c(self, obs, action, next_obs) -> Symbol | None:
+        if next_obs[0] == 1 and np.array_equal(next_obs[1:], self.C_POSITION):
+            return Symbol.C
+        return None
+```
+
+## Design Rules
+
+Keep labels small and semantic. A useful event is something the reward machine cares about, not every fact the simulator knows.
+
+<Warning>
+Do not hide long-term task memory inside the labelling function. If the labeler needs to remember history, that history probably belongs in the reward machine state or in CRM counters.
+</Warning>
+
+A good labeler is deterministic, easy to test, and tied to observable transitions. Once that layer is stable, you can iterate on the automaton without touching the environment.

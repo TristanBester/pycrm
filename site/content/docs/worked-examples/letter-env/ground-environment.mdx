@@ -1,0 +1,96 @@
+The ground environment is the base world before any reward-machine logic is attached. In Letter World, that world is a small grid with a stochastic letter transition.
+
+<Callout type="info">
+The environment is intentionally small. Its job is not to be visually rich; its job is to make the reward-machine mechanics impossible to miss.
+</Callout>
+
+## World Layout
+
+Letter World is a 3 by 7 grid:
+
+```text
++-------------+
+|. . . . . . .|
+|A . x . . C .|
+|. . . . . . .|
++-------------+
+```
+
+- `x` is the agent
+- `A` is the first letter position
+- `C` is the later goal position
+- `.` is empty space
+
+When the agent reaches the A position, the environment may change that letter state to B with probability 0.5. That stochastic flag becomes part of the observation.
+
+## Observations And Actions
+
+The environment follows the Gymnasium API:
+
+```python
+import gymnasium as gym
+import numpy as np
+
+
+class LetterWorld(gym.Env):
+    RIGHT = 0
+    LEFT = 1
+    UP = 2
+    DOWN = 3
+
+    A_POSITION = np.array([1, 1])
+    C_POSITION = np.array([1, 5])
+    N_ROWS = 3
+    N_COLS = 7
+
+    def __init__(self) -> None:
+        self.action_space = gym.spaces.Discrete(4)
+        self.observation_space = gym.spaces.Box(
+            low=0,
+            high=100,
+            shape=(3,),
+            dtype=np.int32,
+        )
+```
+
+The observation is:
+
+```text
+[symbol_seen, row, col]
+```
+
+`symbol_seen` is the flag that records whether A has changed to B.
+
+## Movement
+
+Actions move the agent inside the grid. Moves that would leave the grid keep the agent in place.
+
+```python
+def _update_agent_position(self, action: int) -> None:
+    row, col = self.agent_position
+
+    if action == self.RIGHT:
+        next_position = (row, min(col + 1, self.N_COLS - 1))
+    elif action == self.LEFT:
+        next_position = (row, max(col - 1, 0))
+    elif action == self.UP:
+        next_position = (max(row - 1, 0), col)
+    elif action == self.DOWN:
+        next_position = (min(row + 1, self.N_ROWS - 1), col)
+    else:
+        raise ValueError(f"Invalid action {action}.")
+
+    self.agent_position = next_position
+```
+
+The reward machine does not control movement. It only reacts to the symbolic events produced after movement.
+
+## Stochastic Letter State
+
+The A position can become B. That stochastic change is what makes the labeler detect either `Symbol.A` or `Symbol.B` at the same grid coordinate.
+
+<Warning>
+Keep stochastic environment state in the environment. The labelling function should observe it; the reward machine should not be responsible for simulating it.
+</Warning>
+
+Next, the labelling function turns these observations into symbolic events.
