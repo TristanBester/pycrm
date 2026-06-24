@@ -13,6 +13,15 @@ readme = "README.md"
 requires-python = ">=3.10,<3.13"
 version = "1.1.1"
 
+[project.optional-dependencies]
+jax = [
+  "jax>=0.4.30",
+]
+sbx = [
+  "jax>=0.4.30",
+  "sbx-rl>=0.25.0",
+]
+
 [dependency-groups]
 examples = [
   "wandb>=0.19.10",
