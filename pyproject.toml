@@ -44,7 +44,13 @@ requires = ["hatchling"]
 packages = ["pycrm"]
 
 [tool.pyright]
-exclude = [".venv", "examples/", "htmlcov/"]
+exclude = [
+  ".venv",
+  "examples/",
+  "htmlcov/",
+  "site/",
+  "slurm/utils/",
+]
 pythonVersion = "3.12"
 reportAbstractUsage = "none"
 reportAssertAlwaysTrue = "warning"
