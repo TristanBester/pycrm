@@ -157,6 +157,7 @@ class CountingRewardMachine(ABC):
             del obs, action, next_obs
             return float(constant)
 
+        setattr(constant_reward_function, "_pycrm_constant_reward", float(constant))
         return constant_reward_function
 
     def _init_transition_functions(self):
