@@ -5,6 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
+.pytest_cache/
+.ruff_cache/
 
 # Virtual environments
 .venv
@@ -26,6 +28,11 @@ htmlcov/
 # tfevents
 *.tfevents*
 
+# Local training and experiment logs
+logs/
+wandb/
+**/wandb/
+
 # CSV
 *.csv
 
@@ -44,3 +51,9 @@ checkpoints/
 experiments/
 results/
 slurm/utils
+
+# Site dependencies and build artifacts
+node_modules/
+.next/
+out/
+tsconfig.tsbuildinfo
