@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, cast
 
 import gymnasium as gym
 import numpy as np
@@ -36,7 +36,7 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
 
     def _get_obs(
         self, ground_obs: GroundObsType, u: int, c: tuple[int, ...]
-    ) -> np.ndarray:
+    ) -> ObsType:
         """Get the cross product observation.
 
         Default implementation: concatenates the ground observation with a
@@ -44,7 +44,10 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         """
         u_enc = self.crm.encode_machine_state(u).astype(np.float32)
         c_enc = np.array(c, dtype=np.float32)
-        return np.concatenate((ground_obs, u_enc, c_enc), axis=0)
+        return cast(
+            ObsType,
+            np.concatenate((cast(np.ndarray, ground_obs), u_enc, c_enc), axis=0),
+        )
 
     def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
         """Convert the cross product observation to a ground observation.
