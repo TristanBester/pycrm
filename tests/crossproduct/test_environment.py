@@ -48,7 +48,9 @@ class TestCrossProductEnvironment:
 class TestDefaultObservation:
     """Test the default _get_obs and to_ground_obs implementations."""
 
-    def test_get_obs_structure(self, default_cross_product: DefaultCrossProduct) -> None:
+    def test_get_obs_structure(
+        self, default_cross_product: DefaultCrossProduct
+    ) -> None:
         """Test that default _get_obs concatenates ground obs, one-hot u, and raw c."""
         ground_obs = np.array([5.0, 6.0], dtype=np.float32)
         u = 0
@@ -61,7 +63,9 @@ class TestDefaultObservation:
         expected_len = len(ground_obs) + u_size + c_size
         assert len(obs) == expected_len
 
-    def test_get_obs_one_hot_encoding(self, default_cross_product: DefaultCrossProduct) -> None:
+    def test_get_obs_one_hot_encoding(
+        self, default_cross_product: DefaultCrossProduct
+    ) -> None:
         """Test that u is one-hot encoded over all machine states."""
         ground_obs = np.array([0.0], dtype=np.float32)
         crm = default_cross_product.crm
@@ -73,7 +77,9 @@ class TestDefaultObservation:
             assert u_enc[u] == 1.0
             assert np.sum(u_enc) == 1.0
 
-    def test_get_obs_counter_values(self, default_cross_product: DefaultCrossProduct) -> None:
+    def test_get_obs_counter_values(
+        self, default_cross_product: DefaultCrossProduct
+    ) -> None:
         """Test that counter values are passed through raw."""
         ground_obs = np.array([0.0], dtype=np.float32)
         c = (7,)
@@ -82,7 +88,9 @@ class TestDefaultObservation:
 
         assert obs[-1] == 7.0
 
-    def test_get_obs_ground_obs_preserved(self, default_cross_product: DefaultCrossProduct) -> None:
+    def test_get_obs_ground_obs_preserved(
+        self, default_cross_product: DefaultCrossProduct
+    ) -> None:
         """Test that ground observation is preserved at the start."""
         ground_obs = np.array([1.0, 2.0, 3.0], dtype=np.float32)
 
@@ -101,7 +109,9 @@ class TestDefaultObservation:
 
         np.testing.assert_array_equal(recovered, ground_obs)
 
-    def test_to_ground_obs_after_step(self, default_cross_product: DefaultCrossProduct) -> None:
+    def test_to_ground_obs_after_step(
+        self, default_cross_product: DefaultCrossProduct
+    ) -> None:
         """Test that to_ground_obs recovers ground obs from a stepped observation."""
         default_cross_product.reset()
         obs, _, _, _, _ = default_cross_product.step(0)

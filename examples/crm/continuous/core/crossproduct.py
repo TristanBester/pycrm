@@ -34,4 +34,3 @@ class PuckWorldCrossProduct(CrossProduct[np.ndarray, np.ndarray, np.ndarray, Non
                 info["success"] = True
 
         return obs, reward, terminated, truncated, info
-

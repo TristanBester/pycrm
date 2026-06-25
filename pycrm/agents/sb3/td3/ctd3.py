@@ -242,7 +242,9 @@ class CounterfactualTD3(TD3):
 
             # Get ground observations
             ground_obs = self.env.dispatched_env_method("to_ground_obs", self._last_obs)
-            ground_obs_next = self.env.dispatched_env_method("to_ground_obs", obs_next_terminal)
+            ground_obs_next = self.env.dispatched_env_method(
+                "to_ground_obs", obs_next_terminal
+            )
 
             # Generate counterfactual experience
             result = self.env.dispatched_env_method(

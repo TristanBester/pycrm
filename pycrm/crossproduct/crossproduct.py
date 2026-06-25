@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, cast
 
 import gymnasium as gym
 import numpy as np
@@ -44,7 +44,8 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         """
         u_enc = self.crm.encode_machine_state(u).astype(np.float32)
         c_enc = np.array(c, dtype=np.float32)
-        return np.concatenate((ground_obs, u_enc, c_enc), axis=0)
+        ground_obs_array = np.asarray(ground_obs, dtype=np.float32)
+        return np.concatenate((ground_obs_array, u_enc, c_enc), axis=0)
 
     def to_ground_obs(self, obs: np.ndarray) -> np.ndarray:
         """Convert the cross product observation to a ground observation.
@@ -67,10 +68,8 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         self._ground_obs, _ = self.ground_env.reset()
         self._ground_obs_next = self._ground_obs
 
-        return (
-            self._get_obs(self._ground_obs, self.u, self.c),
-            {},
-        )
+        obs = cast(ObsType, self._get_obs(self._ground_obs, self.u, self.c))
+        return obs, {}
 
     def step(self, action: ActType) -> tuple[ObsType, float, bool, bool, dict]:
         """Take a step in the cross product environment."""
@@ -82,18 +81,13 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         self.props = self._props
 
         self.u, self.c, reward_fn = self.crm.transition(self.u, self.c, self._props)
-        reward = reward_fn(self._ground_obs, action, self._ground_obs_next)
+        reward = float(reward_fn(self._ground_obs, action, self._ground_obs_next))
 
         terminated = self.u in self.crm.F
         truncated = self.steps >= self.max_steps
 
-        return (
-            self._get_obs(self._ground_obs_next, self.u, self.c),
-            reward,
-            terminated,
-            truncated,
-            {},
-        )
+        obs = cast(ObsType, self._get_obs(self._ground_obs_next, self.u, self.c))
+        return obs, reward, terminated, truncated, {}
 
     def render(self) -> RenderFrame | list[RenderFrame] | None:
         """Render the cross product environment."""
