@@ -4,7 +4,10 @@ from typing import Any, Callable
 
 import numpy as np
 
-from pycrm.automaton.compiler import compile_transition_expression
+from pycrm.automaton.compiler import (
+    compile_transition_expression,
+    get_counter_test_arity,
+)
 
 
 class CountingRewardMachine(ABC):
@@ -30,6 +33,7 @@ class CountingRewardMachine(ABC):
 
         # Handle reward-transition function
         self._replace_ccrm_rewards()
+        self._validate_machine_spec()
         self._init_transition_functions()
 
     @property
@@ -159,6 +163,111 @@ class CountingRewardMachine(ABC):
 
         setattr(constant_reward_function, "_pycrm_constant_reward", float(constant))
         return constant_reward_function
+
+    def _validate_machine_spec(self) -> None:
+        """Validate transition maps and counter arities before runtime."""
+        c_0 = self._validate_initial_counter_configuration(self.c_0)
+        counter_arity = len(c_0)
+
+        for u, transitions in self._delta_u.items():
+            if u not in self._delta_c:
+                raise ValueError(f"Missing counter transition state {u}.")
+            if u not in self._delta_r:
+                raise ValueError(f"Missing reward transition state {u}.")
+
+            for expr in transitions:
+                self._validate_transition_expr(u, expr, counter_arity)
+                self._validate_transition_key(u, expr, self._delta_c, "counter")
+                self._validate_transition_key(u, expr, self._delta_r, "reward")
+                self._validate_counter_tuple(
+                    self._delta_c[u][expr],
+                    counter_arity,
+                    f"Counter delta for transition {u}: {expr!r}",
+                )
+
+        self._validate_unexpected_transition_keys(self._delta_c, "counter")
+        self._validate_unexpected_transition_keys(self._delta_r, "reward")
+        self._validate_sample_counter_configurations(counter_arity)
+
+    def _validate_initial_counter_configuration(
+        self, counter_configuration: object
+    ) -> tuple[int, ...]:
+        """Validate and return the initial counter configuration."""
+        if not isinstance(counter_configuration, tuple):
+            raise ValueError("Initial counter configuration c_0 must be a tuple.")
+
+        return counter_configuration
+
+    def _validate_transition_expr(self, u: int, expr: str, counter_arity: int) -> None:
+        """Validate one transition expression against the machine counter arity."""
+        try:
+            expression_arity = get_counter_test_arity(expr, self.env_prop_enum)
+        except ValueError as exc:
+            raise ValueError(f"Invalid transition {u}: {expr!r}. {exc}") from exc
+
+        if expression_arity != counter_arity:
+            raise ValueError(
+                f"Invalid transition {u}: {expr!r} expects "
+                + f"{expression_arity} counter value(s), "
+                + f"but c_0 has {counter_arity}."
+            )
+
+    def _validate_transition_key(
+        self,
+        u: int,
+        expr: str,
+        transition_map: dict,
+        transition_type: str,
+    ) -> None:
+        """Validate a transition key exists in a matching machine map."""
+        if expr in transition_map[u]:
+            return
+
+        if transition_type == "counter":
+            raise ValueError(
+                f"Missing counter configuration for transition {u}: {expr}"
+            )
+
+        raise ValueError(f"Missing reward function for transition {u}: {expr}")
+
+    def _validate_unexpected_transition_keys(
+        self, transition_map: dict, transition_type: str
+    ) -> None:
+        """Validate a matching machine map does not contain extra transition keys."""
+        for u, transitions in transition_map.items():
+            if u not in self._delta_u:
+                raise ValueError(f"Unexpected {transition_type} transition state {u}.")
+
+            for expr in transitions:
+                if expr not in self._delta_u[u]:
+                    raise ValueError(
+                        f"Unexpected {transition_type} transition "
+                        + f"for state {u}: {expr}"
+                    )
+
+    def _validate_counter_tuple(
+        self, value: object, counter_arity: int, description: str
+    ) -> None:
+        """Validate a counter tuple has the expected arity."""
+        if not isinstance(value, tuple):
+            raise ValueError(f"{description} must be a tuple.")
+
+        if len(value) != counter_arity:
+            raise ValueError(
+                f"{description} has arity {len(value)}, "
+                + f"but c_0 has {counter_arity}."
+            )
+
+    def _validate_sample_counter_configurations(self, counter_arity: int) -> None:
+        """Validate sampled counter configurations match the machine arity."""
+        for index, counter_configuration in enumerate(
+            self.sample_counter_configurations()
+        ):
+            self._validate_counter_tuple(
+                counter_configuration,
+                counter_arity,
+                f"Sample counter configuration {index}",
+            )
 
     def _init_transition_functions(self):
         """Initialise the transition functions."""
