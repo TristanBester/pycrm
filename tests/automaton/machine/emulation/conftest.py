@@ -30,12 +30,12 @@ class RewardMachineWithC0(CountingRewardMachine):
         """Return the state transition function for reward machine (no counters)."""
         return {
             0: {
-                "not EVENT_A": 0,
-                "EVENT_A": 1,
+                "not EVENT_A / (Z)": 0,
+                "EVENT_A / (Z)": 1,
             },
             1: {
-                "EVENT_B": -1,
-                "not EVENT_B": 1,
+                "EVENT_B / (Z)": -1,
+                "not EVENT_B / (Z)": 1,
             },
         }
 
@@ -43,12 +43,12 @@ class RewardMachineWithC0(CountingRewardMachine):
         """Return empty counter transition function for reward machine."""
         return {
             0: {
-                "not EVENT_A": (0,),
-                "EVENT_A": (0,),
+                "not EVENT_A / (Z)": (0,),
+                "EVENT_A / (Z)": (0,),
             },
             1: {
-                "EVENT_B": (0,),
-                "not EVENT_B": (0,),
+                "EVENT_B / (Z)": (0,),
+                "not EVENT_B / (Z)": (0,),
             },
         }
 
@@ -56,12 +56,12 @@ class RewardMachineWithC0(CountingRewardMachine):
         """Return the reward transition function."""
         return {
             0: {
-                "not EVENT_A": 0,
-                "EVENT_A": 0,
+                "not EVENT_A / (Z)": 0,
+                "EVENT_A / (Z)": 0,
             },
             1: {
-                "EVENT_B": 1,
-                "not EVENT_B": 0,
+                "EVENT_B / (Z)": 1,
+                "not EVENT_B / (Z)": 0,
             },
         }
 
@@ -96,12 +96,12 @@ class RewardMachineWithoutC0(CountingRewardMachine):
         """Return the state transition function for reward machine (no counters)."""
         return {
             0: {
-                "not EVENT_A": 0,
-                "EVENT_A": 1,
+                "not EVENT_A / (Z)": 0,
+                "EVENT_A / (Z)": 1,
             },
             1: {
-                "EVENT_B": -1,
-                "not EVENT_B": 1,
+                "EVENT_B / (Z)": -1,
+                "not EVENT_B / (Z)": 1,
             },
         }
 
@@ -109,12 +109,12 @@ class RewardMachineWithoutC0(CountingRewardMachine):
         """Return empty counter transition function for reward machine."""
         return {
             0: {
-                "not EVENT_A": (0,),
-                "EVENT_A": (0,),
+                "not EVENT_A / (Z)": (0,),
+                "EVENT_A / (Z)": (0,),
             },
             1: {
-                "EVENT_B": (0,),
-                "not EVENT_B": (0,),
+                "EVENT_B / (Z)": (0,),
+                "not EVENT_B / (Z)": (0,),
             },
         }
 
@@ -122,12 +122,12 @@ class RewardMachineWithoutC0(CountingRewardMachine):
         """Return the reward transition function."""
         return {
             0: {
-                "not EVENT_A": 0,
-                "EVENT_A": 0,
+                "not EVENT_A / (Z)": 0,
+                "EVENT_A / (Z)": 0,
             },
             1: {
-                "EVENT_B": 1,
-                "not EVENT_B": 0,
+                "EVENT_B / (Z)": 1,
+                "not EVENT_B / (Z)": 0,
             },
         }
 

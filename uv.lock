@@ -1157,6 +1157,7 @@ source = { editable = "." }
 dependencies = [
     { name = "gymnasium" },
     { name = "numpy" },
+    { name = "pyparsing" },
     { name = "stable-baselines3" },
     { name = "torch" },
     { name = "tqdm" },
@@ -1189,6 +1190,7 @@ requires-dist = [
     { name = "jax", marker = "extra == 'jax'", specifier = ">=0.4.30" },
     { name = "jax", marker = "extra == 'sbx'", specifier = ">=0.4.30" },
     { name = "numpy", specifier = ">=2.0.0" },
+    { name = "pyparsing", specifier = ">=3.2.3" },
     { name = "sbx-rl", marker = "extra == 'sbx'", specifier = ">=0.25.0" },
     { name = "stable-baselines3", specifier = ">=2.3.2" },
     { name = "torch", specifier = ">=2.0.0" },

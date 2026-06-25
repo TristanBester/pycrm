@@ -1,7 +1,119 @@
-import re
-import textwrap
-from enum import EnumMeta
-from typing import Callable
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum, EnumMeta
+from typing import (
+    Callable,
+    Collection,
+    Literal,
+    Mapping,
+    Sequence,
+    TypeAlias,
+    cast,
+)
+
+import pyparsing as pp
+
+CounterTest: TypeAlias = Literal["Z", "NZ", "-"]
+EventExpression: TypeAlias = (
+    "EventPredicate | Tautology | NotExpression | AndExpression | OrExpression"
+)
+
+_INVALID_TRANSITION_EXPRESSION = (
+    "Invalid transition expression. Required format is "
+    "'EVENT_FORMULA / COUNTER_STATES', "
+    "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'."
+)
+
+pp.ParserElement.enable_packrat()
+
+
+@dataclass(frozen=True)
+class Tautology:
+    """Event expression that always evaluates to true."""
+
+    def _evaluate(
+        self, props: Collection[Enum], event_members: Mapping[str, Enum]
+    ) -> bool:
+        del props, event_members
+        return True
+
+    def _event_names(self) -> set[str]:
+        return set()
+
+
+@dataclass(frozen=True)
+class EventPredicate:
+    """Event expression matching a single environment proposition."""
+
+    name: str
+
+    def _evaluate(
+        self, props: Collection[Enum], event_members: Mapping[str, Enum]
+    ) -> bool:
+        return event_members[self.name] in props
+
+    def _event_names(self) -> set[str]:
+        return {self.name}
+
+
+@dataclass(frozen=True)
+class NotExpression:
+    """Boolean negation expression."""
+
+    operand: EventExpression
+
+    def _evaluate(
+        self, props: Collection[Enum], event_members: Mapping[str, Enum]
+    ) -> bool:
+        return not self.operand._evaluate(props, event_members)
+
+    def _event_names(self) -> set[str]:
+        return self.operand._event_names()
+
+
+@dataclass(frozen=True)
+class AndExpression:
+    """Boolean conjunction expression."""
+
+    left: EventExpression
+    right: EventExpression
+
+    def _evaluate(
+        self, props: Collection[Enum], event_members: Mapping[str, Enum]
+    ) -> bool:
+        return self.left._evaluate(props, event_members) and self.right._evaluate(
+            props, event_members
+        )
+
+    def _event_names(self) -> set[str]:
+        return self.left._event_names() | self.right._event_names()
+
+
+@dataclass(frozen=True)
+class OrExpression:
+    """Boolean disjunction expression."""
+
+    left: EventExpression
+    right: EventExpression
+
+    def _evaluate(
+        self, props: Collection[Enum], event_members: Mapping[str, Enum]
+    ) -> bool:
+        return self.left._evaluate(props, event_members) or self.right._evaluate(
+            props, event_members
+        )
+
+    def _event_names(self) -> set[str]:
+        return self.left._event_names() | self.right._event_names()
+
+
+@dataclass(frozen=True)
+class TransitionExpression:
+    """Parsed CRM transition condition."""
+
+    event_expression: EventExpression
+    counter_tests: tuple[CounterTest, ...]
 
 
 def compile_transition_expression(expression: str, env_props: EnumMeta) -> Callable:
@@ -14,167 +126,131 @@ def compile_transition_expression(expression: str, env_props: EnumMeta) -> Calla
     Returns:
         A callable transition formula.
     """
-    wff_expr = _extract_wff(expression)
-    counter_state_expr = _extract_counter_states(expression)
+    parsed_expression = _parse_transition_expression(expression, env_props)
+    event_members = cast(Mapping[str, Enum], env_props.__members__)
+    event_expression = parsed_expression.event_expression
+    counter_tests = parsed_expression.counter_tests
 
-    wff_callable = _construct_wff_callable(wff_expr, env_props)
-    counter_state_callable = _construct_counter_state_callable(counter_state_expr)
+    def transition_formula(
+        props: Collection[Enum], counter_states: Sequence[int]
+    ) -> bool:
+        if len(counter_states) != len(counter_tests):
+            raise ValueError(
+                "Counter state arity mismatch. "
+                + f"Expected {len(counter_tests)} values, "
+                + f"received {len(counter_states)}."
+            )
 
-    func_template = textwrap.dedent("""
-    def transition_formula(props: list[EnumMeta], counter_states: list[int]) -> bool:
-        return wff_callable(props) and counter_state_callable(counter_states)
-    """)
-    local_namespace = {}
-    global_namespace = {
-        "wff_callable": wff_callable,
-        "counter_state_callable": counter_state_callable,
-        "EnumMeta": EnumMeta,
-    }
-    exec(func_template, global_namespace, local_namespace)
-    transition_formula = local_namespace["transition_formula"]
+        return event_expression._evaluate(
+            props, event_members
+        ) and _counter_tests_match(counter_tests, counter_states)
+
     return transition_formula
 
 
-def _extract_wff(expression: str) -> str:
-    if not len(expression):
-        raise ValueError(
-            "Invalid transition expression. "
-            + "Required format is 'WFF / COUNTER_STATES', "
-            + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
-        )
-
-    if "/" not in expression:
-        # Check if the parentheses are counter states (Z, NZ, -) or part of WFF
-        pattern = re.compile(r"\((?:\s*(?:Z|NZ|-)\s*,)*\s*(?:Z|NZ|-)\s*\)")
-        if pattern.search(expression):
-            raise ValueError(
-                "Invalid transition expression. "
-                + "Required format is 'WFF / COUNTER_STATES', "
-                + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
-            )
-        else:
-            # Reward machine expression, use counting reward machine emulation
-            expression += " /"
-    return expression.split("/")[0].strip()
+def get_counter_test_arity(expression: str, env_props: EnumMeta) -> int:
+    """Return the number of counter tests in a transition expression."""
+    parsed_expression = _parse_transition_expression(expression, env_props)
+    return len(parsed_expression.counter_tests)
 
 
-def _extract_counter_states(expression: str) -> str:
-    if not len(expression):
-        raise ValueError(
-            "Invalid transition expression. "
-            + "Required format is 'WFF / COUNTER_STATES', "
-            + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
-        )
+def _parse_transition_expression(
+    expression: str, env_props: EnumMeta
+) -> TransitionExpression:
+    if not expression.strip():
+        raise ValueError(_INVALID_TRANSITION_EXPRESSION)
 
-    if "/" not in expression:
-        pattern = re.compile(r"\((?:\s*(?:Z|NZ|-)\s*,)*\s*(?:Z|NZ|-)\s*\)")
+    grammar = _transition_expression_grammar()
+    try:
+        parsed = grammar.parse_string(expression, parse_all=True)
+    except pp.ParseBaseException as exc:
+        raise ValueError(_INVALID_TRANSITION_EXPRESSION) from exc
 
-        if pattern.search(expression):
-            raise ValueError(
-                "Invalid transition expression. "
-                + "Required format is 'WFF / COUNTER_STATES', "
-                + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
-            )
-        else:
-            # Reward machine expression, use counting reward machine emulation
-            return "(Z)"
-
-    counter_states = expression.split("/")[1].strip()
-    if counter_states == "" or "(" not in counter_states or ")" not in counter_states:
-        raise ValueError(
-            "Invalid transition expression. "
-            + "Required format is 'WFF / COUNTER_STATES', "
-            + "e.g. 'EVENT_A and not EVENT_B / (Z,NZ)'"
-        )
-    return counter_states
+    event_expression = cast(
+        EventExpression, parsed["event"] if "event" in parsed else Tautology()
+    )
+    counter_tests = cast(tuple[CounterTest, ...], tuple(parsed["counter_tests"]))
+    _validate_event_names(event_expression, env_props)
+    return TransitionExpression(event_expression, counter_tests)
 
 
-def _construct_callable_wff_expression_str_repr(
-    wff_expr: str, env_props: EnumMeta
-) -> str:
-    enum_name = env_props.__name__
+def _transition_expression_grammar() -> pp.ParserElement:
+    event_expression = _event_expression_grammar()
+    counter_tests = _counter_tests_grammar()
 
-    if wff_expr == "":
-        return "True"
-
-        # Handle logical operators first (case insensitive)
-    # Replace OR and AND first
-    wff_expr = re.sub(r"\bOR\b", "or", wff_expr, flags=re.IGNORECASE)
-    wff_expr = re.sub(r"\bAND\b", "and", wff_expr, flags=re.IGNORECASE)
-
-    # Handle NOT - this needs special handling for the "not in" syntax
-    # First, replace standalone NOT with "not"
-    wff_expr = re.sub(r"\bNOT\b", "not", wff_expr, flags=re.IGNORECASE)
-
-    # Fix the case where "not" appears between two expressions (should be "and not")
-    # This handles cases like "EVENT_A NOT EVENT_B" -> "EVENT_A and not EVENT_B"
-    # But avoid matching "and not" or "or not" which are already correct
-    # Use a more specific pattern that only matches when "not" is between
-    # two identifiers
-    wff_expr = re.sub(
-        r"(\b[A-Z_][A-Z0-9_]*\b)\s+not\s+(\b[A-Z_][A-Z0-9_]*\b)",
-        r"\1 and not \2",
-        wff_expr,
+    return (
+        pp.Optional(event_expression, default=Tautology())("event")
+        + pp.Suppress("/")
+        + counter_tests("counter_tests")
+        + pp.StringEnd()
     )
 
-    # Get the actual enum values to avoid matching logical operators
-    enum_values = list(env_props.__members__.keys())
 
-    # Replace each enum value with the proper enum reference
-    for enum_value in enum_values:
-        # Use word boundaries to avoid partial matches
-        wff_expr = re.sub(rf"\b{enum_value}\b", f"{enum_name}.{enum_value}", wff_expr)
+def _event_expression_grammar() -> pp.ParserElement:
+    identifier = pp.Word(pp.alphas + "_", pp.alphanums + "_")
+    identifier = identifier.set_parse_action(_event_predicate_action)
+    tau = pp.CaselessKeyword("TAU").set_parse_action(lambda _: Tautology())
 
-    # Add "in props" after each enum reference
-    wff_expr = re.sub(rf"{enum_name}\.(\w+)", rf"{enum_name}.\1 in props", wff_expr)
-
-    return wff_expr
-
-
-def _construct_wff_callable(wff_expr: str, env_props: EnumMeta) -> Callable:
-    wff_expr = _construct_callable_wff_expression_str_repr(wff_expr, env_props)
-    func_template = textwrap.dedent(f"""
-    def wff(props):
-        return {wff_expr}
-    """)
-
-    local_namespace = {}
-    global_namespace = {env_props.__name__: env_props}
-    exec(func_template, global_namespace, local_namespace)
-    wff = local_namespace["wff"]
-    return wff
-
-
-def _construct_callable_counter_state_str_repr(counter_states: str) -> str:
-    counter_expr = counter_states.replace(" ", "")
-    counter_expr = counter_expr.replace("(", "").replace(")", "")
-    condition_ls = counter_expr.split(",")
-
-    conditions = []
-    for i, c in enumerate(condition_ls):
-        if c == "Z":
-            conditions.append(f"counters[{i}] == 0")
-        elif c == "NZ":
-            conditions.append(f"counters[{i}] == 1")
-        elif c == "-":
-            conditions.append("True")
-        else:
-            raise ValueError(f"Invalid counter expression {c}.")
-
-    conditions = " and ".join(conditions)
-    return conditions
+    atom = tau | identifier
+    return pp.infix_notation(
+        atom,
+        [
+            (
+                pp.CaselessKeyword("not"),
+                1,
+                pp.opAssoc.RIGHT,
+                lambda tokens: NotExpression(tokens[0][1]),
+            ),
+            (
+                pp.CaselessKeyword("and"),
+                2,
+                pp.opAssoc.LEFT,
+                lambda tokens: _fold_binary_expression(tokens[0], AndExpression),
+            ),
+            (
+                pp.CaselessKeyword("or"),
+                2,
+                pp.opAssoc.LEFT,
+                lambda tokens: _fold_binary_expression(tokens[0], OrExpression),
+            ),
+        ],
+    )
 
 
-def _construct_counter_state_callable(counter_states: str) -> Callable:
-    counter_expr = _construct_callable_counter_state_str_repr(counter_states)
-    func_template = textwrap.dedent(f"""
-    def counter_conditions(counters):
-        counters = [0 if c == 0 else 1 for c in counters]
-        return {counter_expr}
-    """)
+def _counter_tests_grammar() -> pp.ParserElement:
+    counter_test = pp.Keyword("NZ") | pp.Keyword("Z") | pp.Literal("-")
+    return pp.Group(
+        pp.Suppress("(") + pp.delimited_list(counter_test, min=1) + pp.Suppress(")")
+    )
 
-    local_namespace = {}
-    global_namespace = {}
-    exec(func_template, global_namespace, local_namespace)
-    counter_conditions = local_namespace["counter_conditions"]
-    return counter_conditions
+
+def _event_predicate_action(tokens: pp.ParseResults) -> EventPredicate:
+    return EventPredicate(str(tokens[0]))
+
+
+def _fold_binary_expression(tokens: pp.ParseResults, expression_type: type) -> object:
+    expression = tokens[0]
+    for index in range(2, len(tokens), 2):
+        expression = expression_type(expression, tokens[index])
+    return expression
+
+
+def _validate_event_names(expression: EventExpression, env_props: EnumMeta) -> None:
+    unknown_events = sorted(expression._event_names() - set(env_props.__members__))
+    if unknown_events:
+        event_list = ", ".join(unknown_events)
+        raise ValueError(
+            _INVALID_TRANSITION_EXPRESSION + f" Unknown event(s): {event_list}."
+        )
+
+
+def _counter_tests_match(
+    counter_tests: tuple[CounterTest, ...], counter_states: Sequence[int]
+) -> bool:
+    for test, counter in zip(counter_tests, counter_states, strict=True):
+        if test == "Z" and counter != 0:
+            return False
+        if test == "NZ" and counter == 0:
+            return False
+
+    return True

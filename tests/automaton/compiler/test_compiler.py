@@ -1,129 +1,137 @@
+import inspect
+
 import pytest
 
+from pycrm.automaton import RewardMachine, RmToCrmAdapter
 from pycrm.automaton.compiler import compile_transition_expression
 from tests.conftest import EnvProps
 
 
-class TestTransitionExpressionCompilation:
-    """Tests for the transition expression compilation function."""
+class AdapterRewardMachine(RewardMachine):
+    """Reward machine used to verify RM-to-CRM parser integration."""
 
-    def test_simple_transition_expression(self) -> None:
-        """Test compilation of transition expression with single event and counter.
+    def __init__(self) -> None:
+        """Initialise the reward machine."""
+        super().__init__(env_prop_enum=EnvProps)
 
-        Tests a basic transition expression "EVENT_A / (Z)" which should evaluate
-        to True only when EVENT_A is present and the counter value is 0.
-        """
-        transition_expr = "EVENT_A / (Z)"
-        transition_callable = compile_transition_expression(transition_expr, EnvProps)
-        assert transition_callable([EnvProps.EVENT_A], [0]) is True
-        assert transition_callable([EnvProps.EVENT_A], [1]) is False
-        assert transition_callable([EnvProps.EVENT_B], [0]) is False
-        assert transition_callable([EnvProps.EVENT_B], [1]) is False
+    @property
+    def u_0(self) -> int:
+        """Return the initial state."""
+        return 0
 
-    def test_complex_transition_expression(self) -> None:
-        """Test compilation of a complex transition expression with multiple conditions.
+    def _get_state_transition_function(self) -> dict:
+        """Return the state transition function."""
+        return {
+            0: {
+                "EVENT_A": 1,
+                "not EVENT_A": 0,
+            }
+        }
 
-        Tests the transition expression "EVENT_A and not EVENT_B / (Z, NZ)" which should
-        evaluate to True only when EVENT_A is present without EVENT_B, and the first
-        counter is 0 while the second is non-zero.
-        """
-        transition_expr = "EVENT_A and not EVENT_B / (Z, NZ)"
-        transition_callable = compile_transition_expression(transition_expr, EnvProps)
-        assert (
-            transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0, 1]) is False
-        )
-        assert (
-            transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [1, 0]) is False
-        )
-        assert transition_callable([EnvProps.EVENT_A], [0, 0]) is False
-        assert transition_callable([EnvProps.EVENT_A], [0, 1]) is True
-        assert transition_callable([EnvProps.EVENT_B], [0, 0]) is False
-        assert transition_callable([EnvProps.EVENT_B], [0, 1]) is False
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+        return {
+            0: {
+                "EVENT_A": 1,
+                "not EVENT_A": 0,
+            }
+        }
 
-    def test_de_morgans_law_expression(self) -> None:
-        """Test compilation of a complex transition expression with multiple conditions.
 
-        Tests the transition expression "not (EVENT_A or EVENT_B) / (Z)" which should
-        evaluate to True only when EVENT_A is not present and EVENT_B is not present,
-        and the counter is 0.
-        """
-        transition_expr = "not (EVENT_A or EVENT_B) / (Z)"
-        transition_callable = compile_transition_expression(transition_expr, EnvProps)
-        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is False
-        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [1]) is False
-        assert transition_callable([EnvProps.EVENT_A], [0]) is False
-        assert transition_callable([EnvProps.EVENT_A], [1]) is False
-        assert transition_callable([EnvProps.EVENT_B], [0]) is False
-        assert transition_callable([EnvProps.EVENT_B], [1]) is False
-        assert transition_callable([], [0]) is True
-        assert transition_callable([], [1]) is False
+@pytest.mark.parametrize(
+    ("expression", "props", "counter_states", "expected"),
+    [
+        ("EVENT_A / (Z)", [EnvProps.EVENT_A], [0], True),
+        ("EVENT_A / (Z)", [EnvProps.EVENT_A], [1], False),
+        ("EVENT_A / (NZ)", [EnvProps.EVENT_A], [3], True),
+        ("EVENT_A / (NZ)", [EnvProps.EVENT_A], [0], False),
+        ("EVENT_A / (NZ)", [EnvProps.EVENT_A], [-1], True),
+        ("EVENT_A / (-)", [EnvProps.EVENT_A], [0], True),
+        ("EVENT_A / (-)", [EnvProps.EVENT_A], [10], True),
+        ("EVENT_A and not EVENT_B / (Z,NZ)", [EnvProps.EVENT_A], [0, 1], True),
+        (
+            "EVENT_A and not EVENT_B / (Z,NZ)",
+            [EnvProps.EVENT_A, EnvProps.EVENT_B],
+            [0, 1],
+            False,
+        ),
+        ("not (EVENT_A or EVENT_B) / (Z)", [], [0], True),
+        ("not (EVENT_A or EVENT_B) / (Z)", [EnvProps.EVENT_A], [0], False),
+        ("(EVENT_A and EVENT_B) or EVENT_B / (Z)", [EnvProps.EVENT_B], [0], True),
+        ("/ (Z,-)", [EnvProps.EVENT_A], [0, 1], True),
+        ("/ (Z,-)", [EnvProps.EVENT_A], [1, 1], False),
+        ("TAU / (-)", [], [1], True),
+        ("tau / (-)", [], [1], True),
+        ("EVENT_A Or EVENT_B / (Z)", [EnvProps.EVENT_B], [0], True),
+        ("EVENT_A AND NOT EVENT_B / (Z)", [EnvProps.EVENT_A], [0], True),
+    ],
+)
+def test_compile_transition_expression(
+    expression: str,
+    props: list[EnvProps],
+    counter_states: list[int],
+    expected: bool,
+) -> None:
+    """Test transition expressions accepted by the CRM grammar."""
+    transition_callable = compile_transition_expression(expression, EnvProps)
+    assert transition_callable(props, counter_states) is expected
 
-    def test_tautological_transition_expression(self) -> None:
-        """Test compilation of a tautological transition expression.
 
-        Tests the transition expression "/ (Z, -)" which should evaluate to True
-        regardless of events present, as long as the first counter is 0 (second counter
-        is ignored due to '-' wildcard).
-        """
-        transition_expr = "/ (Z, -)"
-        transition_callable = compile_transition_expression(transition_expr, EnvProps)
-        assert transition_callable([], [0, 0]) is True
-        assert transition_callable([], [0, 1]) is True
-        assert transition_callable([], [1, 1]) is False
-        assert transition_callable([EnvProps.EVENT_A], [0, 1]) is True
-        assert transition_callable([EnvProps.EVENT_B], [0, 1]) is True
-        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0, 1]) is True
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "",
+        "EVENT_A",
+        "EVENT_A /",
+        "EVENT_A / Z",
+        "EVENT_A / ()",
+        "EVENT_A / (z)",
+        "UNKNOWN / (Z)",
+        "len(props) == 0 / (Z)",
+        "__import__('os') / (Z)",
+        "EVENT_A / (Z) extra",
+        "EVENT_A / (Z) / (Z)",
+        "EVENT_A NOT EVENT_B / (Z)",
+        "42 / (Z)",
+    ],
+)
+def test_compile_transition_expression_rejects_invalid_dsl(
+    expression: str,
+) -> None:
+    """Test expressions outside the CRM grammar are rejected."""
+    with pytest.raises(ValueError) as exc_info:
+        compile_transition_expression(expression, EnvProps)
 
-    def test_invalid_wff_transition_expression(self) -> None:
-        """Test compilation fails for invalid well-formed formula transition expression.
+    assert "Invalid transition expression" in str(exc_info.value)
 
-        Tests that compiling an expression with incorrect counter conditions
-        ("EVENT_A and not EVENT_B (Z, Z, Z)") raises a ValueError with appropriate
-        message.
 
-        Raises:
-            ValueError: When transition expression is missing counter conditions.
-        """
-        transition_expr = "EVENT_A and not EVENT_B (Z, Z, Z)"
-        with pytest.raises(ValueError) as exc_info:
-            compile_transition_expression(transition_expr, EnvProps)
-        assert "Invalid transition expression." in str(exc_info.value)
+def test_compile_transition_expression_rejects_counter_arity_mismatch() -> None:
+    """Test counter vectors must match the parsed zero-test vector."""
+    transition_callable = compile_transition_expression("EVENT_A / (Z,NZ)", EnvProps)
 
-    def test_invalid_counter_state_transition_expression(self) -> None:
-        """Test compilation fails for invalid counter state specification.
+    with pytest.raises(ValueError) as exc_info:
+        transition_callable([EnvProps.EVENT_A], [0])
 
-        Tests that compiling an expression with improperly formatted counter conditions
-        ("EVENT_A / Z" instead of "EVENT_A / (Z)") raises a ValueError.
+    assert "Counter state arity mismatch" in str(exc_info.value)
 
-        Raises:
-            ValueError: When counter state specification is improperly formatted.
-        """
-        transition_expr = "EVENT_A / Z"
-        with pytest.raises(ValueError) as exc_info:
-            compile_transition_expression(transition_expr, EnvProps)
-        assert "Invalid transition expression." in str(exc_info.value)
 
-    def test_case_insensitive_logical_operators(self) -> None:
-        """Test compilation of transition expressions with case-insensitive ops."""
-        # Test uppercase operators
-        transition_expr = "EVENT_A NOT EVENT_B / (Z)"
-        transition_callable = compile_transition_expression(transition_expr, EnvProps)
-        assert transition_callable([EnvProps.EVENT_A], [0]) is True
-        assert transition_callable([EnvProps.EVENT_B], [0]) is False
-        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is False
+def test_compile_transition_expression_returns_expected_signature() -> None:
+    """Test the compiled callable has the expected public parameter names."""
+    transition_callable = compile_transition_expression("EVENT_A / (Z)", EnvProps)
 
-        # Test mixed case operators
-        transition_expr = "EVENT_A Or EVENT_B / (Z)"
-        transition_callable = compile_transition_expression(transition_expr, EnvProps)
-        assert transition_callable([EnvProps.EVENT_A], [0]) is True
-        assert transition_callable([EnvProps.EVENT_B], [0]) is True
-        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is True
-        assert transition_callable([], [0]) is False
+    assert callable(transition_callable)
+    assert list(inspect.signature(transition_callable).parameters) == [
+        "props",
+        "counter_states",
+    ]
 
-        # Test complex expression with mixed case
-        transition_expr = "NOT (EVENT_A And EVENT_B) / (Z)"
-        transition_callable = compile_transition_expression(transition_expr, EnvProps)
-        assert transition_callable([], [0]) is True
-        assert transition_callable([EnvProps.EVENT_A], [0]) is True
-        assert transition_callable([EnvProps.EVENT_B], [0]) is True
-        assert transition_callable([EnvProps.EVENT_A, EnvProps.EVENT_B], [0]) is False
+
+def test_reward_machine_adapter_converts_rm_expressions_to_crm_dsl() -> None:
+    """Test RM event formulas still work through the adapter."""
+    adapter = RmToCrmAdapter(AdapterRewardMachine())
+
+    u_next, c_next, reward_fn = adapter.transition(0, (0,), {EnvProps.EVENT_A})
+
+    assert u_next == 1
+    assert c_next == (0,)
+    assert reward_fn(None, None, None) == 1.0

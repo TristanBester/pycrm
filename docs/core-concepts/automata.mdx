@@ -257,35 +257,42 @@ This CRM defines a task that:
 
 ## Transition Expression Syntax
 
-Counting Reward Machines use a specific syntax for transition expressions:
+Counting Reward Machines use a specific syntax for transition conditions:
 
 <Info>
-    Reward Machines do not make use of counter conditions in their transition functions. All other syntax is the same.
+    Counting Reward Machine expressions must include the counter-condition separator.
+    Reward Machines use the same event formula syntax without counters; internally,
+    the RM adapter converts them into CRM expressions.
 </Info>
 
 
 ```
-"EVENT_EXPRESSION / COUNTER_CONDITION"
+"EVENT_FORMULA / COUNTER_STATES"
 ```
 
 ### Event Expressions (Well-Formed Formulas)
 
-The event expression part supports Boolean logic, allowing for complex combinations:
+The event formula `φ` is a propositional formula over the environment event enum.
+Event names are case-sensitive and Boolean operators are case-insensitive:
 
 - Single event: `"A / (-)"`
 - Logical AND: `"A and B / (-)"` (both A and B must occur)
 - Logical OR: `"A or B / (-)"` (either A or B must occur)
 - Logical NOT: `"not A / (-)"` (A must not occur)
+- Tautology/default: `"/ (-)"` or `"TAU / (-)"` (only the counter condition matters)
 - Complex expressions:
   - `"A and not B / (-)"` (A must occur and B must not occur)
   - `"not (A or B) / (-)"` (neither A nor B can occur)
   - `"(A and B) or C / (-)"` (either both A and B, or C must occur)
 
-These are called well-formed formulas (WFFs) and provide powerful logical conditions.
+Use explicit Boolean operators between event formulas. For example, write
+`"A and not B / (-)"`; shorthand such as `"A NOT B / (-)"` is not valid.
 
 ### Counter Conditions
 
-For Counting Reward Machines, counter conditions specify requirements for counters:
+For Counting Reward Machines, the counter-state vector `ω` specifies zero-test
+requirements for each counter. The vector length must match the machine counter
+configuration length:
 
 - Any value: `"A / (-)"`
 - Zero: `"A / (Z)"`

@@ -3,6 +3,7 @@ authors = [{name = "Tristan Bester", email = "tristanbester@email.com"}]
 dependencies = [
   "gymnasium>=0.29.1",
   "numpy>=2.0.0",
+  "pyparsing>=3.2.3",
   "stable-baselines3>=2.3.2",
   "torch>=2.0.0",
   "tqdm>=4.67.1",
