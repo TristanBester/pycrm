@@ -134,3 +134,63 @@ The wall-clock-to-solve comparison in particular is CPU-specific: on GPU/TPU the
 JAX arm's per-step throughput advantage grows by orders of magnitude, which can
 flip the wall-clock-to-solve result even though sample efficiency (env-steps to
 solve) is a backend-independent property that would still favor SB3 here.
+
+## Running on TPU (Colab)
+
+The CPU numbers above show sample efficiency favors SB3; the point of a TPU run
+is the *other* axis — raw throughput. The companion notebook
+`notebooks/letterworld_tpu_demo.ipynb` runs this comparison on a Colab TPU so
+you can see the throughput asymmetry directly.
+
+**What the notebook does.** It shallow-clones the `experimental/jax` branch,
+installs `jax[tpu]` plus the demo deps, then runs the same Anakin-vs-SB3
+LetterWorld comparison across **5 seeds** on a TPU. It plots **mean eval return
+(y) vs wall-clock seconds (x)** with both arms overlaid — per-seed curves plus a
+mean±std band — so the JAX curve reaching high return far to the left (less
+wall-clock) is the deliverable.
+
+**How to open it.** In Colab: *File → Open notebook → GitHub*, enter
+`TristanBester/pycrm`, select branch **`experimental/jax`**, and open
+`notebooks/letterworld_tpu_demo.ipynb`. Then set the accelerator via
+*Runtime → Change runtime type → **TPU*** before running from the top.
+
+**The Option-C config.** The JAX arm scales `num_envs` (its native vmapped
+parallelism) to fill the TPU, and **both** arms use a matched, raised update
+ratio via `env_steps_per_update`. The notebook's default knobs — all editable in
+its config cell — are:
+
+- `NUM_ENVS = 512` (JAX-only; try 1024 / 2048 to fill the TPU),
+- `ENV_STEPS_PER_UPDATE = 2` (the matched update ratio, applied to both arms),
+- JAX budget `750_000` env-steps, SB3 budget `150_000` env-steps,
+- `SEEDS = 5`.
+
+**Fairness framing (same four points as the notebook).**
+
+1. **`num_envs` scaling is JAX-only** — running hundreds/thousands of vmapped
+   environments per rollout is JAX's native execution model, not an edge handed
+   to it; SB3 has no equivalent knob here.
+2. **The update ratio is matched on both arms.** `env_steps_per_update` (and the
+   resulting updates/rollout) is applied identically to Anakin and SB3. The same
+   ratio is **cheap** for a jitted JAX kernel and **expensive** for SB3's PyTorch
+   training loop — that asymmetry, at equal work, is the architectural point.
+3. **Everything else is identical:** network architecture, discount γ, learning
+   rate, batch size, replay-buffer size, target-update interval, the ε-greedy
+   schedule, and the eval protocol (every `K = 2000` env-steps over `N = 20`
+   greedy episodes, "solved" at ≥ 0.95 success).
+4. **SB3 runs on the TPU VM's CPU.** Stable-Baselines3 uses PyTorch, which is
+   **not** using the TPU here — it runs on the host CPU of the same Colab VM.
+
+**Honest caveats.**
+
+- **The TPU result is produced by *your own* Colab run** — it was **not** run or
+  validated by the authors. Only the CPU numbers in §4 are author-observed.
+- **`import stoa` on TPU is unverified** until you run it. The notebook includes a
+  make-or-break guard that imports `stoa` and forces a trivial op onto the TPU
+  device before the full run. If it fails (mirroring the confirmed `jax-metal`
+  incompatibility that breaks `import stoa`), the documented fallback is a **CPU
+  restart**: add a top cell setting `os.environ["JAX_PLATFORMS"] = "cpu"` before
+  any `import jax`, *Runtime → Restart runtime*, then re-run — JAX binds its
+  backend once per kernel and cannot be hot-swapped mid-session.
+- **LetterWorld is tiny**, so the TPU only pays off with enough parallelism. You
+  may need to scale `NUM_ENVS` up (1024 / 2048) to see the throughput advantage;
+  at small `num_envs` the TPU can be under-fed and unimpressive.
