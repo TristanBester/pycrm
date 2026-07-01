@@ -194,3 +194,10 @@ its config cell — are:
 - **LetterWorld is tiny**, so the TPU only pays off with enough parallelism. You
   may need to scale `NUM_ENVS` up (1024 / 2048) to see the throughput advantage;
   at small `num_envs` the TPU can be under-fed and unimpressive.
+- **The `K = 2000` eval and 500-env-step target-update intervals are exact at the
+  frozen defaults but coarsen as you scale `NUM_ENVS`.** A JAX rollout spans
+  `num_envs × ROLLOUT` env-steps, so at e.g. `NUM_ENVS = 512` a rollout is 8192
+  env-steps and the JAX arm's target-sync and eval each fire once per rollout
+  (≈ every 8192 steps) rather than every 500 / 2000. This is a batched-execution
+  granularity artifact — if anything it slightly *disfavors* the JAX arm (fewer
+  target refreshes, coarser eval curve), not a tilt in its favor.
