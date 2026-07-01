@@ -100,8 +100,25 @@ class _EvalRecorder(BaseCallback):
         return True
 
 
-def run_sb3_dqn(total_timesteps: int, seed: int, log_dir: str) -> dict:
-    """Train SB3 DQN and return matched learning-curve + throughput metrics."""
+def run_sb3_dqn(
+    total_timesteps: int,
+    seed: int,
+    log_dir: str,
+    env_steps_per_update: int = 4,
+    gradient_steps: int = 1,
+) -> dict:
+    """Train SB3 DQN and return matched learning-curve + throughput metrics.
+
+    Args:
+        total_timesteps: Total number of env-steps to train for.
+        seed: PRNG seed for the env, model, and eval.
+        log_dir: Directory to write the per-eval progress CSV.
+        env_steps_per_update: Env-steps collected per update via SB3's
+            ``train_freq`` (ratio ``gradient_steps/env_steps_per_update``); the
+            default of 4 matches SB3's own default and the frozen baseline.
+        gradient_steps: Gradient updates performed each time ``train_freq`` is
+            reached; defaults to 1 (SB3's default and the frozen baseline).
+    """
     env = make_env(seed)
     model = DQN(
         "MlpPolicy",
@@ -115,6 +132,8 @@ def run_sb3_dqn(total_timesteps: int, seed: int, log_dir: str) -> dict:
         exploration_fraction=EXPLORATION_FRACTION,
         exploration_initial_eps=EPS_START,
         exploration_final_eps=EPS_END,
+        train_freq=env_steps_per_update,
+        gradient_steps=gradient_steps,
         policy_kwargs={"net_arch": list(HIDDEN)},
         seed=seed,
         verbose=0,

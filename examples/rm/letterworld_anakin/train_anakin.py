@@ -313,7 +313,11 @@ def _greedy_eval(params, eval_env, key, num_episodes):
 
 
 def run_anakin_dqn(
-    total_timesteps: int, seed: int, log_dir: str, num_envs: int = 64
+    total_timesteps: int,
+    seed: int,
+    log_dir: str,
+    num_envs: int = 64,
+    env_steps_per_update: int = 4,
 ) -> dict:
     """Train a single-DQN end-to-end in JAX on the wrapped LetterWorld env.
 
@@ -323,6 +327,15 @@ def run_anakin_dqn(
     greedy eval (every ``EVAL_EVERY`` env-steps over ``EVAL_EPISODES`` episodes)
     records the eval curve; "solved" is an eval reaching the RM terminal
     (``StepType.TERMINATED``) with a success rate of at least 0.95.
+
+    Args:
+        total_timesteps: Total number of env-steps to train for.
+        seed: PRNG seed for params, resets, exploration, and eval.
+        log_dir: Directory to write the per-eval progress CSV.
+        num_envs: Number of vmapped environments in the rollout.
+        env_steps_per_update: Number of env-steps per gradient update (ratio
+            ``1/env_steps_per_update``); the default of 4 reproduces the frozen
+            baseline. Higher values yield fewer, cheaper updates per rollout.
     """
     env = build_wrapped_env(num_envs)
     optimizer = optax.adam(LR)
@@ -336,7 +349,7 @@ def run_anakin_dqn(
 
     schedule_steps = max(int(EXPLORATION_FRACTION * total_timesteps), 1)
     n_iterations = max(total_timesteps // (num_envs * ROLLOUT), 1)
-    updates_per_rollout = max((num_envs * ROLLOUT) // 4, 1)
+    updates_per_rollout = max((num_envs * ROLLOUT) // env_steps_per_update, 1)
     target_update_every = max(TARGET_UPDATE // (num_envs * ROLLOUT), 1)
 
     reset_keys = jax.random.split(reset_key, num_envs)

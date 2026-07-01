@@ -155,3 +155,27 @@ def test_anakin_dqn_smoke_and_schema() -> None:
     assert m["steps_per_sec"] > 0
     assert all(np.isfinite(x) for x in m["mean_return"])
     assert 0.0 <= min(m["success_rate"]) and max(m["success_rate"]) <= 1.0
+
+
+def test_trainers_accept_env_steps_per_update() -> None:
+    """Both trainers accept a matched env_steps_per_update knob and still run."""
+    from examples.rm.letterworld_anakin.train_anakin import run_anakin_dqn
+    from examples.rm.letterworld_anakin.train_sb3 import run_sb3_dqn
+
+    m = run_anakin_dqn(
+        total_timesteps=2048,
+        seed=0,
+        log_dir="/tmp/lw_p",
+        num_envs=8,
+        env_steps_per_update=2,
+    )
+    assert m["backend"] == "anakin_dqn"
+    for k in ("eval_steps", "eval_wall", "success_rate", "mean_return"):
+        assert len(m[k]) == len(m["eval_steps"]) and len(m["eval_steps"]) >= 1
+    assert all(np.isfinite(x) for x in m["mean_return"])
+
+    s = run_sb3_dqn(
+        total_timesteps=3000, seed=0, log_dir="/tmp/lw_p3", env_steps_per_update=2
+    )
+    assert s["backend"] == "sb3_dqn"
+    assert len(s["success_rate"]) >= 1
