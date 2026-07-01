@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
@@ -51,8 +52,8 @@ def test_symbol_flip_is_bernoulli_half_at_A_only() -> None:  # noqa: N802
     )
     keys = jax.random.split(jax.random.PRNGKey(0), 2000)
 
-    def flip_seen(state: dyn.LetterWorldGroundState) -> jax.Array:
-        def step(k: jax.Array) -> jax.Array:
+    def flip_seen(state: dyn.LetterWorldGroundState) -> Any:
+        def step(k: Any) -> Any:
             return dyn.step_ground(state, jnp.asarray(dyn.LEFT), k).symbol_seen
 
         return jax.vmap(step)(keys)

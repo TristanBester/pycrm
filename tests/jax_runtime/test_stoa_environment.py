@@ -8,7 +8,7 @@ jnp = pytest.importorskip("jax.numpy")
 jax = pytest.importorskip("jax")
 pytest.importorskip("stoa")
 
-from typing import NamedTuple  # noqa: E402
+from typing import Any, NamedTuple  # noqa: E402
 
 from stoa.env_types import StepType, TimeStep  # noqa: E402
 from stoa.environment import Environment  # noqa: E402
@@ -19,8 +19,8 @@ from tests.crossproduct.conftest import CRM, Events  # noqa: E402
 
 
 class _ToyState(NamedTuple):
-    obs: jax.Array
-    key: jax.Array
+    obs: Any
+    key: Any
 
 
 class _ToyGround(Environment):
@@ -29,13 +29,18 @@ class _ToyGround(Environment):
     def __init__(self) -> None:
         pass
 
-    def reset(self, rng_key, env_params=None):
+    def reset(
+        self, rng_key: Any, env_params: Any | None = None
+    ) -> tuple[_ToyState, Any]:
+        del env_params
         obs = jnp.asarray([0], dtype=jnp.int32)
         ts = TimeStep(StepType.FIRST, jnp.asarray(0.0), jnp.asarray(1.0), obs, {})
         return _ToyState(obs=obs, key=rng_key), ts
 
-    def step(self, state, action, env_params=None):
-        del action
+    def step(
+        self, state: Any, action: Any, env_params: Any | None = None
+    ) -> tuple[_ToyState, Any]:
+        del action, env_params
         obs = jnp.asarray([1], dtype=jnp.int32)
         ts = TimeStep(StepType.MID, jnp.asarray(0.0), jnp.asarray(1.0), obs, {})
         return _ToyState(obs=obs, key=state.key), ts

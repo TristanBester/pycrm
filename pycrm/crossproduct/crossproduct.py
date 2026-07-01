@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Generic, TypeVar, cast
+from typing import Any, Generic, TypeVar, cast
 
 import gymnasium as gym
 import numpy as np
@@ -89,7 +89,7 @@ class CrossProduct(ABC, gym.Env, Generic[GroundObsType, ObsType, ActType, Render
         obs = cast(ObsType, self._get_obs(self._ground_obs_next, self.u, self.c))
         return obs, reward, terminated, truncated, {}
 
-    def render(self) -> RenderFrame | list[RenderFrame] | None:
+    def render(self) -> Any:
         """Render the cross product environment."""
         return self.ground_env.render()
 
