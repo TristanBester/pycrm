@@ -2,9 +2,15 @@
 authors = [{name = "Tristan Bester", email = "tristanbester@email.com"}]
 dependencies = [
   "gymnasium>=0.29.1",
+  "jax>=0.6.2",
+  "jax-metal>=0.1.0; platform_system == 'Darwin' and platform_machine == 'arm64'",
+  "matplotlib>=3.10.0",
   "numpy>=2.0.0",
+  "optax>=0.2.5",
   "pyparsing>=3.2.3",
+  "sbx-rl>=0.27.0",
   "stable-baselines3>=2.3.2",
+  "tensorboard>=2.19.0",
   "torch>=2.0.0",
   "tqdm>=4.67.1",
 ]
@@ -22,11 +28,19 @@ sbx = [
   "jax>=0.4.30",
   "sbx-rl>=0.25.0",
 ]
+stoix = [
+  "jax>=0.6.2",
+  "jumanji>=1.0.0",
+  "stoa-env>=0.1.2",
+]
 
 [dependency-groups]
 examples = [
   "wandb>=0.19.10",
   "tensorboard>=2.19.0",
+  "gymnax>=0.0.8",
+  "jumanji>=1.0.0",
+  "stoa-env>=0.1.2",
 ]
 
 [tool.uv]

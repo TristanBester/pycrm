@@ -32,7 +32,7 @@ from examples.rm.tabular.core.label import (
 from examples.rm.tabular.core.machine import OfficeWorldRewardMachine
 from pycrm.automaton import CountingRewardMachine, RmToCrmAdapter
 from pycrm.crossproduct import CrossProduct
-from pycrm.jax import JaxCrossProduct, compile_crm
+from pycrm.jax import FunctionalJaxCrossProduct, compile_crm
 
 N_ACTIONS = 4
 
@@ -53,7 +53,7 @@ class TabularBenchmarkTask:
     name: str
     title: str
     make_python_env: Callable[[int], CrossProduct]
-    make_jax_env: Callable[[int], JaxCrossProduct]
+    make_jax_env: Callable[[int], FunctionalJaxCrossProduct]
     q_shape: Callable[[int], tuple[int, ...]]
     python_obs_index: Callable[[np.ndarray, int], tuple[int, ...]]
     jax_obs_index: Callable[[Any, int], tuple[Any, ...]]
@@ -583,7 +583,7 @@ def _make_jax_training_fn(
 
 def _jax_counterfactual_update(
     *,
-    env: JaxCrossProduct,
+    env: FunctionalJaxCrossProduct,
     task: TabularBenchmarkTask,
     q_table,
     ground_obs,
@@ -625,8 +625,8 @@ def _make_letter_python_env(max_steps: int) -> LetterWorldCrossProduct:
     )
 
 
-def _make_letter_jax_env(max_steps: int) -> JaxCrossProduct:
-    return JaxCrossProduct(
+def _make_letter_jax_env(max_steps: int) -> FunctionalJaxCrossProduct:
+    return FunctionalJaxCrossProduct(
         compiled_crm=compile_crm(LetterWorldCountingRewardMachine()),
         reset_fn=_jax_letter_reset,
         step_fn=_jax_letter_step,
@@ -719,8 +719,8 @@ def _make_office_rm_python_env(max_steps: int) -> RmOfficeWorldCrossProduct:
     )
 
 
-def _make_office_rm_jax_env(max_steps: int) -> JaxCrossProduct:
-    return JaxCrossProduct(
+def _make_office_rm_jax_env(max_steps: int) -> FunctionalJaxCrossProduct:
+    return FunctionalJaxCrossProduct(
         compiled_crm=compile_crm(OfficeWorldRewardMachine()),
         reset_fn=_jax_office_reset,
         step_fn=_jax_office_step,
@@ -769,8 +769,8 @@ def _make_office_crm_python_env(max_steps: int) -> CrmOfficeWorldCrossProduct:
     )
 
 
-def _make_office_crm_jax_env(max_steps: int) -> JaxCrossProduct:
-    return JaxCrossProduct(
+def _make_office_crm_jax_env(max_steps: int) -> FunctionalJaxCrossProduct:
+    return FunctionalJaxCrossProduct(
         compiled_crm=compile_crm(OfficeWorldCountingRewardMachine()),
         reset_fn=_jax_office_reset,
         step_fn=_jax_office_step,

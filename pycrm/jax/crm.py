@@ -28,7 +28,11 @@ class JaxCompiledCRM:
     env_props: tuple[Enum, ...]
 
 
-def compile_crm(crm: CountingRewardMachine | RewardMachine) -> JaxCompiledCRM:
+def compile_crm(
+    crm: CountingRewardMachine | RewardMachine,
+    *,
+    allow_dynamic_rewards: bool = False,
+) -> JaxCompiledCRM:
     """Compile a counting reward machine into JAX-friendly dense tables.
 
     The existing CRM transition expressions are evaluated once for every
@@ -72,6 +76,7 @@ def compile_crm(crm: CountingRewardMachine | RewardMachine) -> JaxCompiledCRM:
                     u=u,
                     props=props,
                     counter_state=counter_state,
+                    allow_dynamic_rewards=allow_dynamic_rewards,
                 )
 
                 if selected is None:
@@ -129,6 +134,7 @@ def _select_transition(
     u: int,
     props: set[Enum],
     counter_state: tuple[int, ...],
+    allow_dynamic_rewards: bool,
 ) -> tuple[int, tuple[int, ...], float] | None:
     for expr, transition_formula in transition_formulas[u]:
         if not transition_formula(props, counter_state):
@@ -137,19 +143,33 @@ def _select_transition(
         return (
             int(crm._delta_u[u][expr]),
             tuple(int(delta) for delta in crm._delta_c[u][expr]),
-            _scalar_reward_value(crm._delta_r[u][expr], u, expr),
+            _scalar_reward_value(
+                crm._delta_r[u][expr],
+                u,
+                expr,
+                allow_dynamic_rewards=allow_dynamic_rewards,
+            ),
         )
 
     return None
 
 
-def _scalar_reward_value(reward_fn: Any, u: int, expr: str) -> float:
+def _scalar_reward_value(
+    reward_fn: Any,
+    u: int,
+    expr: str,
+    *,
+    allow_dynamic_rewards: bool,
+) -> float:
     if isinstance(reward_fn, Real):
         return float(reward_fn)
 
     reward_value = getattr(reward_fn, "_pycrm_constant_reward", None)
     if reward_value is not None:
         return float(reward_value)
+
+    if allow_dynamic_rewards:
+        return 0.0
 
     raise TypeError(
         "JAX CRM compilation only supports scalar reward transitions. "

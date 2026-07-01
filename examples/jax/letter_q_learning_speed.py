@@ -12,7 +12,7 @@ from examples.introduction.core.crossproduct import LetterWorldCrossProduct
 from examples.introduction.core.ground import LetterWorld
 from examples.introduction.core.label import LetterWorldLabellingFunction
 from examples.introduction.core.machine import LetterWorldCountingRewardMachine
-from pycrm.jax import JaxCrossProduct, compile_crm
+from pycrm.jax import FunctionalJaxCrossProduct, compile_crm
 
 N_ACTIONS = 4
 SYMBOL_STATES = 2
@@ -379,7 +379,7 @@ def _make_jax_training_fn(
     epsilon: float,
 ):
     crm = LetterWorldCountingRewardMachine()
-    env = JaxCrossProduct(
+    env = FunctionalJaxCrossProduct(
         compiled_crm=compile_crm(crm),
         reset_fn=_jax_letter_reset,
         step_fn=_jax_letter_step,
@@ -478,7 +478,7 @@ def _make_jax_training_fn(
 
 def _jax_counterfactual_update(
     *,
-    env: JaxCrossProduct,
+    env: FunctionalJaxCrossProduct,
     q_table,
     ground_obs,
     action,
