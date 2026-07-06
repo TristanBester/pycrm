@@ -11,6 +11,7 @@ from pycrm.jax import (  # noqa: E402
     GymnasiumCrossProductEnv,
     JaxCrossProductCore,
     compile_crm,
+    jax_reward,
 )
 from tests.crossproduct.conftest import CRM, Events  # noqa: E402
 
@@ -78,6 +79,41 @@ def test_jax_counterfactual_experience_jits() -> None:
     assert actions.tolist() == [0, 0, 0, 0, 0, 0]
     assert rewards.tolist() == [1.0, 1.0, 1.0, 0.0, 0.0, 0.0]
     assert done.tolist() == [False, False, False, True, True, True]
+    assert valid.tolist() == [True, True, True, True, True, True]
+
+
+def test_jax_dynamic_reward_step_jits() -> None:
+    """A @jax_reward transition is dispatched at runtime inside jit."""
+    env = _make_dynamic_reward_env()
+
+    @jax.jit
+    def run_step(key):
+        state, _ = env.reset(key)
+        return env.step(state, jnp.asarray(0, dtype=jnp.int32), key)
+
+    _, _, reward, _, _, valid = run_step(jax.random.PRNGKey(0))
+
+    # EVENT_A fires at u=0; reward = (next_obs[0] - obs[0]) * 5 = (1 - 0) * 5.
+    assert bool(valid)
+    assert float(reward) == 5.0
+
+
+def test_jax_dynamic_reward_counterfactual_jits() -> None:
+    """Counterfactual rows dispatch per-row through the reward registry."""
+    env = _make_dynamic_reward_env()
+
+    @jax.jit
+    def run_counterfactual(key):
+        state, _ = env.reset(key)
+        next_ground_obs = _step(state.ground_obs, jnp.asarray(0), key)
+        return env.generate_counterfactual_experience(
+            state.ground_obs, jnp.asarray(0, dtype=jnp.int32), next_ground_obs
+        )
+
+    _, _, _, rewards, _, valid = run_counterfactual(jax.random.PRNGKey(0))
+
+    # u=0 rows use the dynamic reward (5.0); u=1 rows use the scalar table (0.0).
+    assert rewards.tolist() == [5.0, 5.0, 5.0, 0.0, 0.0, 0.0]
     assert valid.tolist() == [True, True, True, True, True, True]
 
 
@@ -181,6 +217,34 @@ def _make_test_core() -> JaxCrossProductCore:
         max_steps=5,
         obs_fn=_obs,
     )
+
+
+def _make_dynamic_reward_env() -> FunctionalJaxCrossProduct:
+    crm = DynamicRewardCRM(env_prop_enum=Events)
+    return FunctionalJaxCrossProduct(
+        compiled_crm=compile_crm(crm),
+        reset_fn=_reset,
+        step_fn=_step,
+        label_fn=_label,
+        max_steps=5,
+        obs_fn=_obs,
+    )
+
+
+@jax_reward
+def _dynamic_reward(obs, action, next_obs):
+    del action
+    return (next_obs[0] - obs[0]) * 5.0
+
+
+class DynamicRewardCRM(CRM):
+    """CRM whose EVENT_A reward at u=0 is a @jax_reward callable."""
+
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+        rewards = super()._get_reward_transition_function()
+        rewards[0]["EVENT_A / (-)"] = _dynamic_reward
+        return rewards
 
 
 def _reset(key):

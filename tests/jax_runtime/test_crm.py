@@ -8,7 +8,7 @@ from examples.introduction.core.machine import (  # noqa: E402
     LetterWorldCountingRewardMachine,
 )
 from pycrm.automaton import CountingRewardMachine, RewardMachine  # noqa: E402
-from pycrm.jax import compile_crm  # noqa: E402
+from pycrm.jax import compile_crm, jax_reward  # noqa: E402
 from tests.crossproduct.conftest import CRM, Events  # noqa: E402
 
 
@@ -65,11 +65,38 @@ def test_compiled_crm_marks_terminal_replacement() -> None:
 
 
 def test_compiled_crm_rejects_python_reward_callables() -> None:
-    """JAX compilation only accepts scalar CRM rewards."""
+    """Unmarked Python reward callables are still rejected by compilation."""
     crm = DynamicRewardCRM(env_prop_enum=Events)
 
     with pytest.raises(TypeError, match="scalar reward transitions"):
         compile_crm(crm)
+
+
+def test_compiled_crm_registers_jax_reward_callables() -> None:
+    """@jax_reward callables are registered for runtime dispatch."""
+    crm = JaxDynamicRewardCRM(env_prop_enum=Events)
+    compiled = compile_crm(crm)
+    event_a_mask = 1 << list(compiled.env_props).index(Events.EVENT_A)
+    event_b_mask = 1 << list(compiled.env_props).index(Events.EVENT_B)
+
+    # The scalar slot is zeroed; the id selects the registered callable.
+    assert compiled.reward[0, event_a_mask, 0] == 0.0
+    assert compiled.reward_fn_id[0, event_a_mask, 0] == 1
+    assert compiled.reward_fns == (_jax_dynamic_reward,)
+
+    # Scalar transitions keep id 0 (i.e. "use the reward table").
+    assert compiled.reward_fn_id[0, event_b_mask, 0] == 0
+
+
+def test_compiled_crm_deduplicates_shared_reward_callables() -> None:
+    """The same callable reused across transitions gets a single id."""
+    crm = SharedJaxRewardCRM(env_prop_enum=Events)
+    compiled = compile_crm(crm)
+    event_a_mask = 1 << list(compiled.env_props).index(Events.EVENT_A)
+
+    assert compiled.reward_fns == (_jax_dynamic_reward,)
+    assert compiled.reward_fn_id[0, event_a_mask, 0] == 1
+    assert compiled.reward_fn_id[1, event_a_mask, 0] == 1
 
 
 def test_compile_crm_accepts_reward_machine_adapter() -> None:
@@ -140,6 +167,27 @@ class DynamicRewardCRM(CRM):
         return rewards
 
 
+class JaxDynamicRewardCRM(CRM):
+    """CRM whose EVENT_A reward is a @jax_reward-marked callable."""
+
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+        rewards = super()._get_reward_transition_function()
+        rewards[0]["EVENT_A / (-)"] = _jax_dynamic_reward
+        return rewards
+
+
+class SharedJaxRewardCRM(CRM):
+    """CRM reusing one @jax_reward callable across two transitions."""
+
+    def _get_reward_transition_function(self) -> dict:
+        """Return the reward transition function."""
+        rewards = super()._get_reward_transition_function()
+        rewards[0]["EVENT_A / (-)"] = _jax_dynamic_reward
+        rewards[1]["EVENT_A / (-)"] = _jax_dynamic_reward
+        return rewards
+
+
 class TerminalRewardMachine(RewardMachine):
     """Reward machine used to test implicit JAX CRM adaptation."""
 
@@ -170,6 +218,13 @@ class TerminalRewardMachine(RewardMachine):
 def _dynamic_reward(obs, action, next_obs) -> float:
     del action
     return float(next_obs[0] - obs[0])
+
+
+@jax_reward
+def _jax_dynamic_reward(obs, action, next_obs):
+    """JAX-traceable reward: five times the change in the first obs element."""
+    del action
+    return (next_obs[0] - obs[0]) * 5.0
 
 
 def _props_from_mask(env_props: tuple, prop_mask: int) -> set:

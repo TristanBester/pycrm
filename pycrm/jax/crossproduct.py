@@ -98,7 +98,6 @@ class JaxCrossProductCore:
         self.label_fn = label_fn
         self.ground_obs_fn = ground_obs_fn or self._identity_ground_obs
         self.obs_fn = obs_fn or self._default_obs
-        self.reward_fn = reward_fn or self._table_reward
         self.discount = float(discount)
 
         self.u_0 = np.asarray(compiled_crm.u_0, dtype=np.int32)
@@ -123,6 +122,27 @@ class JaxCrossProductCore:
         self._counter_bit_values = np.asarray(
             [1 << idx for idx in range(self.num_counters)], dtype=np.int32
         )
+
+        # Dynamic reward dispatch: @jax_reward-marked transitions carry a
+        # non-zero id in ``reward_fn_id`` selecting a branch in ``reward_fns``.
+        self.reward_fn_id = np.asarray(
+            getattr(compiled_crm, "reward_fn_id", np.zeros_like(self.reward, np.int32)),
+            dtype=np.int32,
+        )
+        self.reward_fns = tuple(getattr(compiled_crm, "reward_fns", ()))
+        self._reward_branches = (
+            self._branch_table_reward,
+            *(self._make_reward_branch(fn) for fn in self.reward_fns),
+        )
+
+        # An explicit override wins. Otherwise dispatch through the registry when
+        # the machine has dynamic rewards, else return the scalar table value.
+        if reward_fn is not None:
+            self.reward_fn = reward_fn
+        elif self.reward_fns:
+            self.reward_fn = self._dispatch_reward
+        else:
+            self.reward_fn = self._table_reward
 
     def reset(
         self, key: Any, params: Any | None = None
@@ -385,6 +405,101 @@ class JaxCrossProductCore:
             params,
         )
         return table_reward
+
+    def _dispatch_reward(
+        self,
+        ground_obs: Any,
+        action: Any,
+        next_ground_obs: Any,
+        u: Any,
+        u_next: Any,
+        c: Any,
+        c_next: Any,
+        prop_mask: Any,
+        counter_mask: Any,
+        table_reward: Any,
+        params: Any | None,
+    ) -> Any:
+        """Route to the reward branch selected by ``reward_fn_id``.
+
+        Branch ``0`` returns the scalar table reward; branch ``k`` runs the
+        ``k``-th registered ``@jax_reward`` callable. Under ``vmap`` (used by
+        counterfactual generation) the branch index is batched, so JAX evaluates
+        every branch per row and selects — cheap while the registry is small.
+        """
+        reward_id = jnp.asarray(self.reward_fn_id)[u, prop_mask, counter_mask]
+        return jax.lax.switch(
+            reward_id,
+            self._reward_branches,
+            ground_obs,
+            action,
+            next_ground_obs,
+            u,
+            u_next,
+            c,
+            c_next,
+            prop_mask,
+            counter_mask,
+            table_reward,
+            params,
+        )
+
+    def _branch_table_reward(
+        self,
+        ground_obs: Any,
+        action: Any,
+        next_ground_obs: Any,
+        u: Any,
+        u_next: Any,
+        c: Any,
+        c_next: Any,
+        prop_mask: Any,
+        counter_mask: Any,
+        table_reward: Any,
+        params: Any | None,
+    ) -> Any:
+        """Dispatch branch ``0``: emit the precompiled scalar table reward."""
+        del (
+            ground_obs,
+            action,
+            next_ground_obs,
+            u,
+            u_next,
+            c,
+            c_next,
+            prop_mask,
+            counter_mask,
+            params,
+        )
+        return jnp.asarray(table_reward, dtype=jnp.float32)
+
+    def _make_reward_branch(self, reward_fn: Callable) -> Callable:
+        """Wrap a CRM reward callable as a uniform ``lax.switch`` branch.
+
+        The registered callable follows the CRM reward contract
+        ``(obs, action, next_obs) -> reward``; the extra machine-state operands
+        are accepted and ignored so every branch shares one signature.
+        """
+
+        def branch(
+            ground_obs: Any,
+            action: Any,
+            next_ground_obs: Any,
+            u: Any,
+            u_next: Any,
+            c: Any,
+            c_next: Any,
+            prop_mask: Any,
+            counter_mask: Any,
+            table_reward: Any,
+            params: Any | None,
+        ) -> Any:
+            del u, u_next, c, c_next, prop_mask, counter_mask, table_reward, params
+            return jnp.asarray(
+                reward_fn(ground_obs, action, next_ground_obs), dtype=jnp.float32
+            )
+
+        return branch
 
 
 class FunctionalJaxCrossProduct:

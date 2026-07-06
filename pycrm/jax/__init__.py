@@ -1,5 +1,5 @@
 from pycrm.jax.adapters import GymnasiumCrossProductEnv
-from pycrm.jax.crm import JaxCompiledCRM, compile_crm
+from pycrm.jax.crm import JaxCompiledCRM, compile_crm, jax_reward
 from pycrm.jax.crossproduct import (
     CounterfactualBatch,
     FunctionalJaxCrossProduct,
@@ -23,4 +23,5 @@ __all__ = [
     "JaxLabellingFunction",
     "JaxTimeStep",
     "compile_crm",
+    "jax_reward",
 ]
