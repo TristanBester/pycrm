@@ -33,6 +33,10 @@ class GridWorld(Environment[State, specs.DiscreteArray, Observation]):
                 (1, 0),  # down
             ]
         )
+        self.a_pos = jnp.array([self.grid_size, -1, 0], dtype=jnp.int32)
+        self.b_pos = jnp.array(
+            [self.grid_size - 1, self.grid_size - 1], dtype=jnp.int32
+        )
         super().__init__()
 
     def reset(self, key: chex.PRNGKey) -> tuple[State, TimeStep[Observation]]:
@@ -58,9 +62,11 @@ class GridWorld(Environment[State, specs.DiscreteArray, Observation]):
         )
         obs = self._observation(new_state)
 
-        goal = jnp.array([self.grid_size - 1, self.grid_size - 1], dtype=jnp.int32)
-        reached_goal = jnp.all(new_pos == goal)
-        reward = jnp.where(reached_goal, 1.0, -0.01).astype(jnp.float32)
+        # goal = jnp.array([self.grid_size - 1, self.grid_size - 1], dtype=jnp.int32)
+        # reached_goal = jnp.all(new_pos == goal)
+        # reward = jnp.where(reached_goal, 1.0, -0.01).astype(jnp.float32)
+        reached_goal = False
+        reward = jnp.array(0.0, dtype=jnp.float32)
 
         time_out = new_state.step_count >= self.max_steps
         done = jnp.logical_or(reached_goal, time_out)
@@ -79,7 +85,6 @@ class GridWorld(Environment[State, specs.DiscreteArray, Observation]):
     def render(self, state: State, *, print_result: bool = True) -> str:
         """Render a state as terminal-friendly ASCII art."""
         agent_row, agent_col = map(int, state.pos.tolist())
-        goal = self.grid_size - 1
         horizontal = "+" + "---+" * self.grid_size
         rows = [
             f"GridWorld | step {int(state.step_count)} / {self.max_steps}",
@@ -90,9 +95,11 @@ class GridWorld(Environment[State, specs.DiscreteArray, Observation]):
             cells: list[str] = []
             for col in range(self.grid_size):
                 if (row, col) == (agent_row, agent_col):
+                    cells.append(" X ")
+                elif (row, col) == (self.grid_size - 1, 0):
                     cells.append(" A ")
-                elif (row, col) == (goal, goal):
-                    cells.append(" G ")
+                elif (row, col) == (self.grid_size - 1, self.grid_size - 1):
+                    cells.append(" B ")
                 else:
                     cells.append(" . ")
             rows.append("|" + "|".join(cells) + "|")
