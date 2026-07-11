@@ -2,8 +2,10 @@
 authors = [{name = "Tristan Bester", email = "tristanbester@email.com"}]
 dependencies = [
   "gymnasium>=0.29.1",
+  "gymnax>=0.0.9",
   "jax>=0.6.2",
   "jax-metal>=0.1.0; platform_system == 'Darwin' and platform_machine == 'arm64'",
+  "jumanji>=1.1.1",
   "matplotlib>=3.10.0",
   "numpy>=2.0.0",
   "optax>=0.2.5",
