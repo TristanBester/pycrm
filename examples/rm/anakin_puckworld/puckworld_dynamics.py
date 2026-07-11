@@ -175,22 +175,3 @@ def labels_vector(next_ground_obs: jax.Array) -> jax.Array:
     t3 = jnp.linalg.norm(agent_pos - next_ground_obs[8:10]) < TARGET_THRESHOLD
     adv = jnp.linalg.norm(agent_pos - next_ground_obs[10:12]) < ADVERSARY_THRESHOLD
     return jnp.asarray([t1, t2, t3, adv], dtype=jnp.bool_)
-
-
-def rm_reward(u: jax.Array, next_ground_obs: jax.Array) -> jax.Array:
-    """Return the PuckWorld reward-machine reward for machine state ``u``.
-
-    Mirrors ``examples/rm/discrete/core/machine.py::PuckWorldRewardMachine``:
-    +10 on reaching T_1/T_2, +1000 on T_3, else negative shaped distance.
-    """
-    agent_pos = next_ground_obs[0:2]
-    dist_one = jnp.linalg.norm(agent_pos - next_ground_obs[4:6])
-    dist_two = jnp.linalg.norm(agent_pos - next_ground_obs[6:8])
-    dist_three = jnp.linalg.norm(agent_pos - next_ground_obs[8:10])
-    labels = labels_vector(next_ground_obs)
-    r0 = jnp.where(labels[0], 10.0, -dist_one - 10.0)
-    r1 = jnp.where(labels[1], 10.0, -dist_two - 5.0)
-    r2 = jnp.where(labels[2], 1000.0, -dist_three)
-    return jnp.select([u == 0, u == 1, u == 2], [r0, r1, r2], default=0.0).astype(
-        jnp.float32
-    )

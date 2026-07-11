@@ -12,7 +12,7 @@ from stoa.environment import Environment
 from stoa.spaces import BoundedArraySpace, DiscreteSpace, Space
 
 from examples.rm.anakin_puckworld import puckworld_dynamics as dyn
-from examples.rm.discrete.core.machine import PuckWorldRewardMachine
+from examples.rm.anakin_puckworld.puckworld_machine import JaxPuckWorldRewardMachine
 from pycrm.jax import JaxCrossProduct, JaxLabellingFunction
 
 
@@ -63,22 +63,16 @@ class PuckWorldJaxLabels(JaxLabellingFunction):
         return dyn.labels_vector(next_ground_obs)
 
 
-def _puckworld_reward_fn(
-    ground, action, next_ground, u, u_next, c, c_next,
-    prop_mask, counter_mask, table_reward, params,
-):
-    del (ground, action, u_next, c, c_next, prop_mask, counter_mask,
-         table_reward, params)
-    return dyn.rm_reward(u, next_ground)
-
-
 def make_puckworld_cross_product(max_steps: int = dyn.MAX_STEPS) -> JaxCrossProduct:
-    """Build the PuckWorld Stoa cross-product environment."""
+    """Build the PuckWorld Stoa cross-product environment.
+
+    Rewards come from the machine's ``@jax_reward`` shaping callables and its
+    scalar target rewards, dispatched inside the JAX runtime — no runtime
+    reward override is needed.
+    """
     return JaxCrossProduct(
         ground_env=JaxPuckWorld(),
-        machine=PuckWorldRewardMachine(),
+        machine=JaxPuckWorldRewardMachine(),
         lf=PuckWorldJaxLabels(),
         max_steps=max_steps,
-        reward_fn=_puckworld_reward_fn,
-        allow_dynamic_rewards=True,
     )

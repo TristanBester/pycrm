@@ -40,8 +40,12 @@ def test_action_semantics_match_numpy() -> None:
     assert float(up.agent_vel[1]) > float(right.agent_vel[1])
 
 
-def test_labels_and_rm_reward_match_python_machine() -> None:
+def test_labels_and_target_reward_match_python_machine() -> None:
     """Reaching target one fires T_1 and yields reward 10 at machine state 0."""
+    from examples.rm.anakin_puckworld.puckworld_machine import (
+        JaxPuckWorldRewardMachine,
+    )
+
     obs = np.zeros(dyn.GROUND_OBS_SIZE, dtype=np.float32)
     obs[4:6] = [0.0, 0.05]  # target one within TARGET_THRESHOLD of the agent
     # target two/three and the adversary must sit away from the agent (as in a
@@ -52,7 +56,9 @@ def test_labels_and_rm_reward_match_python_machine() -> None:
     obs[10:12] = [0.8, 0.8]  # adversary — matches numpy PuckWorld's reset spawn
     labels = dyn.labels_vector(jnp.asarray(obs))
     assert labels.tolist() == [True, False, False, False]
-    assert float(dyn.rm_reward(jnp.asarray(0), jnp.asarray(obs))) == 10.0
+    # Reaching T_1 at machine state 0 yields the scalar target reward (+10).
+    delta_r = JaxPuckWorldRewardMachine()._get_reward_transition_function()
+    assert delta_r[0]["T_1"] == 10
 
 
 def test_puckworld_cross_product_shapes_and_first_timestep() -> None:
@@ -75,21 +81,31 @@ def test_puckworld_cross_product_shapes_and_first_timestep() -> None:
     assert ts.reward.shape == ()
 
 
-def test_terminal_reward_and_transition_at_state_two() -> None:
-    """Reaching target three at machine state 2 gives reward 1000 and terminates."""
-    from examples.rm.anakin_puckworld.puckworld_stoa_env import (
-        make_puckworld_cross_product,
+def test_jax_reward_machine_matches_numpy_machine() -> None:
+    """The JAX reward machine mirrors the NumPy PuckWorldRewardMachine exactly."""
+    from examples.rm.anakin_puckworld.puckworld_machine import (
+        JaxPuckWorldRewardMachine,
     )
+    from examples.rm.discrete.core.machine import PuckWorldRewardMachine
 
-    env = make_puckworld_cross_product(max_steps=50)
+    jax_delta_r = JaxPuckWorldRewardMachine()._get_reward_transition_function()
+    numpy_delta_r = PuckWorldRewardMachine()._get_reward_transition_function()
+
+    # Scalar target rewards are identical (e.g. +1000 on reaching T_3 at u=2).
+    for state, expr in [(0, "T_1"), (1, "T_2"), (2, "T_3")]:
+        assert jax_delta_r[state][expr] == numpy_delta_r[state][expr]
+
+    # Shaping (NOT T_x) rewards agree numerically for a sampled observation.
     obs = np.zeros(dyn.GROUND_OBS_SIZE, dtype=np.float32)
-    obs[0:2] = [0.5, 0.5]  # agent away from the origin
-    obs[8:10] = [0.5, 0.55]  # target three within threshold of the agent (T_3 fires)
-    obs[4:6] = [0.9, 0.9]  # target one far from the agent
-    obs[6:8] = [-0.9, 0.9]  # target two far from the agent
-    obs[10:12] = [-0.8, -0.8]  # adversary far from the agent
-    # Reward at machine state u=2 reaching T_3.
-    assert float(dyn.rm_reward(jnp.asarray(2), jnp.asarray(obs))) == 1000.0
+    obs[0:2] = [0.5, 0.5]
+    obs[4:6] = [0.9, 0.9]
+    obs[6:8] = [-0.9, 0.9]
+    obs[8:10] = [0.2, -0.3]
+    jobs = jnp.asarray(obs)
+    for state, expr in [(0, "NOT T_1"), (1, "NOT T_2"), (2, "NOT T_3")]:
+        jax_val = float(jax_delta_r[state][expr](jobs, None, jobs))
+        numpy_val = float(numpy_delta_r[state][expr](obs, None, obs))
+        assert jax_val == pytest.approx(numpy_val, abs=1e-5)
 
 
 def test_counterfactual_rows_have_fixed_shape() -> None:

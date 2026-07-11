@@ -69,10 +69,6 @@ class JaxCrossProductCore:
         max_steps: int,
         ground_obs_fn: Callable[[Any, Any], Any] | None = None,
         obs_fn: Callable[[Any, Any, Any], Any] | None = None,
-        reward_fn: Callable[
-            [Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any], Any
-        ]
-        | None = None,
         discount: float = 1.0,
     ) -> None:
         """Initialise the JAX-native cross-product core.
@@ -86,10 +82,6 @@ class JaxCrossProductCore:
             max_steps: Number of product steps before truncation.
             ground_obs_fn: Optional ``ground_obs_fn(ground_state, params)``.
             obs_fn: Optional product observation function.
-            reward_fn: Optional JAX reward override. It receives previous ground
-                observation, action, next ground observation, current/next CRM
-                state and counters, proposition/counter masks, table reward, and
-                params.
             discount: Discount emitted on non-terminal timesteps.
         """
         self.max_steps = int(max_steps)
@@ -135,11 +127,9 @@ class JaxCrossProductCore:
             *(self._make_reward_branch(fn) for fn in self.reward_fns),
         )
 
-        # An explicit override wins. Otherwise dispatch through the registry when
-        # the machine has dynamic rewards, else return the scalar table value.
-        if reward_fn is not None:
-            self.reward_fn = reward_fn
-        elif self.reward_fns:
+        # Dispatch through the registry when the machine has @jax_reward
+        # callables, else return the scalar table value.
+        if self.reward_fns:
             self.reward_fn = self._dispatch_reward
         else:
             self.reward_fn = self._table_reward

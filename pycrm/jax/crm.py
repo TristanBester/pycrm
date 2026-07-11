@@ -68,8 +68,6 @@ class JaxCompiledCRM:
 
 def compile_crm(
     crm: CountingRewardMachine | RewardMachine,
-    *,
-    allow_dynamic_rewards: bool = False,
 ) -> JaxCompiledCRM:
     """Compile a counting reward machine into JAX-friendly dense tables.
 
@@ -117,7 +115,6 @@ def compile_crm(
                     u=u,
                     props=props,
                     counter_state=counter_state,
-                    allow_dynamic_rewards=allow_dynamic_rewards,
                 )
 
                 if selected is None:
@@ -205,7 +202,6 @@ def _select_transition(
     u: int,
     props: set[Enum],
     counter_state: tuple[int, ...],
-    allow_dynamic_rewards: bool,
 ) -> tuple[int, tuple[int, ...], float, Callable | None] | None:
     for expr, transition_formula in transition_formulas[u]:
         if not transition_formula(props, counter_state):
@@ -215,7 +211,6 @@ def _select_transition(
             crm._delta_r[u][expr],
             u,
             expr,
-            allow_dynamic_rewards=allow_dynamic_rewards,
         )
         return (
             int(crm._delta_u[u][expr]),
@@ -231,8 +226,6 @@ def _classify_reward(
     reward_fn: Any,
     u: int,
     expr: str,
-    *,
-    allow_dynamic_rewards: bool,
 ) -> tuple[float, Callable | None]:
     """Resolve a CRM reward into a ``(scalar, dynamic_callable)`` pair.
 
@@ -250,16 +243,11 @@ def _classify_reward(
     if getattr(reward_fn, JAX_REWARD_ATTR, False):
         return 0.0, reward_fn
 
-    if allow_dynamic_rewards:
-        # Legacy path: the reward is supplied at runtime via a ``reward_fn``
-        # override on the cross-product core, so the table slot stays zero.
-        return 0.0, None
-
     raise TypeError(
-        "JAX CRM compilation only supports scalar reward transitions. "
-        + f"Transition {u}: {expr!r} has a Python reward callable. "
-        + "Decorate it with @pycrm.jax.jax_reward to enable runtime dispatch, "
-        + "or pass allow_dynamic_rewards=True to supply rewards via reward_fn."
+        "JAX CRM compilation only supports scalar reward transitions and "
+        + "@jax_reward-marked callables. "
+        + f"Transition {u}: {expr!r} has a plain Python reward callable. "
+        + "Decorate it with @pycrm.jax.jax_reward to enable runtime dispatch."
     )
 
 

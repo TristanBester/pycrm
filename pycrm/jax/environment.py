@@ -30,8 +30,6 @@ class JaxCrossProduct(Environment):
         max_steps: int,
         *,
         obs_fn: Any | None = None,
-        reward_fn: Any | None = None,
-        allow_dynamic_rewards: bool = False,
         discount: float = 1.0,
     ) -> None:
         """Initialise the Stoa cross-product environment.
@@ -44,16 +42,11 @@ class JaxCrossProduct(Environment):
             obs_fn: Optional product observation function
                 ``obs_fn(ground_obs, u, c) -> array``. Defaults to the core's
                 ``concat[ground_obs, one_hot(u), c]``.
-            reward_fn: Optional runtime reward override (see ``JaxCrossProductCore``).
-            allow_dynamic_rewards: Passed to ``compile_crm`` for behaviour-shaped
-                rewards supplied at runtime via ``reward_fn``.
             discount: Discount emitted on non-terminal timesteps.
         """
         self._ground_env = ground_env
         self._lf = lf
-        self._compiled = compile_crm(
-            machine, allow_dynamic_rewards=allow_dynamic_rewards
-        )
+        self._compiled = compile_crm(machine)
         self._core = JaxCrossProductCore(
             compiled_crm=self._compiled,
             reset_fn=self._ground_reset,
@@ -61,7 +54,6 @@ class JaxCrossProduct(Environment):
             label_fn=lambda o, a, no, params: lf(o, a, no),
             ground_obs_fn=lambda bundle, params: bundle[1],
             obs_fn=obs_fn,
-            reward_fn=reward_fn,
             max_steps=max_steps,
             discount=discount,
         )

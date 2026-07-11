@@ -10,15 +10,21 @@ same reward machine, on two different reinforcement-learning stacks:
   the PuckWorld cross-product via `make_puckworld_cross_product()`
   (`puckworld_stoa_env.py`), which is the Stoa-native `JaxCrossProduct` from
   `pycrm.jax` wrapping a JAX PuckWorld ground environment
-  (`puckworld_dynamics.py`) and the same `PuckWorldRewardMachine`. That
+  (`puckworld_dynamics.py`) and `JaxPuckWorldRewardMachine`
+  (`puckworld_machine.py`) — a JAX-native mirror of the NumPy path's
+  `PuckWorldRewardMachine` with identical states, transitions, and reward
+  values, whose shaping rewards are `@jax_reward`-marked so they dispatch
+  inside the JAX runtime. That
   environment is wrapped in the Stoix core-wrapper chain
   (`AddRNGKey` -> `RecordEpisodeMetrics` -> `AutoResetWrapper` ->
   `VmapWrapper`) and trained end-to-end in JAX ("Anakin"-style: vmapped
   environments, `lax.scan`-based rollouts, and jitted DDQN updates) by a
   self-contained DQN implementation.
 
-Both arms consume the *same* ground dynamics and the *same* reward machine —
-only the environment/training stack differs. `compare.py` runs both arms
+Both arms consume the *same* ground dynamics and the *same* reward-machine
+spec (identical states, transitions, and reward values) — only the
+environment/training stack differs, and with it the reward machine's
+implementation (NumPy vs JAX-traceable). `compare.py` runs both arms
 back-to-back and reports throughput (steps/s), wall-clock, and final return
 so the two stacks can be compared directly.
 
