@@ -9,7 +9,9 @@
 
 A Python framework for formal task specification and efficient reinforcement learning with **Reward Machines (RMs)** and **Counting Reward Machines (CRMs)**.
 
-[Documentation](https://pycrm.xyz) | [Paper](https://arxiv.org/abs/2312.11364) | [Quick Start](#quick-start)
+> 📄 **Published in SoftwareX**: [PyCRM: A Python library for reward machine-based reinforcement learning](https://www.sciencedirect.com/science/article/pii/S2352711026003808) (SoftwareX, 2026)
+
+[Documentation](https://pycrm.xyz) | [Paper](https://www.sciencedirect.com/science/article/pii/S2352711026003808) | [Quick Start](#quick-start)
 
 ## Overview
 
@@ -67,7 +69,21 @@ For complete worked examples demonstrating these applications, see the [Worked E
 
 ## Citation
 
-If you use Counting Reward Machines in your research, please cite:
+If you use PyCRM in your research, please cite the [SoftwareX paper](https://www.sciencedirect.com/science/article/pii/S2352711026003808):
+
+```bibtex
+@article{bester2026pycrm,
+  title={PyCRM: A Python library for reward machine-based reinforcement learning},
+  author={Bester, Tristan and Tasse, Geraud Nangue and Rosman, Benjamin and James, Steven},
+  journal={SoftwareX},
+  volume={35},
+  pages={102889},
+  year={2026},
+  publisher={Elsevier}
+}
+```
+
+If you use Counting Reward Machines in your research, please also cite:
 
 ```bibtex
 @article{bester2023counting,
